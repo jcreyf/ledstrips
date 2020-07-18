@@ -1,0 +1,124 @@
+
+sudo mkdir /data
+sudo chown jcreyf /data
+sudo chgrp users /data
+chmod 770 /data
+
+mkdir /data/ledstrips
+
+--------
+
+Led driver: (https://github.com/jgarff/rpi_ws281x)
+==========
+
+sudo apt-get install git scons
+
+# https://github.com/jgarff/rpi_ws281x
+# Python binding: https://github.com/rpi-ws281x/rpi-ws281x-python
+
+cd /data/ledstrips
+git clone https://github.com/jgarff/rpi_ws281x.git
+cd /data/ledstrips/rpi_ws281x
+scons
+  > scons: Reading SConscript files ...
+  > scons: done reading SConscript files.
+  > scons: Building targets ...
+  > Version version.h
+  > CC      main.o
+  > CC      mailbox.o
+  > CC      ws2811.o
+  > CC      pwm.o
+  > CC      pcm.o
+  > CC      dma.o
+  > CC      rpihw.o
+  > AR      libws2811.a
+  > RANLIB  libws2811.a
+  > LINK    test
+  > scons: done building targets.
+
+This should generate file libws2811.a
+Copy that file and header-files to a GCC include path:
+  sudo cp *.a /usr/local/bin/
+  sudo cp *.h /usr/local/include/
+
+
+sudo ./test --strip rgbw --width 1 --height 100 --gpio 18 --clear
+Failed to create mailbox device
+  -> https://github.com/jgarff/rpi_ws281x/blob/31f668cc637cd96e132b611db82cbe9de9838366/mailbox.c#L276
+  -> it tries to create file "/tmp/mailbox-<pid>" and fails
+  -> need to run as root
+
+--------
+
+Python binding: (https://github.com/rpi-ws281x/rpi-ws281x-python)
+==============
+
+sudo apt-get install git scons python-pip python3-pip
+
+cd /data/ledstrips
+git clone https://github.com/rpi-ws281x/rpi-ws281x-python.git
+cd /data/ledstrips/rpi-ws281x-python/library
+cp /data/ledstrips/rpi_ws281x/*.h lib/
+cp /data/ledstrips/rpi_ws281x/*.c lib/
+sudo python setup.py build
+
+This creates a "build" directory:
+> la -R build/
+>   build/:
+>     drwxr-xr-x 3 jcreyf jcreyf 4096 Jul 16 21:27 lib.linux-armv7l-2.7
+>     drwxr-xr-x 3 jcreyf jcreyf 4096 Jul 16 21:27 temp.linux-armv7l-2.7
+>   
+>   build/lib.linux-armv7l-2.7:
+>     -rwxr-xr-x 1 root   root   257200 Jul 16 21:27 _rpi_ws281x.so
+>   
+>   build/lib.linux-armv7l-2.7/rpi_ws281x:
+>     -rw-r--r-- 1 jcreyf jcreyf  170 Jul 15 20:56 __init__.py
+>     -rw-r--r-- 1 jcreyf jcreyf 7134 Jul 15 20:56 rpi_ws281x.py
+>   
+>   build/temp.linux-armv7l-2.7:
+>     -rw-r--r-- 1 root   root   217188 Jul 16 21:27 rpi_ws281x_wrap.o
+>   
+>   build/temp.linux-armv7l-2.7/lib:
+>     -rw-r--r-- 1 root   root    4996 Jul 16 21:27 dma.o
+>     -rw-r--r-- 1 root   root   19740 Jul 16 21:27 mailbox.o
+>     -rw-r--r-- 1 root   root   26220 Jul 16 21:27 main.o
+>     -rw-r--r-- 1 root   root    4156 Jul 16 21:27 pcm.o
+>     -rw-r--r-- 1 root   root    4268 Jul 16 21:27 pwm.o
+>     -rw-r--r-- 1 root   root    9424 Jul 16 21:27 rpihw.o
+>     -rw-r--r-- 1 root   root   47484 Jul 16 21:27 ws2811.o
+
+cd /data/ledstrips/rpi-ws281x-python/examples
+# Make sure to have this in your sudoers.d file:
+Defaults env_keep += "PYTHONPATH"
+
+sudo PYTHONPATH=".:/data/ledstrips/rpi-ws281x-python/library/build/lib.linux-armv7l-2.7" python strandtest.py -c
+sudo PYTHONPATH=".:/data/ledstrips/rpi-ws281x-python/library/build/lib.linux-armv7l-2.7" python SK6812_white_test.py
+
+
+
+---------
+
+Go binding: (https://github.com/rpi-ws281x/rpi-ws281x-go)
+==========
+
+sudo apt-get install golang
+
+cd /data/ledstrips
+git clone https://github.com/rpi-ws281x/rpi-ws281x-go.git
+cd /data/ledstrips/rpi-ws281x-go/
+sudo cp /data/ledstrips/rpi_ws281x/libws2811.a /usr/lib/
+
+# Build the Go-wrapper:
+go get -v -u github.com/rpi-ws281x/rpi-ws281x-go
+# If this error:
+#   > /usr/bin/ld: cannot find -lws2811
+#   > collect2: error: ld returned 1 exit status
+#   -> https://stackoverflow.com/questions/28380448/cant-install-rpi-ws281x-error-command-gcc-failed-with-exit-status-1
+#   > or: export LD_LIBRARY_PATH=/data/ledstrips/rpi_ws281x/lws2811.a
+
+# Build a sample app and run:
+cd /data/ledstrips/rpi-ws281x-go/examples/color_wipe
+go build color_wipe.go
+# This builds a binary, executable file: color_wipe
+sudo ./color_wipe
+
