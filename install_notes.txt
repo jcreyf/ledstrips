@@ -155,6 +155,7 @@ Creating an autostart config: (https://learn.sparkfun.com/tutorials/how-to-run-a
 # Then run this to activate and enable (execute each time the config-file is changed):
 sudo systemctl daemon-reload
 sudo systemctl enable ledstrip.service
+sudo systemctl start ledstrip.service
 # If you want to disable it again at some point from auto-start:
 sudo systemctl disable clock.service
 # Check to see if it's running:
