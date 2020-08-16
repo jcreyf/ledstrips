@@ -1,0 +1,14 @@
+FROM debian AS builder
+WORKDIR /tmp
+RUN apt-get update -y && apt-get install -y \
+  build-essential \
+  git \
+  scons
+RUN git clone https://github.com/jgarff/rpi_ws281x.git && \
+    cd rpi_ws281x && \
+    scons
+
+FROM golang:latest
+COPY --from=builder /tmp/rpi_ws281x/*.a /usr/local/lib/
+COPY --from=builder /tmp/rpi_ws281x/*.h /usr/local/include/
+RUN go get -v -u github.com/rpi-ws281x/rpi-ws281x-go
