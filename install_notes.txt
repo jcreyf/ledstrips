@@ -126,3 +126,40 @@ go build color_wipe.go
 # This builds a binary, executable file: color_wipe
 sudo ./color_wipe
 
+
+---------
+
+Creating an autostart config: (https://learn.sparkfun.com/tutorials/how-to-run-a-raspberry-pi-program-on-startup#method-3-systemd)
+============================
+
+# Create unit-file for the app to start at boot:
+/lib/systemd/system/ledstrip.service
+
+  # Systemd config-file to auto-start the Ledstrip app at boot:
+  [Unit]
+  Description=Ledstrip control
+  After=multi-user.target
+  ConditionPathExists=/data/ledstrips/rpi-ws281x-python/examples
+  
+  [Service]
+  ExecStart=/data/ledstrips/rpi-ws281x-python/examples/SK6812_switch_1.sh
+  
+  [Install]
+  WantedBy=multi-user.target
+  Alias=ledstrip.service
+
+# The script file:
+  #!/bin/bash
+  sudo PYTHONPATH=".:/data/ledstrips/rpi-ws281x-python/library/build/lib.linux-armv7l-2.7" /usr/bin/python /data/ledstrips/rpi-ws281x-python/examples/SK6812_switch_1.py > /var/log/ledstrip.log 2>&
+
+# Then run this to activate and enable (execute each time the config-file is changed):
+sudo systemctl daemon-reload
+sudo systemctl enable ledstrip.service
+# If you want to disable it again at some point from auto-start:
+sudo systemctl disable clock.service
+# Check to see if it's running:
+sudo systemctl status ledstrip.service
+# See systemd logs for this new service:
+sudo journalctl -u ledstrip.log
+
+
