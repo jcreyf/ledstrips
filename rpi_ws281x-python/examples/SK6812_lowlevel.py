@@ -13,7 +13,7 @@ import _rpi_ws281x as ws
 
 # LED configuration.
 LED_CHANNEL = 0
-LED_COUNT = 16              # How many LEDs to light.
+LED_COUNT = 280             # How many LEDs to light.
 LED_FREQ_HZ = 800000        # Frequency of the LED signal.  Should be 800khz or 400khz.
 LED_DMA_NUM = 10            # DMA channel to use, can be 0-14.
 LED_GPIO = 18               # GPIO connected to the LED signal line.  Must support PWM!

@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+#----------------------------------------------------------------------#
 # Example of low-level Python wrapper for rpi_ws281x library.
 # Author: Tony DiCola (tony@tonydicola.com), Jeremy Garff (jer@jers.net)
 #
