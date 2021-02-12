@@ -73,6 +73,19 @@ cp /data/ledstrips/rpi_ws281x/*.h lib/
 cp /data/ledstrips/rpi_ws281x/*.c lib/
 #sudo python setup.py build
 sudo python3 setup.py build
+> running build
+> Compiling ws281x library...
+> creating build/lib.linux-armv7l-3.7
+> creating build/lib.linux-armv7l-3.7/rpi_ws281x
+> copying rpi_ws281x/__init__.py -> build/lib.linux-armv7l-3.7/rpi_ws281x
+> copying rpi_ws281x/rpi_ws281x.py -> build/lib.linux-armv7l-3.7/rpi_ws281x
+> running build_ext
+> building '_rpi_ws281x' extension
+> creating build/temp.linux-armv7l-3.7
+> creating build/temp.linux-armv7l-3.7/lib
+>...
+> arm-linux-gnueabihf-gcc -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-z,relro -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 build/temp.linux-armv7l-3.7/rpi_ws281x_wrap.o build/temp.linux-armv7l-3.7/lib/dma.o build/temp.linux-armv7l-3.7/lib/mailbox.o build/temp.linux-armv7l-3.7/lib/main.o build/temp.linux-armv7l-3.7/lib/pcm.o build/temp.linux-armv7l-3.7/lib/pwm.o build/temp.linux-armv7l-3.7/lib/rpihw.o build/temp.linux-armv7l-3.7/lib/ws2811.o -o build/lib.linux-armv7l-3.7/_rpi_ws281x.cpython-37m-arm-linux-gnueabihf.so
+
 
 This creates a "build" directory:
 > la -R build/
