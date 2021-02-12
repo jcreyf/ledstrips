@@ -118,10 +118,10 @@ cd /data/ledstrips/rpi_ws281x-python/examples
 # Make sure to have this in your sudoers.d/50_jcreyf file:
 Defaults env_keep += "PYTHONPATH"
 
-sudo PYTHONPATH=".:/data/ledstrips/rpi-ws281x-python/library/build/lib.linux-armv7l-3.7" python3 SK6812_white_test.py
+sudo PYTHONPATH=".:/data/ledstrips/rpi_ws281x-python/library/build/lib.linux-armv7l-3.7" python3 SK6812_white_test.py
 
-#sudo PYTHONPATH=".:/data/ledstrips/rpi-ws281x-python/library/build/lib.linux-armv7l-2.7" python strandtest.py -c
-#sudo PYTHONPATH=".:/data/ledstrips/rpi-ws281x-python/library/build/lib.linux-armv7l-2.7" python SK6812_white_test.py
+#sudo PYTHONPATH=".:/data/ledstrips/rpi_ws281x-python/library/build/lib.linux-armv7l-2.7" python strandtest.py -c
+#sudo PYTHONPATH=".:/data/ledstrips/rpi_ws281x-python/library/build/lib.linux-armv7l-2.7" python SK6812_white_test.py
 
 
 # To add support for the newer GPIO library: gpizero
@@ -170,10 +170,10 @@ Creating an autostart config: (https://learn.sparkfun.com/tutorials/how-to-run-a
   [Unit]
   Description=Ledstrip control
   After=multi-user.target
-  ConditionPathExists=/data/ledstrips/rpi-ws281x-python/examples
+  ConditionPathExists=/data/ledstrips/rpi_ws281x-python/examples
   
   [Service]
-  ExecStart=/data/ledstrips/rpi-ws281x-python/examples/SK6812_switch_1.sh
+  ExecStart=/data/ledstrips/rpi_ws281x-python/examples/SK6812_switch_1.sh
   
   [Install]
   WantedBy=multi-user.target
@@ -181,7 +181,7 @@ Creating an autostart config: (https://learn.sparkfun.com/tutorials/how-to-run-a
 
 # The script file:
   #!/bin/bash
-  sudo PYTHONPATH=".:/data/ledstrips/rpi-ws281x-python/library/build/lib.linux-armv7l-3.7" /usr/bin/python3 /data/ledstrips/rpi-ws281x-python/examples/SK6812_switch_1.py > /var/log/ledstrip.log 2>&
+  sudo PYTHONPATH=".:/data/ledstrips/rpi_ws281x-python/library/build/lib.linux-armv7l-3.7" /usr/bin/python3 /data/ledstrips/rpi_ws281x-python/examples/SK6812_switch_1.py > /var/log/ledstrip.log 2>&
 
 # Then run this to activate and enable (execute each time the config-file is changed):
 sudo systemctl daemon-reload
