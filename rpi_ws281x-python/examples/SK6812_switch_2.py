@@ -5,7 +5,7 @@ from gpiozero import Button   # https://gpiozero.readthedocs.io/en/stable/
 from rpi_ws281x import Color, PixelStrip, ws
 
 # LED strip configuration:
-LED_COUNT = 150       # Number of LED pixels.
+LED_COUNT = 215       # Number of LED pixels.
 LED_PIN = 18          # GPIO pin connected to the pixels (must support PWM!).
 LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA = 10          # DMA channel to use for generating signal (try 10)
