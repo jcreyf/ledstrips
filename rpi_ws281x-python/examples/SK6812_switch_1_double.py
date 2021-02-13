@@ -65,11 +65,11 @@ def toggleLight(strip):
   if LIGHT_STATUS != _flag:
     SWITCH_1_STATUS = _switch1
     SWITCH_2_STATUS = _switch2
-    LIGHT_STATUS = _flag
     if _flag:
       lightsOn(strip)
     else:
       lightsOff(strip)
+    LIGHT_STATUS = _flag
 
 
 # Main program:
