@@ -12,8 +12,6 @@ in /etc/sudoers.d/50_jcreyf
   jcreyf  ALL=(ALL)       NOPASSWD: /sbin/reboot, /sbin/shutdown -h now
   jcreyf  ALL=(ALL)       NOPASSWD: /usr/bin/python3,/usr/bin/python
 
-#sudo apt-get dist-upgrade
-#sudo apt-get install python-gpiozero python3-gpiozero
 sudo apt-get install python3-gpiozero
 
 --------
@@ -26,8 +24,8 @@ sudo apt-get install git scons
 # https://github.com/jgarff/rpi_ws281x
 # Python binding: https://github.com/rpi-ws281x/rpi-ws281x-python
 
-cd /data/ledstrips
-#git clone https://github.com/jgarff/rpi_ws281x.git
+cd /data
+git clone https://github.com/jcreyf/ledstrips.git
 cd /data/ledstrips/rpi_ws281x
 scons
   > scons: Reading SConscript files ...
@@ -63,15 +61,11 @@ Failed to create mailbox device on older RPi:
 Python binding: (https://github.com/rpi-ws281x/rpi-ws281x-python)
 ==============
 
-#sudo apt-get install git scons python-pip python-setuptools python-dev
 sudo apt-get install git scons python3-pip python3-setuptools python3-dev
 
-cd /data/ledstrips
-#git clone https://github.com/rpi-ws281x/rpi-ws281x-python.git
 cd /data/ledstrips/rpi_ws281x-python/library
 cp /data/ledstrips/rpi_ws281x/*.h lib/
 cp /data/ledstrips/rpi_ws281x/*.c lib/
-#sudo python setup.py build
 sudo python3 setup.py build
 > running build
 > Compiling ws281x library...
@@ -120,14 +114,13 @@ Defaults env_keep += "PYTHONPATH"
 
 sudo PYTHONPATH=".:/data/ledstrips/rpi_ws281x-python/library/build/lib.linux-armv7l-3.7" python3 SK6812_white_test.py
 
-#sudo PYTHONPATH=".:/data/ledstrips/rpi_ws281x-python/library/build/lib.linux-armv7l-2.7" python strandtest.py -c
-#sudo PYTHONPATH=".:/data/ledstrips/rpi_ws281x-python/library/build/lib.linux-armv7l-2.7" python SK6812_white_test.py
+If built for old python:
+sudo PYTHONPATH=".:/data/ledstrips/rpi_ws281x-python/library/build/lib.linux-armv7l-2.7" python SK6812_white_test.py
 
 
 # To add support for the newer GPIO library: gpizero
-#sudo apt-get dist-upgrade
-#sudo apt-get install python-gpiozero python3-gpiozero
 sudo apt-get install python3-gpiozero
+
 # You can run the "pinout" command in the linux shell to see the available I/O pinout on your Pi (https://gpiozero.readthedocs.io/en/stable/cli_tools.html)
 
 
@@ -138,8 +131,6 @@ Go binding: (https://github.com/rpi-ws281x/rpi-ws281x-go)
 
 sudo apt-get install golang
 
-cd /data/ledstrips
-#git clone https://github.com/rpi-ws281x/rpi-ws281x-go.git
 cd /data/ledstrips/rpi_ws281x-go/
 sudo cp /data/ledstrips/rpi_ws281x/libws2811.a /usr/lib/
 
@@ -181,15 +172,19 @@ Creating an autostart config: (https://learn.sparkfun.com/tutorials/how-to-run-a
 
 # The script file:
   #!/bin/bash
-  sudo PYTHONPATH=".:/data/ledstrips/rpi_ws281x-python/library/build/lib.linux-armv7l-3.7" /usr/bin/python3 /data/ledstrips/rpi_ws281x-python/examples/SK6812_switch_1.py > /var/log/ledstrip.log 2>&
+  LED_PATH=/data/ledstrips/rpi_ws281x-python
+  sudo PYTHONPATH=".:${LED_PATH}/library/build/lib.linux-armv7l-3.7" /usr/bin/python3 ${LED_PATH}/examples/SK6812_switch_1.py
 
 # Then run this to activate and enable (execute each time the config-file is changed):
-sudo systemctl daemon-reload
-sudo systemctl enable ledstrip.service
-sudo systemctl start ledstrip.service
+  sudo systemctl daemon-reload
+  sudo systemctl enable ledstrip.service
+  sudo systemctl start ledstrip.service
+
 # If you want to disable it again at some point from auto-start:
-sudo systemctl disable ledstrip.service
+  sudo systemctl disable ledstrip.service
+
 # Check to see if it's running:
-sudo systemctl status ledstrip.service
+  sudo systemctl status ledstrip.service
+
 # See systemd logs for this new service:
-sudo journalctl -u ledstrip.log
+  sudo journalctl -u ledstrip.log
