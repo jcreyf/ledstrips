@@ -52,7 +52,7 @@ def lightsOff(strip):
 
 def toggleLight(strip):
   """Change the status of the light"""
-  global LIGHT_STATUS
+  global LIGHT_STATUS, SWITCH_1_STATUS, SWITCH_2_STATUS
   _flag = LIGHT_STATUS
   _switch1 = GPIO.input(SWITCH_1_GPIO)
   if SWITCH_1_STATUS != _switch1:
