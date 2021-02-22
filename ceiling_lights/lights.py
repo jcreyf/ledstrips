@@ -184,6 +184,15 @@ class Switch:
         if not ((value >= 2) and (value <= 26)): raise Exception("The RPi GPIO port needs to be between 2 and 26!")
         self._gpioPin=value
 
+    def hasChanged(self):
+        """
+        Method to detect if the state of the switch has changed since last time we checked.
+        """
+        if self._state != self.state():
+            return True
+        else
+            return False
+
     def init(self):
         """
         Method to initialize the hardware at GPIO level.
@@ -216,26 +225,13 @@ if __name__ == '__main__':
     switchUpstairs.gpioPin(24)
     switchUpstairs.init()
 
-    # Get the initial status of each switch.
-    # We need this to detect changes (unless I decide to switch back to an event driven system but
-    # that turned out to be slower!  Switching latencies were longer for some reason and I want my code to
-    # respond as fast as possible when a switch is flipped)
-    switchDownstairs_status=switchDownstairs.state()
-    switchUpstairs_status=switchUpstairs.state()
-
     try:
         while True:
             # Infinite loop, checking the button status every so many milliseconds and toggling the light
             # if a change in one of the switches is detected:
-            if switchDownstairs.state() != switchDownstairs_status:
-                switchDownstairs_status=not switchDownstairs_status
-                light1.Toggle()
-
-            if switchUpstairs.state() != switchUpstairs_status:
-                switchUpstairs_status=not switchUpstairs_status
-                light1.Toggle()
-
             sleep(0.5)
+            if switchDownstairs.hasChanged() or switchUpstairs.hasChanged():
+                light1.Toggle()
 
     except KeyboardInterrupt:
         # Ctrl-C was hit!
