@@ -123,6 +123,15 @@ class Light:
             self._strip.setPixelColor(i, color)
         self._strip.show()
         self._lightState=False
+    
+    def Toggle(self):
+        """
+        Toggle the light on or off
+        """
+        if self._lightState:
+            self.Off()
+        else:
+            self.On()
 
 
 class Switch:
@@ -183,34 +192,12 @@ class Switch:
         GPIO.setup(self._gpioPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 
-def toggleLight(light):
-  """
-  Simple helper function to couple the switches to the light and have the light turn on or off
-  depending on switch events.
-  """
-  global SWITCH_1_STATUS, SWITCH_2_STATUS
-  _flag = light.state()
-  _switch1 = switchDownstairs.state()
-  if SWITCH_1_STATUS != _switch1:
-    _flag = not _flag
-
-  _switch2 = switchUpstairs.state()
-  if SWITCH_2_STATUS != _switch2:
-    _flag = not _flag
-
-  if LIGHT_STATUS != _flag:
-    SWITCH_1_STATUS = _switch1
-    SWITCH_2_STATUS = _switch2
-    if _flag:
-      lightsOn(light)
-    else:
-      lightsOff(light)
-
-
-# -------------------------------------------------- #
-# The app starts here
-# -------------------------------------------------- #
+#--------------------------------------------------#
+# The app starts here...
+#--------------------------------------------------#
 if __name__ == '__main__':
+    print('Press Ctrl-C to quit.')
+
     # Create a light instance and set its properties:
     # (215 leds on a single strip, connected to RPi GPIO 18 (pin 12))
     light1=Light("Loft")
@@ -229,15 +216,25 @@ if __name__ == '__main__':
     switchUpstairs.gpioPin(24)
     switchUpstairs.init()
 
-    print('Press Ctrl-C to quit.')
-
-    # Read the current status of the switches and set the light accordingly:
-    toggleLight(light1)
+    # Get the initial status of each switch.
+    # We need this to detect changes (unless I decide to switch back to an event driven system but
+    # that turned out to be slower!  Switching latencies were longer for some reason and I want my code to
+    # respond as fast as possible when a switch is flipped)
+    switchDownstairs_status=switchDownstairs.state()
+    switchUpstairs_status=switchUpstairs.state()
 
     try:
         while True:
-            # Infinite loop, checking the button status every so many milliseconds:
-            toggleLight(light1)
+            # Infinite loop, checking the button status every so many milliseconds and toggling the light
+            # if a change in one of the switches is detected:
+            if switchDownstairs.state() != switchDownstairs_status:
+                switchDownstairs_status=not switchDownstairs_status
+                light1.Toggle()
+
+            if switchUpstairs.state() != switchUpstairs_status:
+                switchUpstairs_status=not switchUpstairs_status
+                light1.Toggle()
+
             sleep(0.5)
 
     except KeyboardInterrupt:
