@@ -1,0 +1,27 @@
+# Systemd config-file to auto-start the Ceiling Lights app at boot.
+# Copy this file to: /lib/systemd/system
+# Then run:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable lights.service
+#   sudo systemctl start lights.service
+#
+# To see if it's running:
+#   sudo systemctl status lights.service
+#
+# To disable:
+#   sudo systemctl disable lights.service
+#
+# To see the output of this service:
+#   sudo journalctl -u lights.log
+
+[Unit]
+Description=Ceiling Lights control
+After=multi-user.target
+ConditionPathExists=/data/ledstrips/ceiling_lights
+
+[Service]
+ExecStart=/data/ledstrips/ceiling_lights/lights.sh
+
+[Install]
+WantedBy=multi-user.target
+Alias=lights.service
