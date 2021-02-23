@@ -188,7 +188,7 @@ class Switch:
         """
         Method to detect if the state of the switch has changed since last time we checked.
         """
-        if self._state != self.state():
+        if self._state != self.state:
             return True
         else:
             return False
