@@ -243,3 +243,4 @@ if __name__ == '__main__':
     finally:
         # Clean up the Raspberry PI ports
         GPIO.cleanup()
+        print("I'm out of here!  Adios...")
