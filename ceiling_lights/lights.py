@@ -152,7 +152,6 @@ class Switch:
         Destructor to release and clean up GPIO resources.
         """
         print("destroying switch object: "+self._name)
-        GPIO.cleanup()
 
     @property
     def state(self):
@@ -240,3 +239,7 @@ if __name__ == '__main__':
         del switchUpstairs
         del switchDownstairs
         del light1
+
+    finally:
+        # Clean up the Raspberry PI ports
+        GPIO.cleanup()
