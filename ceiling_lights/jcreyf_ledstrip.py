@@ -1,4 +1,3 @@
-from time import sleep
 from RPi import GPIO
 from rpi_ws281x import Color, PixelStrip, ws
 
@@ -143,6 +142,11 @@ class Switch:
         Destructor to release and clean up GPIO resources.
         """
         print("destroying switch object: "+self._name)
+        # I don't really want this here since it cleans up the ports for ALL switches
+        # in the app.  I'll see if I can make this better at some point later.
+        # (lets hide the warning that will get thrown when the cleanup has been called by a prior switch that got destroyed)
+        GPIO.setwarnings(False)
+        GPIO.cleanup()
 
     @property
     def state(self):
