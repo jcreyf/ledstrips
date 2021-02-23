@@ -218,11 +218,11 @@ if __name__ == '__main__':
     # Create the switches:
     # switch 1 connected to pin 16 (GPIO 23) and pin 1 (3v3) to give it power through a 12kOhm resistor
     switchDownstairs=Switch("DownStairs")
-    switchDownstairs.gpioPin(23)
+    switchDownstairs.gpioPin=23
     switchDownstairs.init()
     # switch 2 connected to pin 18 (GPIO 24) and pin 17 (3v3) to give it power through a 12kOhm resistor:
     switchUpstairs=Switch("UpStairs")
-    switchUpstairs.gpioPin(24)
+    switchUpstairs.gpioPin=24
     switchUpstairs.init()
 
     try:
