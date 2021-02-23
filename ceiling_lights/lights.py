@@ -190,7 +190,7 @@ class Switch:
         """
         if self._state != self.state():
             return True
-        else
+        else:
             return False
 
     def init(self):
