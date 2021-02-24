@@ -11,8 +11,12 @@ from jcreyf_ledstrip import Light, Switch
 from time import sleep
 import yaml
 import sys
+import os
 
-DEBUG=False
+# See if the DEBUG environment variable was set (false by default):
+DEBUG=os.getenv('DEBUG', False)
+if type(DEBUG) == str:
+  DEBUG=DEBUG.lower() in ('true', 'yes', 'y', '1')
 
 def debug(*args):
   """ Simple function to print messages to the console if the DEBUG-flag is set. """
