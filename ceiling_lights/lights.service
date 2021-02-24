@@ -12,7 +12,7 @@
 #   sudo systemctl disable lights.service
 #
 # To see the output of this service:
-#   sudo journalctl -u lights.log
+#   sudo journalctl -u lights
 
 [Unit]
 Description=Ceiling Lights control
