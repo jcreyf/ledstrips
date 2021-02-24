@@ -1,0 +1,12 @@
+- light:
+    name: Loft
+    led_count: 250
+    brightness: 255
+    gpio_pin: 18
+    switches:
+      - switch:
+          name: Downstairs
+          gpio_pin: 23
+      - switch:
+          name: Upstairs
+          gpio_pin: 24
