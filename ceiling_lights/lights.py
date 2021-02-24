@@ -36,8 +36,8 @@ if __name__ == '__main__':
 
   # There may be config for multiple lights in the yaml-file.
   # Lets set them all up:
-  debug("config:", config)
-  debug("Number of light configurations:", len(config))
+  debug(("config: {}").format(config))
+  debug(("Number of light configurations: {}").format(len(config)))
   for light_config in config:
     print("Light:")
     debug("light config:", light_config)
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     for switch_config in switches_config:
       print(" switch:")
       switch_config=switch_config['switch']
-      debug("switch:", switch_config)
+      debug(("switch: {}").format(switch_config))
       _name=switch_config['name']
       _gpioPin=switch_config['gpio_pin']
       print("  name:", _name)
@@ -77,10 +77,11 @@ if __name__ == '__main__':
     lights.append(light)
 
   # List the Lights and their Switch objects (if any):
-  for light in lights:
-    debug(("Light object: {}").format(light.name)
-    for switch in light.switches:
-      debug(("  Switch object: {}").format(switch.name)
+  if DEBUG:
+    for light in lights:
+      debug(("Light object: {}").format(light.name))
+      for switch in light.switches:
+        debug(("  Switch object: {}").format(switch.name))
 
   print('Press Ctrl-C to quit.')
 
