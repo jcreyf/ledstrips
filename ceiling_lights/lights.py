@@ -31,6 +31,13 @@ if __name__ == '__main__':
   print("Reading the config...")
   lights=[]    # list of Light objects (typically 1)
 
+  # We run this app as a daemon on the Raspberry PI, which means that we most probably run this from a different
+  # directory.  The lights.yaml file is in the same directory as this app, so make sure we explicitly set the
+  # directory before trying to open the file:
+  _dir=os.path.dirname(__file__)
+  print("Running this in directory: "+_dir)
+  os.chdir(_dir)
+  # Now open the yaml config-file and read it:
   with open("lights.yaml", 'r') as stream:
     try:
       config=yaml.safe_load(stream)
