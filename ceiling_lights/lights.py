@@ -110,7 +110,7 @@ if __name__ == '__main__':
     for light in lights:
       for switch in light.switches:
         debug(("destroying switch: {}").format(switch.name))
-        del switch
+        light.delSwitch(switch)
       debug(("destroying light: {}").format(light.name))
       del light
 

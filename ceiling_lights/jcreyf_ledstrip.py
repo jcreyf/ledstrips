@@ -88,6 +88,7 @@ class Light:
   def delSwitch(self, switch):
     """ Remove a switch from this light. """
     self._switches.remove(switch)
+    del switch
 
   def state(self):
     """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
