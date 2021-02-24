@@ -42,6 +42,7 @@ if __name__ == '__main__':
   # Lets set them all up:
   debug(("config: {}").format(config))
   debug(("Number of light configurations: {}").format(len(config)))
+  print("===================")
   for light_config in config:
     print("Light:")
     debug("light config:", light_config)
@@ -82,10 +83,12 @@ if __name__ == '__main__':
 
   # List the Lights and their Switch objects (if any):
   if DEBUG:
+    print("---------------")
     for light in lights:
       debug(("Light object: {}").format(light.name))
       for switch in light.switches:
         debug(("  Switch object: {}").format(switch.name))
+    print("---------------")
 
   print('Press Ctrl-C to quit.')
 
@@ -97,6 +100,7 @@ if __name__ == '__main__':
       for light in lights:
         for switch in light.switches:
           if switch.hasChanged():
+            debug(("switch {} event -> toggling light {}").format(switch.name, light.name))
             light.Toggle()
 
   except KeyboardInterrupt:
@@ -105,7 +109,9 @@ if __name__ == '__main__':
     # Then stop the app...
     for light in lights:
       for switch in light.switches:
+        debug(("destroying switch: {}").format(switch.name))
         del switch
+      debug(("destroying light: {}").format(light.name))
       del light
 
   finally:
