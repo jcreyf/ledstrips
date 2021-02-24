@@ -85,6 +85,10 @@ class Light:
     """ Add a new Switch object that can control this light. """
     self._switches.append(switch)
 
+  def delSwitch(self, switch):
+    """ Remove a switch from this light. """
+    self._switches.remove(switch)
+
   def state(self):
     """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
     return self._lightState
