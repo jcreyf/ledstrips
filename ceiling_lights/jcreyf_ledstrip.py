@@ -1,3 +1,4 @@
+from jcreyf_api import RESTserver
 from RPi import GPIO
 from rpi_ws281x import Color, PixelStrip, ws
 
@@ -18,10 +19,13 @@ class Light:
     self._ledInvert=False                  # True to invert the signal (when using NPN transistor level shift);
     self._ledChannel=0
     self._stripGpioPin=18                  # RaspberryPI GPIO pin that is used to drive the LED strip;
-    self._stripType=ws.SK6812_STRIP_RGBW   # the type of the LED strip (just RGB or does it also include a White LED);
-    self._strip=None                       # instance of the rpi_ws281x LED strip;
+    self._stripType=ws.SK6812_STRIP_RGBW   # The type of the LED strip (just RGB or does it also include a White LED);
+    self._strip=None                       # Instance of the rpi_ws281x LED strip;
     self._lightState=False                 # Is the light "off" (false) or "on" (true);
-    self._switches=[]                      # optional list of Switch objects that are linked to this light object;
+    self._switches=[]                      # Optional list of Switch objects that are linked to this light object;
+    self._apiServerPort=None               # The network port on which to run the REST API server;
+    self._apiServer=None                   # Instance of the API server dedicated to this light;
+    self._debug=False                      # Debug level logging;
 
   def __del__(self):
     """ Destructor will turn off this light. """
@@ -77,6 +81,16 @@ class Light:
     self._stripGpioPin=value
 
   @property
+  def debug(self):
+    """ Return the debug-flag that is set for this light. """
+    return self._debug
+
+  @debug.setter
+  def debug(self, flag):
+    """ Set the debug level. """
+    self._debug=flag
+
+  @property
   def switches(self):
     """ Return a list of 0 or more Switch objects that have been mapped to this light. """
     return self._switches
@@ -89,6 +103,17 @@ class Light:
     """ Remove a switch from this light. """
     self._switches.remove(switch)
     del switch
+
+  @property
+  def apiServerPort(self):
+    """ Return the number of the network port on which the REST API server to control this light object. """
+    return self._apiServerPort
+  
+  @apiServerPort.setter
+  def apiServerPort(self, value):
+    """ Set the network port of the RESTful web server.  This is an integer between 1 and 65535. """
+    if value < 1 or value > 65535: raise Exception("The server port should be between 1 and 65535!")
+    self._apiServerPort=value
 
   def state(self):
     """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
@@ -104,8 +129,15 @@ class Light:
                 self._ledBrightness, \
                 self._ledChannel, \
                 self._stripType)
-    # Intialize the library (must be called once before other functions):
+    # Initialize the library (must be called once before other functions):
     self._strip.begin()
+    # Setup the REST server so we can control the lights over the network:
+    print(("setting up the {} REST API server...").format(self._name))
+    self._apiServer=RESTserver(self._name)
+    self._apiServer.debug=self._debug
+    self._apiServer.port=self._apiServerPort
+    self._apiServer.add_endpoint('/light', 'light', self.htmlStatus)
+    self._apiServer.start()
 
   def On(self):
     """ Turn on the leds. """
@@ -130,6 +162,11 @@ class Light:
       self.Off()
     else:
       self.On()
+
+  def htmlStatus(self):
+    self.Toggle()
+    return ("My name is: {}<br>my state is: {}").format(self._name, self._lightState)
+
 
 
 class Switch:

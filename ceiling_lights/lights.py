@@ -12,6 +12,7 @@ from time import sleep
 import yaml
 import sys
 import os
+import threading
 
 # See if the DEBUG environment variable was set (false by default):
 DEBUG=os.getenv('DEBUG', False)
@@ -28,6 +29,7 @@ def debug(*args):
 # The app starts here...
 #--------------------------------------------------#
 if __name__ == '__main__':
+  print(("number of threads: {}").format(threading.activeCount()))
   print("Reading the config...")
   lights=[]    # list of Light objects (typically 1)
 
@@ -35,8 +37,9 @@ if __name__ == '__main__':
   # directory.  The lights.yaml file is in the same directory as this app, so make sure we explicitly set the
   # directory before trying to open the file:
   _dir=os.path.dirname(__file__)
-  print("Running this in directory: "+_dir)
-  os.chdir(_dir)
+  if not _dir == "":
+    print("Running this in directory: "+_dir)
+    os.chdir(_dir)
   # Now open the yaml config-file and read it:
   with open("lights.yaml", 'r') as stream:
     try:
@@ -59,15 +62,19 @@ if __name__ == '__main__':
     _ledCount=light_config['led_count']
     _brightness=light_config['brightness']
     _gpioPin=light_config['gpio_pin']
+    _apiServerPort=light_config['apiserver_port']
     print(" name:", _name)
     print(" led count:", _ledCount)
     print(" brightness:", _brightness)
     print(" GPIO pin:", _gpioPin)
+    print(" API Server port:", _apiServerPort)
     # Create a light instance and set its properties:
     light=Light(_name)
+    light.debug=DEBUG
     light.ledCount=_ledCount
     light.ledBrightness=_brightness
     light.stripGpioPin=_gpioPin
+    light.apiServerPort=_apiServerPort
     light.Start()
     # Each light may have 0 or more switches to control it.
     # Lets set them all up for this light:
@@ -97,6 +104,7 @@ if __name__ == '__main__':
         debug(("  Switch object: {}").format(switch.name))
     print("---------------")
 
+  print("===================")
   print('Press Ctrl-C to quit.')
 
   try:
@@ -104,6 +112,7 @@ if __name__ == '__main__':
       # Infinite loop, checking each button status every so many milliseconds and toggling the lights
       # if a change in one of the switches is detected:
       sleep(0.5)
+#      print(("number of threads: {}").format(threading.activeCount()))
       for light in lights:
         for switch in light.switches:
           if switch.hasChanged():

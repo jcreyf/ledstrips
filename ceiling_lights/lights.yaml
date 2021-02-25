@@ -3,6 +3,7 @@
     led_count: 250
     brightness: 255
     gpio_pin: 18
+    apiserver_port: 8888
     switches:
       - switch:
           name: Downstairs
