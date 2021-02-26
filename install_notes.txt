@@ -188,3 +188,22 @@ Creating an autostart config: (https://learn.sparkfun.com/tutorials/how-to-run-a
 
 # See systemd logs for this new service:
   sudo journalctl -u ledstrip.log
+
+
+---------
+
+# ceiling_lights
+
+This project uses yaml to configure the led strips and their switches.
+It also uses the Flask web server to expose an API on the network.
+Install:
+sudo apt-get install python3-flask python3-yaml
+
+Add these 2 lines to your sudoers config:
+Defaults env_keep += "PYTHONPATH"
+Defaults env_keep += "DEBUG"
+
+Update the lights.yaml file to reflect your setup.
+
+Put in the new lights.service config in /lib/systemd/system/
+Go through the same steps lined out above to enable and start the service (first remove the ledstrip.service if you had that installed to avoid hardware conflicts).
