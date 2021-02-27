@@ -1,2 +1,17 @@
+# Editors
+.vscode/
+
+# Mac/OSX
+.DS_Store
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
-.pyc
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Flask stuff:
+instance/
+.webassets-cache
