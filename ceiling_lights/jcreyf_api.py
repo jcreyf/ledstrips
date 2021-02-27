@@ -103,6 +103,7 @@ class RESTserver:
     _serverThread=threading.Thread(name=("{}_API").format(self._name), \
                                    target=self._server.run, \
                                    kwargs={'host': '0.0.0.0', 'port': self._serverPort})
+    _serverThread.setDaemon(True)
     _serverThread.start()
 
 #
