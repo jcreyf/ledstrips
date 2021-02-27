@@ -22,7 +22,11 @@ if type(DEBUG) == str:
 def debug(*args):
   """ Simple function to print messages to the console if the DEBUG-flag is set. """
   if DEBUG:
-    print(("debug -> {}").format(args))
+    # We don't want to print the message as a list between '()' if we only got 1 element in the argument list:
+    if len(args) == 1:
+      print(("debug -> {}").format(args[0]))
+    else:
+      print(("debug -> {}").format(args))
 
 
 #--------------------------------------------------#
@@ -40,6 +44,7 @@ if __name__ == '__main__':
   if not _dir == "":
     print("Running this in directory: "+_dir)
     os.chdir(_dir)
+
   # Now open the yaml config-file and read it:
   with open("lights.yaml", 'r') as stream:
     try:
@@ -55,7 +60,6 @@ if __name__ == '__main__':
   print("===================")
   for light_config in config:
     print("Light:")
-    debug("light config:", light_config)
     light_config=light_config["light"]
     debug("light:", light_config)
     _name=light_config['name']
@@ -76,22 +80,35 @@ if __name__ == '__main__':
     light.stripGpioPin=_gpioPin
     light.apiServerPort=_apiServerPort
     light.Start()
+
     # Each light may have 0 or more switches to control it.
-    # Lets set them all up for this light:
-    switches_config=light_config['switches']
-    for switch_config in switches_config:
-      print(" switch:")
-      switch_config=switch_config['switch']
-      debug(("switch: {}").format(switch_config))
-      _name=switch_config['name']
-      _gpioPin=switch_config['gpio_pin']
-      print("  name:", _name)
-      print("  GPIO pin:", _gpioPin)
-      # Create the switch and set its properties:
-      switch=Switch(_name)
-      switch.gpioPin=_gpioPin
-      switch.init()
-      light.addSwitch(switch)
+    try:
+      switches_config=light_config['switches']
+      # This handles the case when a 'switches' section is added to the yaml-file but no 'switch' items:
+      if switches_config is None:
+        switches_config=[]
+    except:
+      # There's no configuration for switches.  That's fine!
+      switches_config=[]
+
+    if len(switches_config) == 0:
+      print("there are no switches configured for this light")
+    else:
+      # Lets set them all up for this light:
+      for switch_config in switches_config:
+        print(" switch:")
+        switch_config=switch_config["switch"]
+        debug(("switch config: {}").format(switch_config))
+        _name=switch_config['name']
+        _gpioPin=switch_config['gpio_pin']
+        print("  name:", _name)
+        print("  GPIO pin:", _gpioPin)
+        # Create the switch and set its properties:
+        switch=Switch(_name)
+        switch.gpioPin=_gpioPin
+        switch.init()
+        light.addSwitch(switch)
+
     # Add the light to the list and move on to the next one (if any)
     lights.append(light)
 
@@ -112,7 +129,6 @@ if __name__ == '__main__':
       # Infinite loop, checking each button status every so many milliseconds and toggling the lights
       # if a change in one of the switches is detected:
       sleep(0.5)
-#      print(("number of threads: {}").format(threading.activeCount()))
       for light in lights:
         for switch in light.switches:
           if switch.hasChanged():

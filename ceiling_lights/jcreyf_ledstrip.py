@@ -149,7 +149,15 @@ class Light:
     self._apiServer=RESTserver(self._name)
     self._apiServer.debug=self._debug
     self._apiServer.port=self._apiServerPort
-    self._apiServer.add_endpoint('/light', 'light', self.htmlStatus)
+    # http://0.0.0.0:80/
+    self._apiServer.add_endpoint(endpoint='/', endpoint_name='home', \
+                                               htmlTemplateFile='home.html', \
+                                               htmlTemplateData={'title': 'Ledstrip', \
+                                                                 'name': self._name, \
+                                                                 'switches': self._switches})
+    # http://0.0.0.0:80/light
+    self._apiServer.add_endpoint(endpoint='/light', endpoint_name='light', \
+                                                    handler=self.htmlLight)
     self._apiServer.start()
 
   def On(self):
@@ -176,7 +184,8 @@ class Light:
     else:
       self.On()
 
-  def htmlStatus(self) -> str:
+  def htmlLight(self) -> str:
+    """ Web page for the '/light' endpoint. """
     self.Toggle()
     return ("My name is: {}<br>my state is: {}").format(self._name, self._lightState)
 
@@ -195,7 +204,7 @@ class Switch:
   def __init__(self, name: str):
     """ Constructor setting some default values. """
     print("creating switch object: "+name)
-    self._state=False
+    self._state=True
     self._name=name
     self._gpioPin=0
 

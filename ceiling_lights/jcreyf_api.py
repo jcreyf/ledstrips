@@ -14,7 +14,9 @@ This module requires these modules:
 - threading module;
 """
 
-from flask import Flask, Response
+from flask import Flask, Response, render_template
+#from flask.views import View
+from flask.views import MethodView
 import threading
 
 # Flask API and config keys:
@@ -75,13 +77,38 @@ class RESTserver:
     print(("initializing REST server {} on port {}").format(self._name, self._serverPort))
     self._server=Flask(self._name)
 
-  def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None):
-    """ Add a url endpoint handler to the REST server. """
+  def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
+    """ Add a url endpoint handler to the REST server. 
+    Arguments:
+      endpoint: url endpoint (ex: `/`; `/light`);
+      endpoint_name: human readable name for the endpoint url (ex: 'home' for '/' endpoint);
+      handler: function to execute when the endpoint is triggered;
+      htmlTemplateFile: optional HTML template file to render at this endpoint;
+      htmlTemplateData: optional dictionary of data for the HTML template renderer to use;
+    """
     # Initialize the REST server if not done yet:
     if self._server == None:
       self.initialize()
     # Now add the new endpoint:
-    self._server.add_url_rule(endpoint, endpoint_name, RESTEndpointAction(handler))
+    self._server.add_url_rule(rule=endpoint, \
+                              endpoint=endpoint_name, \
+
+                              view_func=MyMethodView(handler=handler, \
+                                                     htmlTemplateFile=htmlTemplateFile, \
+                                                     htmlTemplateData=htmlTemplateData).as_view('mymethodview')
+
+#                              view_func=MyView.as_view('myview'))
+
+#                              view_func=MyView(handler=handler, \
+#                                               htmlTemplateFile=htmlTemplateFile, \
+#                                               htmlTemplateData=htmlTemplateData).as_view('myview')
+
+#                              view_func=RESTEndpointAction(server=self._server, \
+#                                                           handler=handler, \
+#                                                           htmlTemplateFile=htmlTemplateFile, \
+#                                                           htmlTemplateData=htmlTemplateData)
+##                              options=('GET', 'POST')
+                              )
 
   def start(self):
     """ 
@@ -106,8 +133,54 @@ class RESTserver:
     _serverThread.setDaemon(True)
     _serverThread.start()
 
+
 #
 #------------------------------------
+#
+
+class MyMethodView(MethodView):  
+  def __init__(self, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
+    self._handler=handler
+    self._htmlTemplateFile=htmlTemplateFile
+    self._htmlTemplateData=htmlTemplateData
+
+  def get(self, *args):
+    if callable(self._handler):
+      html=self._handler()
+    if not self._htmlTemplateFile is None:
+      html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
+    html="<h1>Test</h1>"
+    return html
+
+  def post(self, *args):
+    return 'OK'
+
+
+#
+#------------------------------------
+#
+
+# 
+
+#class MyView(View):
+#  methods = ['GET', 'POST']
+#  
+#  def __init__(self, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
+#    self._handler=handler
+#    self._htmlTemplateFile=htmlTemplateFile
+#    self._htmlTemplateData=htmlTemplateData
+#
+#  def dispatch_request(self, *args):
+#    # Execute  the handler function if one was provided:
+#    if callable(self._handler):
+#      html=self._handler()
+#    if not self._htmlTemplateFile is None:
+#      html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
+#    html="<h1>Test</h1>"
+#    return html
+
+#
+#--------
 #
 
 class RESTEndpointAction():
@@ -116,12 +189,26 @@ class RESTEndpointAction():
   Each API endpoint is wrapped in a RESTEndpointAction object, which is then attached to the web server
   through the '<RESTServer>.add_endpoint(handler=<object>)' method.
   """
-  def __init__(self, action):
-    """ Store the function to execute when the endpoint gets triggered. """
-    self.action = action
+  def __init__(self, server=None, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
+    """ Store the function to execute when the endpoint gets triggered.
+    Arguments:
+      action: function to execute when object is called;
+      htmlTemplate: HTML template file to render (optional);
+      htmlTemplateData: data for the template to render (optional);
+    """
+    self._server=server
+    self._handler=handler
+    self._htmlTemplateFile=htmlTemplateFile
+    self._htmlTemplateData=htmlTemplateData
 
   def __call__(self, *args):
     """ Execute the stored function each time the endpoint gets triggered. """
-    html = self.action()
-    self.response = Response(html, status=200, headers={})
+    # Execute  the handler function if one was provided:
+    if callable(self._handler):
+      html=self._handler()
+    # Render the Jinja2 template if one was provided:
+    #   https://jinja.palletsprojects.com/en/2.11.x/templates/
+    if not self._htmlTemplateFile is None:
+      html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
+    self.response=Response(html, status=200, headers={})
     return self.response
