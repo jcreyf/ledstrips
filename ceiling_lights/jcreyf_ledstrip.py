@@ -1,3 +1,15 @@
+"""
+This module contains the classes for both the 'Light' and 'Switch' objects:
+- a 'Light' object is a LED strip with 1 or more individually addressable LEDs and may have 0 or more Switch
+  objects linked to it for control;
+- a 'Switch' object is a GPIO pin on the Raspberry PI that gets pulled up or down to either turn on or
+  turn off the LEDs on the strip;
+
+This module requires these modules:
+- Raspberry PI GPIO class from the RPi module;
+- Color, ws and PixelStrip classes from the rpi_ws281x module; 
+"""
+
 from jcreyf_api import RESTserver
 from RPi import GPIO
 from rpi_ws281x import Color, PixelStrip, ws
@@ -8,7 +20,8 @@ class Light:
   Data going through that I/O port and power supplied externally (because it's too much for the PI
   to power them if there are too many).
   """
-  def __init__(self, name):
+
+  def __init__(self, name: str):
     """ Constructor, initializing members with default values. """
     print("creating light object: "+name)
     self._name=name                        # Human name of the LED strip;
@@ -38,39 +51,39 @@ class Light:
     return self._name
   
   @name.setter
-  def name(self, value):
+  def name(self, value: str):
     """ Set the name for this light. """
     self._name=value
 
   @property
-  def ledCount(self):
+  def ledCount(self) -> int:
     """ Return the number of individual LEDs on the light strip. """
     return self._ledCount
   
   @ledCount.setter
-  def ledCount(self, value):
+  def ledCount(self, value: int):
     """ Set the number of LEDs to use on this light strip.  You can activate fewer than available. """
     if not (value > 0): raise Exception("You need to have at least 1 LED on the strip!")
     self._ledCount=value
 
   @property
-  def ledBrightness(self):
+  def ledBrightness(self) -> int:
     """ Return the brightness that the LED have been configured with (0 to 255). """
     return self._ledBrightness
   
   @ledBrightness.setter
-  def ledBrightness(self, value):
+  def ledBrightness(self, value: int):
     """ Set the brightness of the LEDs (0 to 255). """
     if not ((value > 0) and (value <= 255)): raise Exception("Brightness needs to be between 1 and 255!")
     self._ledBrightness=value
 
   @property
-  def stripGpioPin(self):
+  def stripGpioPin(self) -> int:
     """ Return the Raspberry PI GPIO pin the LED strip is connected to (data). """
     return self._stripGpioPin
 
   @stripGpioPin.setter
-  def stripGpioPin(self, value):
+  def stripGpioPin(self, value: int):
     """ Set the Raspberry PI GPIO pin the LED strip is connected to (data). """
     # The number of valid GPIO ports is limited and specific.
     # A good validator should check the port based on RPi model and throw an exception if the
@@ -81,17 +94,17 @@ class Light:
     self._stripGpioPin=value
 
   @property
-  def debug(self):
+  def debug(self) -> bool:
     """ Return the debug-flag that is set for this light. """
     return self._debug
 
   @debug.setter
-  def debug(self, flag):
+  def debug(self, flag: bool):
     """ Set the debug level. """
     self._debug=flag
 
   @property
-  def switches(self):
+  def switches(self) -> list:
     """ Return a list of 0 or more Switch objects that have been mapped to this light. """
     return self._switches
 
@@ -105,17 +118,17 @@ class Light:
     del switch
 
   @property
-  def apiServerPort(self):
+  def apiServerPort(self) -> int:
     """ Return the number of the network port on which the REST API server to control this light object. """
     return self._apiServerPort
   
   @apiServerPort.setter
-  def apiServerPort(self, value):
+  def apiServerPort(self, value: int):
     """ Set the network port of the RESTful web server.  This is an integer between 1 and 65535. """
     if value < 1 or value > 65535: raise Exception("The server port should be between 1 and 65535!")
     self._apiServerPort=value
 
-  def state(self):
+  def state(self) -> bool:
     """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
     return self._lightState
 
@@ -140,7 +153,7 @@ class Light:
     self._apiServer.start()
 
   def On(self):
-    """ Turn on the leds. """
+    """ Turn the leds on. """
     # Set the leds to white, full brightness:
     color = Color(0, 0, 0, 255)
     for i in range(self._strip.numPixels()):
@@ -149,7 +162,7 @@ class Light:
     self._lightState=True
 
   def Off(self):
-    """ Turn off the leds. """
+    """ Turn the leds off. """
     color = Color(0, 0, 0, 0)
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
@@ -163,17 +176,23 @@ class Light:
     else:
       self.On()
 
-  def htmlStatus(self):
+  def htmlStatus(self) -> str:
     self.Toggle()
     return ("My name is: {}<br>my state is: {}").format(self._name, self._lightState)
 
-
+#
+#----------------------------------
+#
 
 class Switch:
   """
   Class that represents a typical and standard on/off toggle switch connected to a Raspberry PI.
+
+  A 'Switch' is basically a GPIO pin on the Raspberry PI that gets pulled high for the 'On' position
+  and low for the 'Off' position.
   """
-  def __init__(self, name):
+
+  def __init__(self, name: str):
     """ Constructor setting some default values. """
     print("creating switch object: "+name)
     self._state=False
@@ -185,28 +204,28 @@ class Switch:
     print("destroying switch object: "+self._name)
 
   @property
-  def state(self):
+  def state(self) -> bool:
     """ Return the actual current state of the switch from the Raspberry PI GPIO port. """
     self._state=GPIO.input(self._gpioPin)
     return self._state
 
   @property
-  def name(self):
+  def name(self) -> str:
     """ Return the name that was set for this switch. """
     return self._name
 
   @name.setter
-  def name(self, value):
+  def name(self, value: str):
     """ Set a name for this switch. """
     self._name=value
 
   @property
-  def gpioPin(self):
+  def gpioPin(self) -> int:
     """ Return the Raspberry PI GPIO pin that is use to connect this switch to. """
     return self._gpioPin
 
   @gpioPin.setter
-  def gpioPin(self, value):
+  def gpioPin(self, value: int):
     """ Set the Raspberry PI GPIO pin that is use to connect this switch to. """
     # The number of valid GPIO ports is limited and specific.
     # A good validator should check the port based on RPi model and throw an exception if the
@@ -216,7 +235,7 @@ class Switch:
     if not ((value >= 2) and (value <= 26)): raise Exception("The RPi GPIO port needs to be between 2 and 26!")
     self._gpioPin=value
 
-  def hasChanged(self):
+  def hasChanged(self) -> bool:
     """ Method to detect if the state of the switch has changed since last time we checked. """
     if self._state != self.state:
       return True
