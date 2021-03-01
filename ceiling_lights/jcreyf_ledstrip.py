@@ -158,6 +158,9 @@ class Light:
     # http://0.0.0.0:80/light
     self._apiServer.add_endpoint(endpoint='/light', endpoint_name='light', \
                                                     handler=self.htmlLight)
+
+    self._apiServer.add_endpoint(endpoint='/lichten/', defaults={'light_name': None})
+
     self._apiServer.start()
 
   def On(self):

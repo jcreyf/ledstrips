@@ -14,8 +14,8 @@ This module requires these modules:
 - threading module;
 """
 
-from flask import Flask, Response, render_template
-#from flask.views import View
+from flask import Flask, Request, Response, render_template
+from flask.views import View
 from flask.views import MethodView
 import threading
 
@@ -93,15 +93,15 @@ class RESTserver:
     self._server.add_url_rule(rule=endpoint, \
                               endpoint=endpoint_name, \
 
-                              view_func=MyMethodView(handler=handler, \
-                                                     htmlTemplateFile=htmlTemplateFile, \
-                                                     htmlTemplateData=htmlTemplateData).as_view('mymethodview')
+#                              view_func=MyMethodView.as_view('mymethodview', handler=handler, \
+#                                                     htmlTemplateFile=htmlTemplateFile, \
+#                                                     htmlTemplateData=htmlTemplateData)
 
 #                              view_func=MyView.as_view('myview'))
 
-#                              view_func=MyView(handler=handler, \
-#                                               htmlTemplateFile=htmlTemplateFile, \
-#                                               htmlTemplateData=htmlTemplateData).as_view('myview')
+                              view_func=MyView.as_view('myview', handler=handler, \
+                                               htmlTemplateFile=htmlTemplateFile, \
+                                               htmlTemplateData=htmlTemplateData)
 
 #                              view_func=RESTEndpointAction(server=self._server, \
 #                                                           handler=handler, \
@@ -144,40 +144,45 @@ class MyMethodView(MethodView):
     self._htmlTemplateFile=htmlTemplateFile
     self._htmlTemplateData=htmlTemplateData
 
-  def get(self, *args):
+  def get(self, light_name):
     if callable(self._handler):
       html=self._handler()
     if not self._htmlTemplateFile is None:
       html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
-    html="<h1>Test</h1>"
     return html
 
-  def post(self, *args):
+  def post(self):
+    # Create
     return 'OK'
 
+  def put(self, light_name):
+    # Update
+    return 'OK'
+
+  def delete(self, light_name):
+    # Delete
+    return 'OK'
 
 #
 #------------------------------------
 #
 
-# 
+class MyView(View):
+  methods = ['GET', 'POST', 'PUT', 'DELETE']
+  
+  def __init__(self, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
+    self._handler=handler
+    self._htmlTemplateFile=htmlTemplateFile
+    self._htmlTemplateData=htmlTemplateData
 
-#class MyView(View):
-#  methods = ['GET', 'POST']
-#  
-#  def __init__(self, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
-#    self._handler=handler
-#    self._htmlTemplateFile=htmlTemplateFile
-#    self._htmlTemplateData=htmlTemplateData
-#
-#  def dispatch_request(self, *args):
-#    # Execute  the handler function if one was provided:
-#    if callable(self._handler):
-#      html=self._handler()
-#    if not self._htmlTemplateFile is None:
-#      html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
-#    html="<h1>Test</h1>"
-#    return html
+  def dispatch_request(self):
+    if request.method == 'POST':
+      html="POST"
+    if callable(self._handler):
+      html=self._handler()
+    if not self._htmlTemplateFile is None:
+      html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
+    return html
 
 #
 #--------
@@ -201,7 +206,7 @@ class RESTEndpointAction():
     self._htmlTemplateFile=htmlTemplateFile
     self._htmlTemplateData=htmlTemplateData
 
-  def __call__(self, *args):
+  def __call__(self):
     """ Execute the stored function each time the endpoint gets triggered. """
     # Execute  the handler function if one was provided:
     if callable(self._handler):
