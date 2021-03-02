@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 #***********************************************************************************************************#
-# Bare basic app to drive a 7 meter LED strip with a standard electrical light switches just like any       #
-# ordinary light bulb in the house. All leds on the strip just lighting up bright white or off.             #
+# Bare basic app to drive a 7 meter LED strip with standard electrical light switches just like any         #
+# ordinary light bulb in the house.  All leds on the strip just lighting up bright white or off.            #
 #                                                                                                           #
 # Led strips data line connected to pin 12 on the RPi (GPIO 18)                                             #
-# Light switch 1 connected to pin 16 (GPIO 23) and pin 1 (3v3) to give it power through a 12kOhm resistor   #
+# Light switch 1 connected to pin 16 (GPIO 23) and pin 1 (3v3) to give it power through a 1.2kOhm resistor  #
+# (this resistor is a lot smaller because of the leads to the switch being much longer than the other swith #
+# and suffering from quite a significant voltage drop)                                                      #
 # Light switch 2 connected to pin 18 (GPIO 24) and pin 17 (3v3) to give it power through a 12kOhm resistor  #
 #***********************************************************************************************************#
 from jcreyf_ledstrip import Light, Switch
