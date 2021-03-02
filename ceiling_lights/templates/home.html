@@ -21,7 +21,7 @@
       <h3>No switches connected</h3>
 {%- endif %}
       <hr>
-      <form id="toggle" action="/light">
+      <form id="toggle" action="/light/{{ name }}?toggle">
         <button class="button" type="submit">Toggle Me</button>
       </form>
    </body>

@@ -6,7 +6,7 @@ to control processes on the Raspberry PI (for example to turn lights on or off; 
 Classes in this module:
 - 'RESTserver': metadata and controls for a Flask server (running in a separate thread to avoid blocking of the
    main application thread);
-- 'RESTEndpointAction': a REST webservice endpoint url and a reference to the code that should get executed at
+- 'RESTEndpointView': a REST webservice endpoint url and a reference to the code that should get executed at
    that endpoint;
 
 This module requires these modules:
@@ -14,8 +14,7 @@ This module requires these modules:
 - threading module;
 """
 
-from flask import Flask, Request, Response, render_template
-from flask.views import View
+from flask import Flask, request, Response, render_template
 from flask.views import MethodView
 import threading
 
@@ -43,7 +42,10 @@ class RESTserver:
     """ Destructor will turn off the web server. """
     print("destroying REST server: "+self._name)
     if not self._server == None:
-      self._server.shutdown()
+# TODO: Need a clean way to stop the server like this:
+#       https://stackoverflow.com/questions/15562446/how-to-stop-flask-application-without-using-ctrl-c
+#      self._server.shutdown()
+#      self._serverThread.kill()
       del self._server
 
   @property
@@ -77,12 +79,14 @@ class RESTserver:
     print(("initializing REST server {} on port {}").format(self._name, self._serverPort))
     self._server=Flask(self._name)
 
-  def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
+  def add_endpoint(self, endpoint=None, endpoint_name=None, allowedMethods=None, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
     """ Add a url endpoint handler to the REST server. 
     Arguments:
       endpoint: url endpoint (ex: `/`; `/light`);
       endpoint_name: human readable name for the endpoint url (ex: 'home' for '/' endpoint);
-      handler: function to execute when the endpoint is triggered;
+      allowedMethods: which HTTP operations are allowed at this endpoint? (GET, PUT, POST, DELETE, ...)
+                      This needs to be a tuple of strings.  Ex.: ['GET', 'POST',]
+      handler: callback function to execute when the endpoint is triggered;
       htmlTemplateFile: optional HTML template file to render at this endpoint;
       htmlTemplateData: optional dictionary of data for the HTML template renderer to use;
     """
@@ -92,23 +96,12 @@ class RESTserver:
     # Now add the new endpoint:
     self._server.add_url_rule(rule=endpoint, \
                               endpoint=endpoint_name, \
-
-#                              view_func=MyMethodView.as_view('mymethodview', handler=handler, \
-#                                                     htmlTemplateFile=htmlTemplateFile, \
-#                                                     htmlTemplateData=htmlTemplateData)
-
-#                              view_func=MyView.as_view('myview'))
-
-                              view_func=MyView.as_view('myview', handler=handler, \
-                                               htmlTemplateFile=htmlTemplateFile, \
-                                               htmlTemplateData=htmlTemplateData)
-
-#                              view_func=RESTEndpointAction(server=self._server, \
-#                                                           handler=handler, \
-#                                                           htmlTemplateFile=htmlTemplateFile, \
-#                                                           htmlTemplateData=htmlTemplateData)
-##                              options=('GET', 'POST')
-                              )
+                              view_func=RESTEndpointView.as_view('light_api', \
+                                                                 handler=handler, \
+                                                                 htmlTemplateFile=htmlTemplateFile, \
+                                                                 htmlTemplateData=htmlTemplateData), \
+                              methods=allowedMethods)
+#                             defaults={'light_name': 'testje'})
 
   def start(self):
     """ 
@@ -138,82 +131,92 @@ class RESTserver:
 #------------------------------------
 #
 
-class MyMethodView(MethodView):  
-  def __init__(self, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
-    self._handler=handler
-    self._htmlTemplateFile=htmlTemplateFile
-    self._htmlTemplateData=htmlTemplateData
+# Look into this:
+#   https://pythonise.com/series/learning-flask/flask-api-methodview
 
-  def get(self, light_name):
-    if callable(self._handler):
-      html=self._handler()
-    if not self._htmlTemplateFile is None:
-      html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
-    return html
-
-  def post(self):
-    # Create
-    return 'OK'
-
-  def put(self, light_name):
-    # Update
-    return 'OK'
-
-  def delete(self, light_name):
-    # Delete
-    return 'OK'
-
-#
-#------------------------------------
-#
-
-class MyView(View):
-  methods = ['GET', 'POST', 'PUT', 'DELETE']
-  
-  def __init__(self, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
-    self._handler=handler
-    self._htmlTemplateFile=htmlTemplateFile
-    self._htmlTemplateData=htmlTemplateData
-
-  def dispatch_request(self):
-    if request.method == 'POST':
-      html="POST"
-    if callable(self._handler):
-      html=self._handler()
-    if not self._htmlTemplateFile is None:
-      html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
-    return html
-
-#
-#--------
-#
-
-class RESTEndpointAction():
+class RESTEndpointView(MethodView):
   """
   Class to handle a single RESTfull API endpoint.
-  Each API endpoint is wrapped in a RESTEndpointAction object, which is then attached to the web server
+  Each API endpoint is wrapped in a RESTEndpointView object, which is then attached to the Flask web server
   through the '<RESTServer>.add_endpoint(handler=<object>)' method.
   """
-  def __init__(self, server=None, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
+#  decorators=[validator]
+
+#  def validator(req):
+#    def decorator(*args, **kwargs):
+#      if not g.user:
+#        abort(401)
+#      return req(*args, **kwargs)
+#    return decorator
+
+  def __init__(self, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
     """ Store the function to execute when the endpoint gets triggered.
     Arguments:
-      action: function to execute when object is called;
-      htmlTemplate: HTML template file to render (optional);
+      handler: callback function to execute when object is called;
+      htmlTemplateFile: HTML template file to render (optional);
       htmlTemplateData: data for the template to render (optional);
     """
-    self._server=server
     self._handler=handler
     self._htmlTemplateFile=htmlTemplateFile
     self._htmlTemplateData=htmlTemplateData
 
-  def __call__(self):
-    """ Execute the stored function each time the endpoint gets triggered. """
-    # Execute  the handler function if one was provided:
+  def log(self):
+    print("--------------------------------")
+    print(request.full_path)
+    print(("-> Request: {}").format(request))
+    print(("-> Header count: {}").format(len(request.headers)))
+    print(request.headers)
+    print(("-> Number of arguments in call: {}").format(len(request.args)))
+    for arg in request.args:
+      print(("  arg = '{}': '{}'").format(arg, request.args[arg]))
+    if len(request.data) > 0:
+      print("-> Body:")
+      print(request.data)
+
+  def get(self, **args):
+    """ GET request.  **args is an optional dictionary with key/values from the url """
+    print("in MyMethodView:GET")
+    self.log()
+
+    # print the arguments that we get from Flask.
+    # Setting up an endpoint like '/light/<name>' will call this method with 1 argument: ['name': 'Loft']
+    # when this url is called: http://0.0.0.0:<port>/light/Loft
+    for key, value in args.items():
+      print(("{} -> {}").format(key, value))
+
+    html=None
     if callable(self._handler):
+      # Execute  the handler function if one was provided:
       html=self._handler()
-    # Render the Jinja2 template if one was provided:
-    #   https://jinja.palletsprojects.com/en/2.11.x/templates/
     if not self._htmlTemplateFile is None:
+      # Render the Jinja2 template if one was provided:
+      #   https://jinja.palletsprojects.com/en/2.11.x/templates/
       html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
-    self.response=Response(html, status=200, headers={})
-    return self.response
+    if html is None:
+      html=("<h1>Oops!  Nothing to render to HTML!</h1>")
+    # Create a new flask.Response object and return that:
+    return Response(html, status=200, headers={})
+
+  def post(self, **args):
+    # Create
+    print("in MyMethodView:POST")
+    self.log()
+    html=("<h1>POST</h1>")
+    # Create a new flask.Response object and return that:
+    return Response(html, status=200, headers={})
+
+  def put(self, **args):
+    # Update
+    print("in MyMethodView:PUT")
+    self.log()
+    html=("<h1>PUT</h1>")
+    # Create a new flask.Response object and return that:
+    return Response(html, status=200, headers={})
+
+  def delete(self, **args):
+    # Delete
+    print("in MyMethodView:DELETE")
+    self.log()
+    html=("<h1>DELETE</h1>")
+    # Create a new flask.Response object and return that:
+    return Response(html, status=200, headers={})

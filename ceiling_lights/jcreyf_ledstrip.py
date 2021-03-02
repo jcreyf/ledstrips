@@ -149,17 +149,26 @@ class Light:
     self._apiServer=RESTserver(self._name)
     self._apiServer.debug=self._debug
     self._apiServer.port=self._apiServerPort
-    # http://0.0.0.0:80/
+    # View the whole setup: http://0.0.0.0:80/
     self._apiServer.add_endpoint(endpoint='/', endpoint_name='home', \
                                                htmlTemplateFile='home.html', \
                                                htmlTemplateData={'title': 'Ledstrip', \
                                                                  'name': self._name, \
-                                                                 'switches': self._switches})
-    # http://0.0.0.0:80/light
-    self._apiServer.add_endpoint(endpoint='/light', endpoint_name='light', \
-                                                    handler=self.htmlLight)
+                                                                 'switches': self._switches}, \
+                                               allowedMethods=['GET',])
+#                                               allowedMethods=['GET','POST',])
+    # View all the light objects in the setup: http://0.0.0.0:80/lights
+    self._apiServer.add_endpoint(endpoint='/lights', endpoint_name='lights', \
+                                                    handler=self.apiLights, \
+                                                    allowedMethods=['GET',])
+    # View all the light objects in the setup: http://0.0.0.0:80/lights
+    self._apiServer.add_endpoint(endpoint='/light/<name>', endpoint_name='light', \
+                                                    handler=self.apiLight, \
+                                                    allowedMethods=['GET','POST',])
 
-    self._apiServer.add_endpoint(endpoint='/lichten/', defaults={'light_name': None})
+
+#  allowedMethods=['GET','POST','PUT','DELETE',])
+#    self._apiServer.add_endpoint(endpoint='/lichten/', defaults={'light_name': None})
 
     self._apiServer.start()
 
@@ -187,7 +196,11 @@ class Light:
     else:
       self.On()
 
-  def htmlLight(self) -> str:
+  def apiLights(self) -> str:
+    """ Web page for the '/light' endpoint. """
+    return ("My name is: {}<br>How do I see my siblings?").format(self._name)
+
+  def apiLight(self) -> str:
     """ Web page for the '/light' endpoint. """
     self.Toggle()
     return ("My name is: {}<br>my state is: {}").format(self._name, self._lightState)
