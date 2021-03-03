@@ -149,7 +149,38 @@ class Light:
     self._apiServer=RESTserver(self._name)
     self._apiServer.debug=self._debug
     self._apiServer.port=self._apiServerPort
-    self._apiServer.add_endpoint('/light', 'light', self.htmlStatus)
+    # View the whole setup: http://0.0.0.0:80/
+    self._apiServer.add_endpoint(endpoint='/', endpoint_name='home', \
+                                               htmlTemplateFile='home.html', \
+                                               htmlTemplateData={'title': 'Ledstrip', \
+                                                                 'name': self._name, \
+                                                                 'switches': self._switches}, \
+                                               allowedMethods=['GET',])
+    # View all the Light objects in the setup: http://0.0.0.0:80/lights
+    self._apiServer.add_endpoint(endpoint='/lights', endpoint_name='lights', \
+                                                    getHandler=self.apiGETLights, \
+                                                    allowedMethods=['GET',])
+    # View the setup of 1 specific Light object: http://0.0.0.0:80/light/<name>
+    # 'GET' shows the config;
+    # 'POST' to update its config (config in body as JSON payload);
+    self._apiServer.add_endpoint(endpoint='/light/<light_name>', endpoint_name='light', \
+                                                    getHandler=self.apiGETLight, \
+                                                    postHandler=self.apiPOSTLight, \
+                                                    allowedMethods=['GET','POST',])
+    # View all the Switch objects in the setup for a specific Light: http://0.0.0.0:80/light/<name>/switches
+    self._apiServer.add_endpoint(endpoint='/light/<light_name>/switches', endpoint_name='switches', \
+                                                    getHandler=self.apiGETLightSwitches, \
+                                                    allowedMethods=['GET',])
+    # View the setup of 1 specific Switch object for a specific Light: http://0.0.0.0:80/light/<name>/switch/<name>
+    self._apiServer.add_endpoint(endpoint='/light/<light_name>/switch/<switch_name>', endpoint_name='switch', \
+                                                    getHandler=self.apiGETLightSwitch, \
+                                                    allowedMethods=['GET',])
+
+
+
+#  allowedMethods=['GET','POST','PUT','DELETE',])
+#    self._apiServer.add_endpoint(endpoint='/lichten/', defaults={'light_name': None})
+
     self._apiServer.start()
 
   def On(self):
@@ -176,9 +207,26 @@ class Light:
     else:
       self.On()
 
-  def htmlStatus(self) -> str:
-    self.Toggle()
+  def apiGETLights(self) -> str:
+    """ Callback function for the GET operation at the '/lights' endpoint. """
+    return "GET - Lights"
+
+  def apiGETLight(self) -> str:
+    """ Callback function for the GET operation at the '/light/<light_name>' endpoint. """
     return ("My name is: {}<br>my state is: {}").format(self._name, self._lightState)
+
+  def apiPOSTLight(self) -> str:
+    """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
+    self.Toggle()
+    return ("POST - Toggled light {} - {}").format(self._name, self._lightState)
+
+  def apiGETLightSwitches(self) -> str:
+    """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
+    return "GET - Light Switches"
+
+  def apiGETLightSwitch(self) -> str:
+    """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
+    return "GET - Light Switch"
 
 #
 #----------------------------------
@@ -195,7 +243,7 @@ class Switch:
   def __init__(self, name: str):
     """ Constructor setting some default values. """
     print("creating switch object: "+name)
-    self._state=False
+    self._state=True
     self._name=name
     self._gpioPin=0
 

@@ -16,8 +16,8 @@ class GPIO:
   def cleanup(self):
     pass
 
-  def input(self):
-    pass
+  def input(self, pin=0) -> bool:
+    return True
 
   def setwarnings(self):
     pass

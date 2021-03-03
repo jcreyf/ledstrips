@@ -1,0 +1,28 @@
+{# This is a Jinja template.
+   It will get rendered in the jcreyf_api.RESTEndpointAction.__action__() handler by the Jinja library that comes
+   with the Flask web server module that we are using.
+   https://jinja.palletsprojects.com/en/2.11.x/templates/
+#}
+<!DOCTYPE html>
+   <head>
+      <title>{{ title }}</title>
+      <link rel="stylesheet" href="../static/style.css">
+   </head>
+   <body>
+      <h1>Ceiling Light Control</h1>
+      <hr>
+      <h1>{{ name }}</h2>
+{%- if switches %}
+      <h2>Connected switches:</h2>
+      {%- for switch in switches %}
+      <h3>-> {{ switch.name }}: {%- if switch.state %} On {%- else %} Off {%- endif %}</h3>
+      {%- endfor %}
+{%- else %}
+      <h3>No switches connected</h3>
+{%- endif %}
+      <hr>
+      <form id="toggle" method="POST" action="/light/{{ name }}?toggle">
+        <button class="button" type="submit">Toggle Me</button>
+      </form>
+   </body>
+</html>
