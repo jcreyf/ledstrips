@@ -79,14 +79,16 @@ class RESTserver:
     print(("initializing REST server {} on port {}").format(self._name, self._serverPort))
     self._server=Flask(self._name)
 
-  def add_endpoint(self, endpoint=None, endpoint_name=None, allowedMethods=None, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
-    """ Add a url endpoint handler to the REST server. 
+  def add_endpoint(self, endpoint=None, endpoint_name=None, allowedMethods=None, \
+                   getHandler=None, postHandler=None, htmlTemplateFile=None, htmlTemplateData=None):
+    """ Add a url endpoint handler to the REST server.
     Arguments:
       endpoint: url endpoint (ex: `/`; `/light`);
       endpoint_name: human readable name for the endpoint url (ex: 'home' for '/' endpoint);
       allowedMethods: which HTTP operations are allowed at this endpoint? (GET, PUT, POST, DELETE, ...)
                       This needs to be a tuple of strings.  Ex.: ['GET', 'POST',]
-      handler: callback function to execute when the endpoint is triggered;
+      getHandler: callback function to execute when the endpoint is triggered with the GET operation;
+      postHandler: callback function to execute when the endpoint is triggered with the POST operation;
       htmlTemplateFile: optional HTML template file to render at this endpoint;
       htmlTemplateData: optional dictionary of data for the HTML template renderer to use;
     """
@@ -97,11 +99,11 @@ class RESTserver:
     self._server.add_url_rule(rule=endpoint, \
                               endpoint=endpoint_name, \
                               view_func=RESTEndpointView.as_view('light_api', \
-                                                                 handler=handler, \
+                                                                 getHandler=getHandler, \
+                                                                 postHandler=postHandler, \
                                                                  htmlTemplateFile=htmlTemplateFile, \
                                                                  htmlTemplateData=htmlTemplateData), \
                               methods=allowedMethods)
-#                             defaults={'light_name': 'testje'})
 
   def start(self):
     """ 
@@ -149,14 +151,16 @@ class RESTEndpointView(MethodView):
 #      return req(*args, **kwargs)
 #    return decorator
 
-  def __init__(self, handler=None, htmlTemplateFile=None, htmlTemplateData=None):
+  def __init__(self, getHandler=None, postHandler=None, htmlTemplateFile=None, htmlTemplateData=None):
     """ Store the function to execute when the endpoint gets triggered.
     Arguments:
-      handler: callback function to execute when object is called;
+      getHandler: callback function to execute when the GET operation is called (optional);
+      postHandler: callback function to execute when the POST operation is called (optional);
       htmlTemplateFile: HTML template file to render (optional);
       htmlTemplateData: data for the template to render (optional);
     """
-    self._handler=handler
+    self._getHandler=getHandler
+    self._postHandler=postHandler
     self._htmlTemplateFile=htmlTemplateFile
     self._htmlTemplateData=htmlTemplateData
 
@@ -185,9 +189,9 @@ class RESTEndpointView(MethodView):
       print(("{} -> {}").format(key, value))
 
     html=None
-    if callable(self._handler):
+    if callable(self._getHandler):
       # Execute  the handler function if one was provided:
-      html=self._handler()
+      html=self._getHandler()
     if not self._htmlTemplateFile is None:
       # Render the Jinja2 template if one was provided:
       #   https://jinja.palletsprojects.com/en/2.11.x/templates/
@@ -201,22 +205,21 @@ class RESTEndpointView(MethodView):
     # Create
     print("in MyMethodView:POST")
     self.log()
-    html=("<h1>POST</h1>")
-    # Create a new flask.Response object and return that:
-    return Response(html, status=200, headers={})
+    # print the arguments that we get from Flask.
+    # Setting up an endpoint like '/light/<name>' will call this method with 1 argument: ['name': 'Loft']
+    # when this url is called: http://0.0.0.0:<port>/light/Loft
+    for key, value in args.items():
+      print(("{} -> {}").format(key, value))
 
-  def put(self, **args):
-    # Update
-    print("in MyMethodView:PUT")
-    self.log()
-    html=("<h1>PUT</h1>")
-    # Create a new flask.Response object and return that:
-    return Response(html, status=200, headers={})
-
-  def delete(self, **args):
-    # Delete
-    print("in MyMethodView:DELETE")
-    self.log()
-    html=("<h1>DELETE</h1>")
+    html=None
+    if callable(self._postHandler):
+      # Execute  the handler function if one was provided:
+      html=self._postHandler()
+    if not self._htmlTemplateFile is None:
+      # Render the Jinja2 template if one was provided:
+      #   https://jinja.palletsprojects.com/en/2.11.x/templates/
+      html=render_template(self._htmlTemplateFile, **self._htmlTemplateData)
+    if html is None:
+      html=("<h1>Oops!  Nothing to render to HTML!</h1>")
     # Create a new flask.Response object and return that:
     return Response(html, status=200, headers={})

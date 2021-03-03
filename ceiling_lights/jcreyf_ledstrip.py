@@ -156,15 +156,26 @@ class Light:
                                                                  'name': self._name, \
                                                                  'switches': self._switches}, \
                                                allowedMethods=['GET',])
-#                                               allowedMethods=['GET','POST',])
-    # View all the light objects in the setup: http://0.0.0.0:80/lights
+    # View all the Light objects in the setup: http://0.0.0.0:80/lights
     self._apiServer.add_endpoint(endpoint='/lights', endpoint_name='lights', \
-                                                    handler=self.apiLights, \
+                                                    getHandler=self.apiGETLights, \
                                                     allowedMethods=['GET',])
-    # View all the light objects in the setup: http://0.0.0.0:80/lights
-    self._apiServer.add_endpoint(endpoint='/light/<name>', endpoint_name='light', \
-                                                    handler=self.apiLight, \
+    # View the setup of 1 specific Light object: http://0.0.0.0:80/light/<name>
+    # 'GET' shows the config;
+    # 'POST' to update its config (config in body as JSON payload);
+    self._apiServer.add_endpoint(endpoint='/light/<light_name>', endpoint_name='light', \
+                                                    getHandler=self.apiGETLight, \
+                                                    postHandler=self.apiPOSTLight, \
                                                     allowedMethods=['GET','POST',])
+    # View all the Switch objects in the setup for a specific Light: http://0.0.0.0:80/light/<name>/switches
+    self._apiServer.add_endpoint(endpoint='/light/<light_name>/switches', endpoint_name='switches', \
+                                                    getHandler=self.apiGETLightSwitches, \
+                                                    allowedMethods=['GET',])
+    # View the setup of 1 specific Switch object for a specific Light: http://0.0.0.0:80/light/<name>/switch/<name>
+    self._apiServer.add_endpoint(endpoint='/light/<light_name>/switch/<switch_name>', endpoint_name='switch', \
+                                                    getHandler=self.apiGETLightSwitch, \
+                                                    allowedMethods=['GET',])
+
 
 
 #  allowedMethods=['GET','POST','PUT','DELETE',])
@@ -196,14 +207,26 @@ class Light:
     else:
       self.On()
 
-  def apiLights(self) -> str:
-    """ Web page for the '/light' endpoint. """
-    return ("My name is: {}<br>How do I see my siblings?").format(self._name)
+  def apiGETLights(self) -> str:
+    """ Callback function for the GET operation at the '/lights' endpoint. """
+    return "GET - Lights"
 
-  def apiLight(self) -> str:
-    """ Web page for the '/light' endpoint. """
-    self.Toggle()
+  def apiGETLight(self) -> str:
+    """ Callback function for the GET operation at the '/light/<light_name>' endpoint. """
     return ("My name is: {}<br>my state is: {}").format(self._name, self._lightState)
+
+  def apiPOSTLight(self) -> str:
+    """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
+    self.Toggle()
+    return ("POST - Toggled light {} - {}").format(self._name, self._lightState)
+
+  def apiGETLightSwitches(self) -> str:
+    """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
+    return "GET - Light Switches"
+
+  def apiGETLightSwitch(self) -> str:
+    """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
+    return "GET - Light Switch"
 
 #
 #----------------------------------
