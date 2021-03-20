@@ -67,8 +67,8 @@ def apiPOSTLight(uri, path_vars, parms) -> str:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
-#  self.Toggle()
-  return ("POST - Toggled light {} - {}").format("self._name", "self._lightState")
+  self.Toggle()
+  return ("POST - Toggled light {} - {}").format(self._name, self._lightState)
 
 def apiGETLightSwitches(uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
