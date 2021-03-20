@@ -66,13 +66,15 @@ def apiGETLight(uri, path_vars, parms) -> str:
       html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light.name, url, url)
   else:
     html=("<h1>GET - Light {} not found!:</h1>").format(light_name)
-    return html
+  return html
 
 def apiPOSTLight(uri, path_vars, parms) -> str:
   """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
   debug(uri)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    if path_var == "light_name":
+      light_name=path_vars[path_var]
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
   _found=False
