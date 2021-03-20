@@ -64,7 +64,7 @@ def apiGETLight(uri, path_vars, parms) -> str:
     # We found the light.  Generate the payload to send back with the light's details:
     html=("<h1>GET - Light {}:</h1>").format(light_name)
     html+=("<h2>Status: {}</h2>").format(light._lightState)
-    html+=("<a href='/light/{}' method='POST'>toggle</a><br>").format(light_name)
+    html+=("<form id='toggle' method='POST' action='/light/{}'><button class='button' type='submit'>toggle</button></form><br>").format(light_name)
     for switch in light.switches:
       url=("/light/{}/switch/{}").format(light.name, switch.name)
       html+=("<a href='/light/{}/switches'>Switches</a><br>").format(light.name)
@@ -119,7 +119,7 @@ def apiGETLightSwitches(uri, path_vars, parms) -> str:
     html=("<h1>GET - Light {}, Switches</h1>").format(light.name)
     for switch in light.switches:
       html+=("<a href='/light/{}/switch/{}>{}</a><br>").format(light.name, switch.name, switch.name)
-    html+=("<a href='/light/{}'>Light {}</a><br>").format(light_name)
+    html+=("<a href='/light/{}'>Light {}</a><br>").format(light_name, light_name)
     html+="<a href='/lights'>Lights</a><br>"
   else:
     # We can't find this light!  Oops...
