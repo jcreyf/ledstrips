@@ -118,7 +118,7 @@ def apiGETLightSwitches(uri, path_vars, parms) -> str:
     # We found the light.  Generate the payload to send back with the light's switches:
     html=("<h1>GET - Light {}, Switches</h1>").format(light.name)
     for switch in light.switches:
-      html+=("<a href='/light/{}/switch/{}>{}</a><br>").format(light.name, switch.name, switch.name)
+      html+=("<a href='/light/{}/switch/{}'>{}</a><br>").format(light.name, switch.name, switch.name)
     html+=("<a href='/light/{}'>Light {}</a><br>").format(light_name, light_name)
     html+="<a href='/lights'>Lights</a><br>"
   else:
