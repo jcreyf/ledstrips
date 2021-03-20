@@ -152,7 +152,7 @@ def apiGETLightSwitch(uri, path_vars, parms) -> str:
     if _found:
       html=("<h1>GET - Light {}, switch {}</h1>").format(light.name, switch.state)
       html+=("<a href='/light/{}/switches'>{} switches</a><br>").format(light_name, light_name)
-      html+=("<a href='/light/{}'>Light {}</a><br>").format(light_name)
+      html+=("<a href='/light/{}'>Light {}</a><br>").format(light_name, light_name)
       html+="<a href='/lights'>Lights</a><br>"
     else:
       # We can't find this switch!  Oops...
