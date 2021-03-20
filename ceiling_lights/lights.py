@@ -187,6 +187,7 @@ if __name__ == '__main__':
     lights.append(_light)
 
   # Everything has been set up.  No longer need these config objects in memory:
+  # (this app is running for months or even years without reboots on a resource limited device)
   del _name
   del _gpioPin
   del _ledCount
