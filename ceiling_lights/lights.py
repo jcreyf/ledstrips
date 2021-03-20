@@ -61,9 +61,9 @@ def apiGETLight(uri, path_vars, parms) -> str:
       break
   if _found:
     html=("<h1>GET - Light {}:</h1>").format(light_name)
-   for switch in light.switches:
-     url=("/light/{}/switch").format(light._name)
-     html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light.name, url, url)
+    for switch in light.switches:
+      url=("/light/{}/switch").format(light._name)
+      html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light.name, url, url)
   else
     html=("<h1>GET - Light {} not found!:</h1>").format(light_name)
     return html
