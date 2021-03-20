@@ -64,7 +64,7 @@ def apiGETLight(uri, path_vars, parms) -> str:
     for switch in light.switches:
       url=("/light/{}/switch").format(light._name)
       html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light.name, url, url)
-  else
+  else:
     html=("<h1>GET - Light {} not found!:</h1>").format(light_name)
     return html
 
@@ -83,7 +83,7 @@ def apiPOSTLight(uri, path_vars, parms) -> str:
   if _found:
     light.Toggle()
     html=("<h1>POST - Toggled light {} - {}</h1>").format(light.name, light.state)
-  else
+  else:
     html=("<h1>POST - Light {} not found!:</h1>").format(light_name)
   return html
 
