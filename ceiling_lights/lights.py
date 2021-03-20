@@ -54,11 +54,19 @@ def apiGETLight(uri, path_vars, parms) -> str:
       light_name=path_vars[path_var]
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
-  html=("<h1>GET - Light {}:</h1>").format(light_name)
-#  for switch in light.switches:
-#    url=("/light/{}/switch").format(light._name)
-#    html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light._name, url, url)
-  return html
+  _found=False
+  for light in lights:
+    if light.name == light_name:
+      _found=True
+      break
+  if _found:
+    html=("<h1>GET - Light {}:</h1>").format(light_name)
+   for switch in light.switches:
+     url=("/light/{}/switch").format(light._name)
+     html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light.name, url, url)
+  else
+    html=("<h1>GET - Light {} not found!:</h1>").format(light_name)
+    return html
 
 def apiPOSTLight(uri, path_vars, parms) -> str:
   """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
@@ -67,8 +75,17 @@ def apiPOSTLight(uri, path_vars, parms) -> str:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
-  self.Toggle()
-  return ("POST - Toggled light {} - {}").format(self._name, self._lightState)
+  _found=False
+  for light in lights:
+    if light.name == light_name:
+      _found=True
+      break
+  if _found:
+    light.Toggle()
+    html=("<h1>POST - Toggled light {} - {}</h1>").format(light.name, light.state)
+  else
+    html=("<h1>POST - Light {} not found!:</h1>").format(light_name)
+  return html
 
 def apiGETLightSwitches(uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
