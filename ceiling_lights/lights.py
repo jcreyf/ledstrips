@@ -65,10 +65,11 @@ def apiGETLight(uri, path_vars, parms) -> str:
     html=("<h1>GET - Light {}:</h1>").format(light_name)
     for switch in light.switches:
       url=("/light/{}/switch/{}").format(light.name, switch.name)
-      html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light.name, url, switch.name)
+      html+=("<a href='/light/{}/switches'>Switches</a><br>").format(light.name)
+      html+=("<h3>Switch: {}</h3>Url: <a href='{}'>{}</a><br><br>").format(switch.name, url, switch.name)
   else:
     # We can't find this light!  Oops...
-    html=("<h1>GET - Light {} not found!:</h1>").format(light_name)
+    html=("<h1>GET - Light {} not found!:</h1><br><a href='/lights'>Lights</a>").format(light_name)
   return html
 
 def apiPOSTLight(uri, path_vars, parms) -> str:
@@ -89,10 +90,11 @@ def apiPOSTLight(uri, path_vars, parms) -> str:
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
     light.Toggle()
-    html=("<h1>POST - Toggled light {} - {}</h1>").format(light.name, light._lightState)
+    html=("<h1>POST - Toggled light {} - {}</h1><br>").format(light.name, light._lightState)
+    html+=("<a href='/light/{}'>{}</a>").format(light.name, light.name)
   else:
     # We can't find this light!  Oops...
-    html=("<h1>POST - Light {} not found!:</h1>").format(light_name)
+    html=("<h1>POST - Light {} not found!:</h1><br><br><a href='/lights'>Lights</a>").format(light_name)
   return html
 
 def apiGETLightSwitches(uri, path_vars, parms) -> str:
@@ -100,18 +102,57 @@ def apiGETLightSwitches(uri, path_vars, parms) -> str:
   debug(uri)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    if path_var == "light_name":
+      light_name=path_vars[path_var]
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
-  return "GET - Light Switches"
+  # Go find the light:
+  _found=False
+  for light in lights:
+    if light.name == light_name:
+      _found=True
+      break
+  if _found:
+    # We found the light.  Generate the payload to send back with the light's switches:
+    html=("<h1>GET - Light {}, switches {}</h1>").format(light.name, light._lightState)
+  else:
+    # We can't find this light!  Oops...
+    html=("<h1>GET - Light {} not found!:</h1><br><br><a href='/lights'>Lights</a>").format(light_name)
+  return html
 
 def apiGETLightSwitch(uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
   debug(uri)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    if path_var == "light_name":
+      light_name=path_vars[path_var]
+    elif path_var == "switch_name":
+      switch_name=path_vars[path_var]
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
-  return "GET - Light Switch"
+  # Go find the light:
+  _found=False
+  for light in lights:
+    if light.name == light_name:
+      _found=True
+      break
+  if _found:
+    # We found the light.  We now need to find this light's switch:
+    _found=False
+    for switch in light.switches:
+      _found=True
+      break
+    if _found:
+      html=("<h1>GET - Light {}, switch {}</h1>").format(light.name, light._lightState)
+    else:
+      # We can't find this switch!  Oops...
+      html=("<h1>GET - Light {}, Switch {} not found!:</h1>").format(light_name, switch_name)
+      html+=("<a href='/light/{}/switches>Switches</a>").format(light_name)
+  else:
+    # We can't find this light!  Oops...
+    html=("<h1>GET - Light {} not found!:</h1><br><br><a href='/lights'>Lights</a>").format(light_name)
+  return html
 
 
 #--------------------------------------------------#
