@@ -10,7 +10,6 @@ This module requires these modules:
 - Color, ws and PixelStrip classes from the rpi_ws281x module; 
 """
 
-from jcreyf_api import RESTserver
 from RPi import GPIO
 from rpi_ws281x import Color, PixelStrip, ws
 
@@ -23,7 +22,7 @@ class Light:
 
   def __init__(self, name: str):
     """ Constructor, initializing members with default values. """
-    print("creating light object: "+name)
+    print("  ..creating light object: "+name)
     self._name=name                        # Human name of the LED strip;
     self._ledCount=100                     # Number of individually addressable LEDs on the strip;
     self._ledBrightness=128                # Set to 0 for darkest and 255 for brightest;
@@ -36,8 +35,6 @@ class Light:
     self._strip=None                       # Instance of the rpi_ws281x LED strip;
     self._lightState=False                 # Is the light "off" (false) or "on" (true);
     self._switches=[]                      # Optional list of Switch objects that are linked to this light object;
-    self._apiServerPort=None               # The network port on which to run the REST API server;
-    self._apiServer=None                   # Instance of the API server dedicated to this light;
     self._debug=False                      # Debug level logging;
 
   def __del__(self):
@@ -117,17 +114,6 @@ class Light:
     self._switches.remove(switch)
     del switch
 
-  @property
-  def apiServerPort(self) -> int:
-    """ Return the number of the network port on which the REST API server to control this light object. """
-    return self._apiServerPort
-  
-  @apiServerPort.setter
-  def apiServerPort(self, value: int):
-    """ Set the network port of the RESTful web server.  This is an integer between 1 and 65535. """
-    if value < 1 or value > 65535: raise Exception("The server port should be between 1 and 65535!")
-    self._apiServerPort=value
-
   def state(self) -> bool:
     """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
     return self._lightState
@@ -144,44 +130,6 @@ class Light:
                 self._stripType)
     # Initialize the library (must be called once before other functions):
     self._strip.begin()
-    # Setup the REST server so we can control the lights over the network:
-    print(("setting up the {} REST API server...").format(self._name))
-    self._apiServer=RESTserver(self._name)
-    self._apiServer.debug=self._debug
-    self._apiServer.port=self._apiServerPort
-    # View the whole setup: http://0.0.0.0:80/
-    self._apiServer.add_endpoint(endpoint='/', endpoint_name='home', \
-                                               htmlTemplateFile='home.html', \
-                                               htmlTemplateData={'title': 'Ledstrip', \
-                                                                 'name': self._name, \
-                                                                 'switches': self._switches}, \
-                                               allowedMethods=['GET',])
-    # View all the Light objects in the setup: http://0.0.0.0:80/lights
-    self._apiServer.add_endpoint(endpoint='/lights', endpoint_name='lights', \
-                                                    getHandler=self.apiGETLights, \
-                                                    allowedMethods=['GET',])
-    # View the setup of 1 specific Light object: http://0.0.0.0:80/light/<name>
-    # 'GET' shows the config;
-    # 'POST' to update its config (config in body as JSON payload);
-    self._apiServer.add_endpoint(endpoint='/light/<light_name>', endpoint_name='light', \
-                                                    getHandler=self.apiGETLight, \
-                                                    postHandler=self.apiPOSTLight, \
-                                                    allowedMethods=['GET','POST',])
-    # View all the Switch objects in the setup for a specific Light: http://0.0.0.0:80/light/<name>/switches
-    self._apiServer.add_endpoint(endpoint='/light/<light_name>/switches', endpoint_name='switches', \
-                                                    getHandler=self.apiGETLightSwitches, \
-                                                    allowedMethods=['GET',])
-    # View the setup of 1 specific Switch object for a specific Light: http://0.0.0.0:80/light/<name>/switch/<name>
-    self._apiServer.add_endpoint(endpoint='/light/<light_name>/switch/<switch_name>', endpoint_name='switch', \
-                                                    getHandler=self.apiGETLightSwitch, \
-                                                    allowedMethods=['GET',])
-
-
-
-#  allowedMethods=['GET','POST','PUT','DELETE',])
-#    self._apiServer.add_endpoint(endpoint='/lichten/', defaults={'light_name': None})
-
-    self._apiServer.start()
 
   def On(self):
     """ Turn the leds on. """
@@ -207,27 +155,6 @@ class Light:
     else:
       self.On()
 
-  def apiGETLights(self) -> str:
-    """ Callback function for the GET operation at the '/lights' endpoint. """
-    return "GET - Lights"
-
-  def apiGETLight(self) -> str:
-    """ Callback function for the GET operation at the '/light/<light_name>' endpoint. """
-    return ("My name is: {}<br>my state is: {}").format(self._name, self._lightState)
-
-  def apiPOSTLight(self) -> str:
-    """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
-    self.Toggle()
-    return ("POST - Toggled light {} - {}").format(self._name, self._lightState)
-
-  def apiGETLightSwitches(self) -> str:
-    """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
-    return "GET - Light Switches"
-
-  def apiGETLightSwitch(self) -> str:
-    """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
-    return "GET - Light Switch"
-
 #
 #----------------------------------
 #
@@ -242,7 +169,7 @@ class Switch:
 
   def __init__(self, name: str):
     """ Constructor setting some default values. """
-    print("creating switch object: "+name)
+    print("  ..creating switch object: "+name)
     self._state=True
     self._name=name
     self._gpioPin=0

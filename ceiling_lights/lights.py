@@ -10,6 +10,7 @@
 # Light switch 2 connected to pin 18 (GPIO 24) and pin 17 (3v3) to give it power through a 12kOhm resistor  #
 #***********************************************************************************************************#
 from jcreyf_ledstrip import Light, Switch
+from jcreyf_api import RESTserver
 from time import sleep
 import yaml
 import sys
@@ -30,6 +31,62 @@ def debug(*args):
     else:
       print(("debug -> {}").format(args))
 
+def apiGETLights(uri, path_vars, parms) -> str:
+  """ Callback function for the GET operation at the '/lights' endpoint. """
+  debug(uri)
+  for path_var in path_vars:
+    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+  for parm in parms:
+    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  html="<h1>GET - Lights:</h1>"
+  for light in lights:
+    url=("/light/{}").format(light._name)
+    html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light._name, url, url)
+  return html
+
+def apiGETLight(uri, path_vars, parms) -> str:
+  """ Callback function for the GET operation at the '/light/<light_name>' endpoint. """
+  debug(uri)
+  for path_var in path_vars:
+    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    if path_var == "light_name":
+      light_name=path_vars[path_var]
+  for parm in parms:
+    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  html=("<h1>GET - Light {}:</h1>").format(light_name)
+#  for switch in light.switches:
+#    url=("/light/{}/switch").format(light._name)
+#    html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light._name, url, url)
+  return html
+
+def apiPOSTLight(uri, path_vars, parms) -> str:
+  """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
+  debug(uri)
+  for path_var in path_vars:
+    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+  for parm in parms:
+    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+#  self.Toggle()
+  return ("POST - Toggled light {} - {}").format("self._name", "self._lightState")
+
+def apiGETLightSwitches(uri, path_vars, parms) -> str:
+  """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
+  debug(uri)
+  for path_var in path_vars:
+    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+  for parm in parms:
+    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  return "GET - Light Switches"
+
+def apiGETLightSwitch(uri, path_vars, parms) -> str:
+  """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
+  debug(uri)
+  for path_var in path_vars:
+    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+  for parm in parms:
+    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  return "GET - Light Switch"
+
 
 #--------------------------------------------------#
 # The app starts here...
@@ -37,7 +94,8 @@ def debug(*args):
 if __name__ == '__main__':
   print(("number of threads: {}").format(threading.activeCount()))
   print("Reading the config...")
-  lights=[]    # list of Light objects (typically 1)
+  apiServer=None        # the REST API server wrapper
+  lights=[]             # list of Light objects (typically 1)
 
   # We run this app as a daemon on the Raspberry PI, which means that we most probably run this from a different
   # directory.  The lights.yaml file is in the same directory as this app, so make sure we explicitly set the
@@ -58,30 +116,45 @@ if __name__ == '__main__':
   # There may be config for multiple lights in the yaml-file.
   # Lets set them all up:
   debug(("config: {}").format(config))
-  debug(("Number of light configurations: {}").format(len(config)))
+
+  # The API server is optional:
+  try:
+    apiserver_config=config["apiserver"]
+    _name=apiserver_config["name"]
+    _port=apiserver_config["port"]
+    print("API Server:")
+    print(" name:", _name)
+    print(" port:", _port)
+    apiServer=RESTserver(_name)
+    apiServer.debug=DEBUG
+    apiServer.port=_port
+    del apiserver_config   # No longer need this config in memory
+    del _name
+    del _port
+  except:
+    print("there's no config for an API server")
+
+  lights_config=config["lights"]
+  debug(("Number of light configurations: {}").format(len(lights_config)))
   print("===================")
-  for light_config in config:
+  for light_config in lights_config:
     print("Light:")
-    light_config=light_config["light"]
     debug("light:", light_config)
     _name=light_config['name']
     _ledCount=light_config['led_count']
     _brightness=light_config['brightness']
     _gpioPin=light_config['gpio_pin']
-    _apiServerPort=light_config['apiserver_port']
     print(" name:", _name)
     print(" led count:", _ledCount)
     print(" brightness:", _brightness)
     print(" GPIO pin:", _gpioPin)
-    print(" API Server port:", _apiServerPort)
     # Create a light instance and set its properties:
-    light=Light(_name)
-    light.debug=DEBUG
-    light.ledCount=_ledCount
-    light.ledBrightness=_brightness
-    light.stripGpioPin=_gpioPin
-    light.apiServerPort=_apiServerPort
-    light.Start()
+    _light=Light(_name)
+    _light.debug=DEBUG
+    _light.ledCount=_ledCount
+    _light.ledBrightness=_brightness
+    _light.stripGpioPin=_gpioPin
+    _light.Start()
 
     # Each light may have 0 or more switches to control it.
     try:
@@ -99,20 +172,32 @@ if __name__ == '__main__':
       # Lets set them all up for this light:
       for switch_config in switches_config:
         print(" switch:")
-        switch_config=switch_config["switch"]
         debug(("switch config: {}").format(switch_config))
         _name=switch_config['name']
         _gpioPin=switch_config['gpio_pin']
         print("  name:", _name)
         print("  GPIO pin:", _gpioPin)
         # Create the switch and set its properties:
-        switch=Switch(_name)
-        switch.gpioPin=_gpioPin
-        switch.init()
-        light.addSwitch(switch)
+        _switch=Switch(_name)
+        _switch.gpioPin=_gpioPin
+        _switch.init()
+        _light.addSwitch(_switch)
 
     # Add the light to the list and move on to the next one (if any)
-    lights.append(light)
+    lights.append(_light)
+
+  # Everything has been set up.  No longer need these config objects in memory:
+  del _name
+  del _gpioPin
+  del _ledCount
+  del _brightness
+  del _switch
+  del _light
+  del switch_config
+  del switches_config
+  del light_config
+  del lights_config
+  del config
 
   # List the Lights and their Switch objects (if any):
   if DEBUG:
@@ -124,6 +209,51 @@ if __name__ == '__main__':
     print("---------------")
 
   print("===================")
+  # The API server is optional, so don't try to configure and start one if we don't have one set up:
+  if isinstance(apiServer, RESTserver):
+    print("Setting up routing rules in the API server...")
+    #  allowedMethods=['GET','POST','PUT','DELETE',])
+
+    # View the whole setup: http://0.0.0.0:80/
+    print("  setting up: /")
+    apiServer.add_endpoint(endpoint='/', \
+                           endpoint_name='home', \
+                           htmlTemplateFile='home.html', \
+                           htmlTemplateData={'title': 'Ledstrip', \
+                                             'name': '<oops>', \
+                                             'switches': '[oops]'}, \
+                           allowedMethods=['GET',])
+    # View all the Light objects in the setup: http://0.0.0.0:80/lights
+    print("  setting up: /lights")
+    apiServer.add_endpoint(endpoint='/lights', \
+                           endpoint_name='lights', \
+                           getHandler=apiGETLights, \
+                           allowedMethods=['GET',])
+    # View the setup of 1 specific Light object: http://0.0.0.0:80/light/<name>
+    # 'GET' shows the config;
+    # 'POST' to update its config (config in body as JSON payload);
+    print("  setting up: /light/<light_name>")
+    apiServer.add_endpoint(endpoint='/light/<light_name>', \
+                           endpoint_name='light', \
+                           getHandler=apiGETLight, \
+                           postHandler=apiPOSTLight, \
+                           allowedMethods=['GET','POST',])
+    # View all the Switch objects in the setup for a specific Light: http://0.0.0.0:80/light/<name>/switches
+    print("  setting up: /light/<light_name>/switches")
+    apiServer.add_endpoint(endpoint='/light/<light_name>/switches', \
+                           endpoint_name='switches', \
+                           getHandler=apiGETLightSwitches, \
+                           allowedMethods=['GET',])
+    # View the setup of 1 specific Switch object for a specific Light: http://0.0.0.0:80/light/<name>/switch/<name>
+    print("  setting up: /light/<light_name>/switch/<switch_name>")
+    apiServer.add_endpoint(endpoint='/light/<light_name>/switch/<switch_name>', \
+                           endpoint_name='switch', \
+                           getHandler=apiGETLightSwitch, \
+                           allowedMethods=['GET',])
+
+    print("Starting the REST API server...")
+    apiServer.start()
+
   print('Press Ctrl-C to quit.')
 
   try:
@@ -131,6 +261,7 @@ if __name__ == '__main__':
       # Infinite loop, checking each button status every so many milliseconds and toggling the lights
       # if a change in one of the switches is detected:
       sleep(0.5)
+      debug("checking switches...")
       for light in lights:
         for switch in light.switches:
           if switch.hasChanged():
@@ -139,16 +270,18 @@ if __name__ == '__main__':
 
   except KeyboardInterrupt:
     # Ctrl-C was hit!
-    # Destroy the objects, invoking their destructors, which will turn off the light and clean up all the resources.
-    # Then stop the app...
+    print("...ending app...")
+
+  finally:
+    # Destroy the objects, invoking their destructors, which will turn off the light and clean up all the resources:
+    del apiServer
     for light in lights:
       for switch in light.switches:
         debug(("destroying switch: {}").format(switch.name))
         light.delSwitch(switch)
       debug(("destroying light: {}").format(light.name))
       del light
-
-  finally:
     # Release the ports that were setup on the RPi for this app:
     Switch.cleanUp()
+    # Then stop the app...
     print("I'm out of here! Adios...\n")

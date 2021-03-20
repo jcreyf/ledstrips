@@ -37,10 +37,11 @@ class RESTserver:
     self._serverPort=None
     self._server=None
     self._serverThread=None
+    self._hasEndpoints=False
 
   def __del__(self):
     """ Destructor will turn off the web server. """
-    print("destroying REST server: "+self._name)
+    print("destroying API server: "+self._name)
     if not self._server == None:
 # TODO: Need a clean way to stop the server like this:
 #       https://stackoverflow.com/questions/15562446/how-to-stop-flask-application-without-using-ctrl-c
@@ -98,12 +99,15 @@ class RESTserver:
     # Now add the new endpoint:
     self._server.add_url_rule(rule=endpoint, \
                               endpoint=endpoint_name, \
-                              view_func=RESTEndpointView.as_view('light_api', \
+                              view_func=RESTEndpointView.as_view(("api_{}").format(endpoint_name), \
                                                                  getHandler=getHandler, \
                                                                  postHandler=postHandler, \
                                                                  htmlTemplateFile=htmlTemplateFile, \
-                                                                 htmlTemplateData=htmlTemplateData), \
+                                                                 htmlTemplateData=htmlTemplateData, \
+                                                                 debug=self._debug), \
                               methods=allowedMethods)
+    # Set the flag to indicate that we've set up custom routing rules in the server:
+    self._hasEndpoints=True
 
   def start(self):
     """ 
@@ -116,6 +120,15 @@ class RESTserver:
     # Initialize the REST server if not done yet:
     if self._server == None:
       self.initialize()
+
+    # It makes no sense to start the server and waste all the resources if we don't have any rules configured:
+    if not self._hasEndpoints:
+      raise Exception("There are no routing rules configured for this app.  It makes no sense to start the API server!")
+
+    # We could have a closer look the rules (Flask comes with at least 1 static rule out of the box):
+#    for rule in self._server.url_map.iter_rules():
+#      print(rule)
+
     # Turns out that Flask throws an exception when DEBUG is enabled when the server runs in a separate thread!
     # Also need to disable the reloader.
     #   "ValueError: signal only works in main thread"
@@ -151,7 +164,7 @@ class RESTEndpointView(MethodView):
 #      return req(*args, **kwargs)
 #    return decorator
 
-  def __init__(self, getHandler=None, postHandler=None, htmlTemplateFile=None, htmlTemplateData=None):
+  def __init__(self, getHandler=None, postHandler=None, htmlTemplateFile=None, htmlTemplateData=None, debug=False):
     """ Store the function to execute when the endpoint gets triggered.
     Arguments:
       getHandler: callback function to execute when the GET operation is called (optional);
@@ -163,35 +176,37 @@ class RESTEndpointView(MethodView):
     self._postHandler=postHandler
     self._htmlTemplateFile=htmlTemplateFile
     self._htmlTemplateData=htmlTemplateData
+    self._debug=debug
 
-  def log(self):
-    print("--------------------------------")
+  def log(self, path_vars):
+    print("BEGIN DEBUG OUTPUT------------------------")
     print(request.full_path)
     print(("-> Request: {}").format(request))
-    print(("-> Header count: {}").format(len(request.headers)))
-    print(request.headers)
-    print(("-> Number of arguments in call: {}").format(len(request.args)))
-    for arg in request.args:
-      print(("  arg = '{}': '{}'").format(arg, request.args[arg]))
-    if len(request.data) > 0:
-      print("-> Body:")
-      print(request.data)
-
-  def get(self, **args):
-    """ GET request.  **args is an optional dictionary with key/values from the url """
-    print("in MyMethodView:GET")
-    self.log()
-
     # print the arguments that we get from Flask.
     # Setting up an endpoint like '/light/<name>' will call this method with 1 argument: ['name': 'Loft']
     # when this url is called: http://0.0.0.0:<port>/light/Loft
-    for key, value in args.items():
-      print(("{} -> {}").format(key, value))
+    print(("-> Number of path variables in call: {}").format(len(path_vars)))
+    for key, value in path_vars.items():
+      print(("  path var    -> '{}': '{}'").format(key, value))
+    print(("-> Number of arguments in call: {}").format(len(request.args)))
+    for arg in request.args:
+      print(("  request arg -> '{}': '{}'").format(arg, request.args[arg]))
+    if len(request.data) > 0:
+      print("-> Body:")
+      print(request.data)
+    print(("-> Header count: {}").format(len(request.headers)))
+    print(request.headers)
+    print("END DEBUG OUTPUT---------------------------")
 
+  def get(self, **path_vars):
+    """ GET request.  **path_vars is an optional dictionary with key/values from the url """
+    if self._debug:
+      print("in MyMethodView:GET")
+      self.log(path_vars)
     html=None
     if callable(self._getHandler):
       # Execute  the handler function if one was provided:
-      html=self._getHandler()
+      html=self._getHandler(request.full_path, path_vars, request.args)
     if not self._htmlTemplateFile is None:
       # Render the Jinja2 template if one was provided:
       #   https://jinja.palletsprojects.com/en/2.11.x/templates/
@@ -201,20 +216,15 @@ class RESTEndpointView(MethodView):
     # Create a new flask.Response object and return that:
     return Response(html, status=200, headers={})
 
-  def post(self, **args):
-    # Create
-    print("in MyMethodView:POST")
-    self.log()
-    # print the arguments that we get from Flask.
-    # Setting up an endpoint like '/light/<name>' will call this method with 1 argument: ['name': 'Loft']
-    # when this url is called: http://0.0.0.0:<port>/light/Loft
-    for key, value in args.items():
-      print(("{} -> {}").format(key, value))
-
+  def post(self, **path_vars):
+    """ POST request.  **path_vars is an optional dictionary with key/values from the url """
+    if self._debug:
+      print("in MyMethodView:POST")
+      self.log(path_vars)
     html=None
     if callable(self._postHandler):
       # Execute  the handler function if one was provided:
-      html=self._postHandler()
+      html=self._postHandler(request.full_path, path_vars, request.args)
     if not self._htmlTemplateFile is None:
       # Render the Jinja2 template if one was provided:
       #   https://jinja.palletsprojects.com/en/2.11.x/templates/
