@@ -109,13 +109,16 @@ def apiGETLight(host_url, uri, path_vars, parms) -> str:
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
     _returnValue["light"]={"name": light.name,
-                           "status": light._lightState
+                           "uri": host_url+("light/{}").format(light.name),
+                           "state": light._lightState
                           }
 #    html+=("<form id='toggle' method='POST' action='/light/{}'><button class='button' type='submit'>toggle</button></form><br>").format(light_name)
     _switches=[]
     for switch in light.switches:
       _switches.append({"name": switch.name,
-                        "uri": host_url+("light/{}/switch/{}").format(light.name, switch.name)})
+                        "uri": host_url+("light/{}/switch/{}").format(light.name, switch.name),
+                        "state": switch._state
+                       })
     _returnValue["switches"]=_switches
   else:
     # We can't find this light!  Oops...
