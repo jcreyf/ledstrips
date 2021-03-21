@@ -32,7 +32,7 @@ def debug(*args):
     else:
       print(("debug -> {}").format(args))
 
-def apiGETHome(uri, path_vars, parms) -> str:
+def apiGETHome(host_url, uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/' endpoint. """
   debug(uri)
   for path_var in path_vars:
@@ -45,20 +45,23 @@ def apiGETHome(uri, path_vars, parms) -> str:
     html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light._name, url, url)
   return html
 
-def apiGETLights(uri, path_vars, parms) -> str:
+def apiGETLights(host_url, uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/lights' endpoint. """
   debug(uri)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
-  html="<h1>GET - Lights:</h1>"
+  _data = {}
+  _self=host_url+"/"+uri
+  _lights=[]
   for light in lights:
-    url=("/light/{}").format(light._name)
-    html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light._name, url, url)
-  return html
+    _lights.append({"name": light.name, "uri": host_url+"/light/"+light.name})
+  _data['self'] = self
+  _data['lights'] = _lights
+  return json.dumps(_data, indent=2)
 
-def apiGETLight(uri, path_vars, parms) -> str:
+def apiGETLight(host_url, uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>' endpoint. """
   debug(uri)
   for path_var in path_vars:
@@ -87,7 +90,7 @@ def apiGETLight(uri, path_vars, parms) -> str:
     html=("<h1>GET - Light {} not found!:</h1><br><a href='/lights'>Lights</a>").format(light_name)
   return html
 
-def apiPOSTLight(uri, path_vars, parms) -> str:
+def apiPOSTLight(host_url, uri, path_vars, parms) -> str:
   """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
   debug(uri)
   for path_var in path_vars:
@@ -112,7 +115,7 @@ def apiPOSTLight(uri, path_vars, parms) -> str:
     html=("<h1>POST - Light {} not found!:</h1><br><br><a href='/lights'>Lights</a>").format(light_name)
   return html
 
-def apiGETLightSwitches(uri, path_vars, parms) -> str:
+def apiGETLightSwitches(host_url, uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
   debug(uri)
   for path_var in path_vars:
@@ -139,7 +142,7 @@ def apiGETLightSwitches(uri, path_vars, parms) -> str:
     html=("<h1>GET - Light {} not found!:</h1><br><br><a href='/lights'>Lights</a>").format(light_name)
   return html
 
-def apiGETLightSwitch(uri, path_vars, parms) -> str:
+def apiGETLightSwitch(host_url, uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
   debug(uri)
   for path_var in path_vars:
