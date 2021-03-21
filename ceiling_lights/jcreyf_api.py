@@ -224,7 +224,7 @@ class RESTEndpointView(MethodView):
     html=None
     if callable(self._postHandler):
       # Execute  the handler function if one was provided:
-      html=self._postHandler(request.full_path, path_vars, request.args)
+      html=self._postHandler(request.host_url, request.full_path, path_vars, request.args)
     if not self._htmlTemplateFile is None:
       # Render the Jinja2 template if one was provided:
       #   https://jinja.palletsprojects.com/en/2.11.x/templates/
