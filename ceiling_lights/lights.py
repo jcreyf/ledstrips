@@ -57,7 +57,7 @@ def apiGETLights(host_url, uri, path_vars, parms) -> str:
   _lights=[]
   for light in lights:
     _lights.append({"name": light.name, "uri": host_url+"/light/"+light.name})
-  _data['self'] = self
+  _data['self'] = _self
   _data['lights'] = _lights
   return json.dumps(_data, indent=2)
 
