@@ -53,6 +53,8 @@ def apiGETLights(host_url, uri, path_vars, parms) -> str:
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
   _data = {}
+  # Remove leading or trailing slashes and questionmarks.
+  # In real life, this is removing the leading slash and trailing questionmark
   _self=host_url+uri.strip("/").strip("?")
   _lights=[]
   for light in lights:
