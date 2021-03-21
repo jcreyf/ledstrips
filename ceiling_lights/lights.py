@@ -310,7 +310,7 @@ if __name__ == '__main__':
     apiServer.add_endpoint(endpoint='/', \
                            endpoint_name='home', \
                            getHandler=apiGETHome, \
-                           htmlTemplateFile='home.html', \
+#                           htmlTemplateFile='home.html', \
 #                           htmlTemplateData={'title': 'Ledstrip', \
 #                                             'name': '<oops>', \
 #                                             'switches': '[oops]'}, \
