@@ -53,7 +53,7 @@ def apiGETLights(host_url, uri, path_vars, parms) -> str:
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
   _data = {}
-  _self=host_url+uri.strip("/")
+  _self=host_url+uri.strip("/").strip("?")
   _lights=[]
   for light in lights:
     _lights.append({"name": light.name, "uri": host_url+"light/"+light.name})

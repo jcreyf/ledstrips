@@ -232,4 +232,4 @@ class RESTEndpointView(MethodView):
     if html is None:
       html=("<h1>Oops!  Nothing to render to HTML!</h1>")
     # Create a new flask.Response object and return that:
-    return Response(html, status=200, headers={})
+    return Response(html, status=200, headers={"content-type": "application/json"})
