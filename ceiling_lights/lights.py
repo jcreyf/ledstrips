@@ -53,13 +53,13 @@ def apiGETLights(host_url, uri, path_vars, parms) -> str:
   for parm in parms:
     print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
   _data = {}
-  _self=host_url+"/"+uri
+  _self=host_url+uri.strip("/")
   _lights=[]
   for light in lights:
-    _lights.append({"name": light.name, "uri": host_url+"/light/"+light.name})
+    _lights.append({"name": light.name, "uri": host_url+"light/"+light.name})
   _data['self'] = _self
   _data['lights'] = _lights
-  return json.dumps(_data, indent=2)
+  return print(json.dumps(_data, indent=2))
 
 def apiGETLight(host_url, uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>' endpoint. """
