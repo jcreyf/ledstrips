@@ -311,9 +311,9 @@ if __name__ == '__main__':
                            endpoint_name='home', \
                            getHandler=apiGETHome, \
                            htmlTemplateFile='home.html', \
-                           htmlTemplateData={'title': 'Ledstrip', \
-                                             'name': '<oops>', \
-                                             'switches': '[oops]'}, \
+#                           htmlTemplateData={'title': 'Ledstrip', \
+#                                             'name': '<oops>', \
+#                                             'switches': '[oops]'}, \
                            allowedMethods=['GET',])
     # View all the Light objects in the setup: http://0.0.0.0:80/lights
     print("  setting up: /lights")
