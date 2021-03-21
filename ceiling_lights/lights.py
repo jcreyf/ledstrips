@@ -32,6 +32,19 @@ def debug(*args):
     else:
       print(("debug -> {}").format(args))
 
+def apiGETHome(uri, path_vars, parms) -> str:
+  """ Callback function for the GET operation at the '/' endpoint. """
+  debug(uri)
+  for path_var in path_vars:
+    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+  for parm in parms:
+    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  html="<h1>Ceiling Lights:</h1>"
+  for light in lights:
+    url=("/light/{}").format(light._name)
+    html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light._name, url, url)
+  return html
+
 def apiGETLights(uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/lights' endpoint. """
   debug(uri)
@@ -296,6 +309,7 @@ if __name__ == '__main__':
     print("  setting up: /")
     apiServer.add_endpoint(endpoint='/', \
                            endpoint_name='home', \
+                           getHandler=apiGETHome, \
                            htmlTemplateFile='home.html', \
                            htmlTemplateData={'title': 'Ledstrip', \
                                              'name': '<oops>', \
