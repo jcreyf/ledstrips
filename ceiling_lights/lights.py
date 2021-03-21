@@ -86,7 +86,21 @@ def apiGETLights(host_url, uri, path_vars, parms) -> str:
 def apiGETLight(host_url, uri, path_vars, parms) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>' endpoint.
   This returns a JSON object like this example:
-
+  {
+    "self": "http://pi-leds3/light/Bureau",
+    "light": {
+        "name": "Bureau",
+        "uri": "http://pi-leds3/light/Bureau",
+        "state": false
+    },
+    "switches": [
+        {
+            "name": "Desk",
+            "uri": "http://pi-leds3/light/Bureau/switch/Desk",
+            "state": 1
+        }
+    ]
+  }
   """
   debug(uri)
   for path_var in path_vars:
