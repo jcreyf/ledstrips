@@ -112,7 +112,6 @@ def apiGETLight(host_url, uri, path_vars, parms) -> str:
                            "uri": host_url+("light/{}").format(light.name),
                            "state": light._lightState
                           }
-#    html+=("<form id='toggle' method='POST' action='/light/{}'><button class='button' type='submit'>toggle</button></form><br>").format(light_name)
     _switches=[]
     for switch in light.switches:
       _switches.append({"name": switch.name,
@@ -122,7 +121,9 @@ def apiGETLight(host_url, uri, path_vars, parms) -> str:
     _returnValue["switches"]=_switches
   else:
     # We can't find this light!  Oops...
-    html=("<h1>GET - Light {} not found!:</h1><br><a href='/lights'>Lights</a>").format(light_name)
+    _errors=[]
+    _errors.append({"error": "Light "+light_name+" not found!"})
+    _returnValue["errors"]=_errors
   return json.dumps(_returnValue)
 
 
@@ -153,7 +154,9 @@ def apiPOSTLight(host_url, uri, path_vars, parms) -> str:
     html+=("<a href='/light/{}'>{}</a>").format(light.name, light.name)
   else:
     # We can't find this light!  Oops...
-    html=("<h1>POST - Light {} not found!:</h1><br><br><a href='/lights'>Lights</a>").format(light_name)
+    _errors=[]
+    _errors.append({"error": "Light "+light_name+" not found!"})
+    _returnValue["errors"]=_errors
   return json.dumps(_returnValue)
 
 
@@ -186,7 +189,9 @@ def apiGETLightSwitches(host_url, uri, path_vars, parms) -> str:
     html+="<a href='/lights'>Lights</a><br>"
   else:
     # We can't find this light!  Oops...
-    html=("<h1>GET - Light {} not found!:</h1><br><br><a href='/lights'>Lights</a>").format(light_name)
+    _errors=[]
+    _errors.append({"error": "Light "+light_name+" not found!"})
+    _returnValue["errors"]=_errors
   return json.dumps(_returnValue)
 
 
@@ -230,7 +235,9 @@ def apiGETLightSwitch(host_url, uri, path_vars, parms) -> str:
       html+="<a href='/lights'>Lights</a><br>"
   else:
     # We can't find this light!  Oops...
-    html=("<h1>GET - Light {} not found!:</h1><br><br><a href='/lights'>Lights</a>").format(light_name)
+    _errors=[]
+    _errors.append({"error": "Light "+light_name+" not found!"})
+    _returnValue["errors"]=_errors
   return json.dumps(_returnValue)
 
 
