@@ -74,12 +74,12 @@ def apiGETLights(host_url, uri, path_vars, parms) -> str:
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
   _self=host_url+uri.strip("/").strip("?")
-  _returnValue['self']=_self
+  _returnValue["self"]=_self
   _lights=[]
   for light in lights:
     _lights.append({"name": light.name,
                     "uri": host_url+"light/"+light.name})
-  _returnValue['lights']=_lights
+  _returnValue["lights"]=_lights
   return json.dumps(_returnValue)
 
 
@@ -99,7 +99,7 @@ def apiGETLight(host_url, uri, path_vars, parms) -> str:
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
   _self=host_url+uri.strip("/").strip("?")
-  _returnValue['self']=_self
+  _returnValue["self"]=_self
   # Go find the light:
   _found=False
   for light in lights:
@@ -108,16 +108,15 @@ def apiGETLight(host_url, uri, path_vars, parms) -> str:
       break
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
-#    html=("<h1>GET - Light {}:</h1>").format(light_name)
-#    html+=("<h2>Status: {}</h2>").format(light._lightState)
+    _returnValue["light"]={"name": light.name,
+                           "status": light._lightState
+                          }
 #    html+=("<form id='toggle' method='POST' action='/light/{}'><button class='button' type='submit'>toggle</button></form><br>").format(light_name)
     _switches=[]
     for switch in light.switches:
       _switches.append({"name": switch.name,
                         "uri": host_url+("light/{}/switch/{}").format(light.name, switch.name)})
-#      html+=("<a href='/light/{}/switches'>Switches</a><br>").format(light.name)
-#      html+=("<h3>Switch: {}</h3>Url: <a href='{}'>{}</a><br><br>").format(switch.name, url, switch.name)
-    _returnValue['switches']=_switches
+    _returnValue["switches"]=_switches
   else:
     # We can't find this light!  Oops...
     html=("<h1>GET - Light {} not found!:</h1><br><a href='/lights'>Lights</a>").format(light_name)
@@ -137,7 +136,7 @@ def apiPOSTLight(host_url, uri, path_vars, parms) -> str:
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
   _self=host_url+uri.strip("/").strip("?")
-  _returnValue['self']=_self
+  _returnValue["self"]=_self
   # Go find the light:
   _found=False
   for light in lights:
@@ -168,7 +167,7 @@ def apiGETLightSwitches(host_url, uri, path_vars, parms) -> str:
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
   _self=host_url+uri.strip("/").strip("?")
-  _returnValue['self']=_self
+  _returnValue["self"]=_self
   # Go find the light:
   _found=False
   for light in lights:
@@ -203,7 +202,7 @@ def apiGETLightSwitch(host_url, uri, path_vars, parms) -> str:
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
   _self=host_url+uri.strip("/").strip("?")
-  _returnValue['self']=_self
+  _returnValue["self"]=_self
   # Go find the light:
   _found=False
   for light in lights:
