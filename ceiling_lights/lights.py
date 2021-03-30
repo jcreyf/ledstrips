@@ -12,6 +12,7 @@
 from jcreyf_ledstrip import Light, Switch
 from jcreyf_api import RESTserver
 from time import sleep
+from flask import request
 import yaml
 import sys
 import os
@@ -34,13 +35,14 @@ def debug(*args):
       print(("debug -> {}").format(args))
 
 
-def apiGETHome(host_url, uri, path_vars, parms) -> str:
+#def apiGETHome(host_url, uri, path_vars, parms) -> str:
+def apiGETHome(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/' endpoint. """
   debug(uri)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
-  for parm in parms:
-    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  for arg in request.args:
+    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
   html="<h1>Ceiling Lights:</h1>"
   for light in lights:
     url=("/light/{}").format(light._name)
@@ -48,7 +50,8 @@ def apiGETHome(host_url, uri, path_vars, parms) -> str:
   return html
 
 
-def apiGETLights(host_url, uri, path_vars, parms) -> str:
+#def apiGETLights(host_url, uri, path_vars, parms) -> str:
+def apiGETLights(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/lights' endpoint.
   This returns a JSON object like this example:
   {
@@ -65,25 +68,26 @@ def apiGETLights(host_url, uri, path_vars, parms) -> str:
     ]
   }
   """
-  debug(uri)
+  debug(request.full_path)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
-  for parm in parms:
-    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  for arg in request.args:
+    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
-  _self=host_url+uri.strip("/").strip("?")
+  _self=request.host_url+request.full_path.strip("/").strip("?")
   _returnValue["self"]=_self
   _lights=[]
   for light in lights:
     _lights.append({"name": light.name,
-                    "uri": host_url+"light/"+light.name})
+                    "uri": request.host_url+"light/"+light.name})
   _returnValue["lights"]=_lights
   return json.dumps(_returnValue)
 
 
-def apiGETLight(host_url, uri, path_vars, parms) -> str:
+#def apiGETLight(host_url, uri, path_vars, parms) -> str:
+def apiGETLight(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>' endpoint.
   This returns a JSON object like this example:
   {
@@ -102,17 +106,17 @@ def apiGETLight(host_url, uri, path_vars, parms) -> str:
     ]
   }
   """
-  debug(uri)
+  debug(request.full_path)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
     if path_var == "light_name":
       light_name=path_vars[path_var]
-  for parm in parms:
-    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  for arg in request.args:
+    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
-  _self=host_url+uri.strip("/").strip("?")
+  _self=request.host_url+request.full_path.strip("/").strip("?")
   _returnValue["self"]=_self
   # Go find the light:
   _found=False
@@ -123,13 +127,13 @@ def apiGETLight(host_url, uri, path_vars, parms) -> str:
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
     _returnValue["light"]={"name": light.name,
-                           "uri": host_url+("light/{}").format(light.name),
+                           "uri": request.host_url+("light/{}").format(light.name),
                            "state": light._lightState
                           }
     _switches=[]
     for switch in light.switches:
       _switches.append({"name": switch.name,
-                        "uri": host_url+("light/{}/switch/{}").format(light.name, switch.name),
+                        "uri": request.host_url+("light/{}/switch/{}").format(light.name, switch.name),
                         "state": switch._state
                        })
     _returnValue["switches"]=_switches
@@ -141,19 +145,20 @@ def apiGETLight(host_url, uri, path_vars, parms) -> str:
   return json.dumps(_returnValue)
 
 
-def apiPOSTLight(host_url, uri, path_vars, parms) -> str:
+#def apiPOSTLight(host_url, uri, path_vars, parms) -> str:
+def apiPOSTLight(path_vars, request) -> str:
   """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
-  debug(uri)
+  debug(request.full_path)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
     if path_var == "light_name":
       light_name=path_vars[path_var]
-  for parm in parms:
-    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  for arg in request.args:
+    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
-  _self=host_url+uri.strip("/").strip("?")
+  _self=request.host_url+request.full_path.strip("/").strip("?")
   _returnValue["self"]=_self
   # Go find the light:
   _found=False
@@ -169,24 +174,25 @@ def apiPOSTLight(host_url, uri, path_vars, parms) -> str:
   else:
     # We can't find this light!  Oops...
     _errors=[]
-    _errors.append({"error": "Light "+light_name+" not found!"})
+    _errors.append({"error": "Light '"+light_name+"' not found!"})
     _returnValue["errors"]=_errors
   return json.dumps(_returnValue)
 
 
-def apiGETLightSwitches(host_url, uri, path_vars, parms) -> str:
+#def apiGETLightSwitches(host_url, uri, path_vars, parms) -> str:
+def apiGETLightSwitches(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
-  debug(uri)
+  debug(request.full_path)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
     if path_var == "light_name":
       light_name=path_vars[path_var]
-  for parm in parms:
-    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  for arg in request.args:
+    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
-  _self=host_url+uri.strip("/").strip("?")
+  _self=request.host_url+request.full_path.strip("/").strip("?")
   _returnValue["self"]=_self
   # Go find the light:
   _found=False
@@ -209,21 +215,22 @@ def apiGETLightSwitches(host_url, uri, path_vars, parms) -> str:
   return json.dumps(_returnValue)
 
 
-def apiGETLightSwitch(host_url, uri, path_vars, parms) -> str:
+#def apiGETLightSwitch(host_url, uri, path_vars, parms) -> str:
+def apiGETLightSwitch(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
-  debug(uri)
+  debug(request.full_path)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
     if path_var == "light_name":
       light_name=path_vars[path_var]
     elif path_var == "switch_name":
       switch_name=path_vars[path_var]
-  for parm in parms:
-    print(("  parameter     = '{}': '{}'").format(parm, parms[parm]))
+  for arg in request.args:
+    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
-  _self=host_url+uri.strip("/").strip("?")
+  _self=request.host_url+request.full_path.strip("/").strip("?")
   _returnValue["self"]=_self
   # Go find the light:
   _found=False
