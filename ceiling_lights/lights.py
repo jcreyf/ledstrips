@@ -147,7 +147,15 @@ def apiGETLight(path_vars, request) -> str:
 
 #def apiPOSTLight(host_url, uri, path_vars, parms) -> str:
 def apiPOSTLight(path_vars, request) -> str:
-  """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
+  """ Callback function for the POST operation at the '/light/<light_name>' endpoint.
+  We assume a JSON payload like this:
+  {
+  	"action": "toggle",
+	  "led-count": 100,
+  	"brightness": 50,
+	  "color": "125,54,34"
+  }
+  """
   debug(request.full_path)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
@@ -155,6 +163,19 @@ def apiPOSTLight(path_vars, request) -> str:
       light_name=path_vars[path_var]
   for arg in request.args:
     print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
+  # We're going to assume that we receive a JSON data payload if we receive anything.
+  # We just ignore everything if it's not JSON.
+  if request.is_json:
+    print("JSON payload:")
+    print(request.json)
+  # We're also very flexible in the payload structure!  We try to parse some fields and don't care too much
+  # if we don't find values in the spots that we expect them.
+  # If we don't find any usefull data, then we just toggle the ledstrip on or off.
+  _action=request.json.get("action")
+  _brightness=request.json.get("brigthness")
+  _color=request.json.get("color")
+  _ledCount=request.json.get("led-count")
+
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
