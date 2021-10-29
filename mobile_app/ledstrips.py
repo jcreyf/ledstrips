@@ -1,5 +1,10 @@
-# https://kivymd.readthedocs.io/en/latest/
-# Run: pip install kivyMD
+#
+# KivyMD docs:
+#   https://kivymd.readthedocs.io/en/latest/
+# Install the KivyMD libraries:
+#   /> pip install kivyMD
+# To compile into an Android app:
+#   https://kivy.org/doc/stable/guide/packaging-android.html
 #
 from kivymd.uix.screen import MDScreen
 from kivymd.app import MDApp
