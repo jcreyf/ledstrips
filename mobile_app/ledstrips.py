@@ -5,6 +5,8 @@
 #   /> pip install kivyMD
 # To compile into an Android app:
 #   https://kivy.org/doc/stable/guide/packaging-android.html
+# For the APK build, make sure to have these installed (in Fedora in my case):
+#   /> sudo dnf install python3-Cython java-11-openjdk-devel patch autoconf automake libtool perl libffi-devel
 #
 from kivymd.uix.screen import MDScreen
 from kivymd.app import MDApp
