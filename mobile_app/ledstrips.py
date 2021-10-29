@@ -4,8 +4,9 @@
 from kivymd.uix.screen import MDScreen
 from kivymd.app import MDApp
 from kivy.uix.image import Image
-from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
 from kivymd.uix.toolbar import MDToolbar
+from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
+from kivymd.uix.label import MDLabel
 import urllib.request
 
 class LedstripsApp(MDApp):
@@ -13,14 +14,34 @@ class LedstripsApp(MDApp):
     MDApp.get_running_app().stop()
 
   def loft(self, args):
+    self.text_log.text = ""
     print("Loft")
-    contents = urllib.request.urlopen("http://192.168.1.11:8888/light").read()
-    print(contents)
+    try:
+      contents = urllib.request.urlopen("http://192.168.1.11:8888/light").read()
+      self.text_log.text = str(contents)
+    except Exception as e:
+#      print("Oops!", e, "occurred.")
+      self.text_log.text = str(e)
 
   def bedroom(self, args):
-    print("Bedroom")
-    contents = urllib.request.urlopen("http://192.168.1.10:8888/light").read()
-    print(contents)
+    self.text_log.text = ""
+#    print("Bedroom")
+    try:
+      contents = urllib.request.urlopen("http://192.168.1.10:8888/light").read()
+      self.text_log.text = str(contents)
+    except Exception as e:
+#      print("Oops!", e, "occurred.")
+      self.text_log.text = str(e)
+
+  def bureau(self, args):
+    self.text_log.text = ""
+#    print("Bureau")
+    try:
+      contents = urllib.request.urlopen("http://192.168.1.12:8888/light").read()
+      self.text_log.text = str(contents)
+    except Exception as e:
+#      print("Oops!", e, "occurred.")
+      self.text_log.text = str(e)
 
   def build(self):
     screen = MDScreen()
@@ -32,6 +53,14 @@ class LedstripsApp(MDApp):
       ["exit-to-app", lambda x: self.exit()]
     ]
     screen.add_widget(self.toolbar)
+    # Log line:
+    self.text_log = MDLabel(
+      font_size = 18,
+      pos_hint = {"center_x": 0.5, "center_y": 0.20},
+      halign = "center",
+      theme_text_color = "Error"
+    )
+    screen.add_widget(self.text_log)
     # Button Loft:
     screen.add_widget(MDFillRoundFlatButton(
       text="Loft",
@@ -45,6 +74,13 @@ class LedstripsApp(MDApp):
       font_size = 24,
       pos_hint = {"center_x": 0.5, "center_y": 0.60},
       on_press = self.bedroom
+    ))
+    # Button Bureau:
+    screen.add_widget(MDFillRoundFlatButton(
+      text="Bureau",
+      font_size = 24,
+      pos_hint = {"center_x": 0.5, "center_y": 0.40},
+      on_press = self.bureau
     ))
     # Setting it in stone:
     return screen
