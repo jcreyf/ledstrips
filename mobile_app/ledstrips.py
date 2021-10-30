@@ -3,18 +3,22 @@
 #   https://kivymd.readthedocs.io/en/latest/
 # Install the KivyMD libraries:
 #   /> pip install kivyMD
+#
 # To compile into an Android app:
 #   https://kivy.org/doc/stable/guide/packaging-android.html
 # For the APK build, make sure to have these installed (in Fedora in my case):
-#   /> sudo dnf install python3-Cython java-11-openjdk-devel patch autoconf automake libtool perl libffi-devel
+#   https://buildozer.readthedocs.io/en/latest/installation.html#targeting-android
 #
+import kivy
+kivy.require('2.0.0')
+import kivymd
+import urllib.request
+
 from kivymd.uix.screen import MDScreen
 from kivymd.app import MDApp
-from kivy.uix.image import Image
 from kivymd.uix.toolbar import MDToolbar
 from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
 from kivymd.uix.label import MDLabel
-import urllib.request
 
 class LedstripsApp(MDApp):
   def exit(self):
