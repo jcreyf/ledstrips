@@ -130,4 +130,5 @@ dmypy.json
 
 # Buildozer mobile app stuff
 .buildozer
+bin/
 
