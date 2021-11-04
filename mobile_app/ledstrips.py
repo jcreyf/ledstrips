@@ -61,6 +61,7 @@ class LedstripsApp(MDApp):
       data=json.dumps(data)
       data=data.encode('utf-8')
       req=urllib.request.Request(url, data=data)
+      req.add_header("Content-Type", "application/json")
       contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
     except Exception as e:

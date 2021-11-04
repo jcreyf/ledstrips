@@ -27,7 +27,7 @@ from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
 from kivymd.uix.label import MDLabel
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.0"
+  _version = "v0.1.1"
 
   def exit(self):
     MDApp.get_running_app().stop()
@@ -57,10 +57,15 @@ class LedstripsApp(MDApp):
 #    print("Bureau")
     try:
       url="http://192.168.1.12:8888/light/Bureau"
-      data={'dummy': 1}
+      data={"action": "toggle",
+            "led-count": 100,
+            "brightness": 50,
+            "color": "125,54,34"
+      }
       data=json.dumps(data)
       data=data.encode('utf-8')
       req=urllib.request.Request(url, data=data)
+      req.add_header("Content-Type", "application/json")
       contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
     except Exception as e:
