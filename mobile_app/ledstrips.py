@@ -10,6 +10,7 @@
 #   https://buildozer.readthedocs.io/en/latest/installation.html#targeting-android
 #
 import kivy
+from kivymd.uix.behaviors import elevation
 kivy.require('2.0.0')
 import kivymd
 import urllib.request
@@ -22,6 +23,8 @@ from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
 from kivymd.uix.label import MDLabel
 
 class LedstripsApp(MDApp):
+  _version = "v0.1.0"
+
   def exit(self):
     MDApp.get_running_app().stop()
 
@@ -63,13 +66,23 @@ class LedstripsApp(MDApp):
   def build(self):
     screen = MDScreen()
     # Top toolbar:
-    self.toolbar = MDToolbar(title="Ledstrips")
+    self.toolbar = MDToolbar(
+      title="Ledstrips",
+      elevation=20
+    )
     self.toolbar.pos_hint = {"top": 1}
     self.toolbar.right_action_items = [
       # Icon list: https://materialdesignicons.com/
       ["exit-to-app", lambda x: self.exit()]
     ]
     screen.add_widget(self.toolbar)
+    # Version line:
+    screen.add_widget(MDLabel(
+      text=self._version,
+      font_size = 12,
+      pos_hint = {"center_x": 0.5, "center_y": 0.95},
+      halign = "center"
+    ))
     # Log line:
     self.text_log = MDLabel(
       font_size = 18,
