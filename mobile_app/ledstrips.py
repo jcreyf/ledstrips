@@ -13,6 +13,7 @@ import kivy
 kivy.require('2.0.0')
 import kivymd
 import urllib.request
+import json
 
 from kivymd.uix.screen import MDScreen
 from kivymd.app import MDApp
@@ -48,7 +49,12 @@ class LedstripsApp(MDApp):
     self.text_log.text = ""
 #    print("Bureau")
     try:
-      contents = urllib.request.urlopen("http://192.168.1.12:8888/light").read()
+      url="http://192.168.1.12:8888/light/Bureau"
+      data={'dummy': 1}
+      data=json.dumps(data)
+      data=data.encode('utf-8')
+      req=urllib.request.Request(url, data=data)
+      contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
     except Exception as e:
 #      print("Oops!", e, "occurred.")
