@@ -1,4 +1,8 @@
 #
+# THIS FILE IS AN EXACT COPY OF ledstrips.py!!!!
+# THIS FILE IS REQUIRED FOR BUILDOZER TO GENERATE THE ANDROID APP
+#
+#
 # KivyMD docs:
 #   https://kivymd.readthedocs.io/en/latest/
 # Install the KivyMD libraries:
