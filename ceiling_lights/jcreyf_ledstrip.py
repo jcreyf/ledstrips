@@ -25,7 +25,7 @@ class Light:
     print("  ..creating light object: "+name)
     self._name=name                        # Human name of the LED strip;
     self._ledCount=100                     # Number of individually addressable LEDs on the strip;
-    self._ledColor="0,0,0"                 # RGB color value;
+    self._ledColor="1,1,1"                 # RGB color value;
     self._ledBrightness=255                # Set to 0 for darkest and 255 for brightest;
     self._ledFrequency=800000              # LED signal frequency in hertz (usually 800khz);
     self._ledDmaChannel=10                 # DMA channel to use for generating signal (try 10);

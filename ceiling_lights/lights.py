@@ -326,9 +326,7 @@ if __name__ == '__main__':
     print(" name:", _name)
     print(" port:", _port)
     apiServer=RESTserver(_name)
-#    apiServer.debug=DEBUG
-    apiServer.debug=True
-
+    apiServer.debug=DEBUG
     apiServer.port=_port
     del apiserver_config   # No longer need this config in memory
     del _name
