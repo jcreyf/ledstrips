@@ -20,7 +20,8 @@ import threading
 import json
 
 # See if the DEBUG environment variable was set (false by default):
-DEBUG=os.getenv('DEBUG', False)
+#DEBUG=os.getenv('DEBUG', False)
+DEBUG=os.getenv('DEBUG', True)
 if type(DEBUG) == str:
   DEBUG=DEBUG.lower() in ('true', 'yes', 'y', '1')
 
