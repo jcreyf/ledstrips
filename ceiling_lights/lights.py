@@ -189,6 +189,9 @@ def apiPOSTLight(path_vars, request) -> str:
       break
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
+    light.ledCount(_ledCount)
+    light.ledBrightness(_brightness)
+    light.ledColor(_color)
     light.Toggle()
     html=("<h1>POST - Toggled light {} - {}</h1><br>").format(light.name, light._lightState)
     html+=("<a href='/light/{}'>{}</a>").format(light.name, light.name)
