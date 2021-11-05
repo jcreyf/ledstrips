@@ -145,7 +145,7 @@ class Light:
   def On(self):
     """ Turn the leds on. """
     # Set the leds to white, full brightness:
-    color = Color(128, 64, 32, 255)
+    color = Color(255, 64, 128, 255)
 #    colorTuple=self._ledColor.split(",")
 #    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], self._ledBrightness)
     for i in range(self._strip.numPixels()):
