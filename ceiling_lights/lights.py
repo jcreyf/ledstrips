@@ -188,9 +188,9 @@ def apiPOSTLight(path_vars, request) -> str:
       break
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
-    print("ledCount: "+str(_ledCount))
-    print("ledBrightness: "+str(_brightness))
-    print("ledColor: "+_color)
+    debug("ledCount: "+str(_ledCount))
+    debug("ledBrightness: "+str(_brightness))
+    debug("ledColor: "+_color)
 #    light.ledCount(_ledCount)
 #    light.ledBrightness(_brightness)
 #    light.ledColor(_color)
