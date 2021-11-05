@@ -155,9 +155,9 @@ class Light:
 
   def Off(self):
     """ Turn the leds off. """
-#    color = Color(0, 0, 0, 0)
-    colorTuple=self._ledColor.split(",")
-    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], 0)
+    color = Color(0, 0, 0, 0)
+#    colorTuple=self._ledColor.split(",")
+#    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], 0)
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
     self._strip.show()
