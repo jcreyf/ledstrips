@@ -175,7 +175,6 @@ def apiPOSTLight(path_vars, request) -> str:
   _brightness=request.json.get("brigthness")
   _color=request.json.get("color")
   _ledCount=request.json.get("led-count")
-
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
@@ -189,6 +188,7 @@ def apiPOSTLight(path_vars, request) -> str:
       break
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
+    debug(_ledCount)
     light.ledCount(_ledCount)
     light.ledBrightness(_brightness)
     light.ledColor(_color)

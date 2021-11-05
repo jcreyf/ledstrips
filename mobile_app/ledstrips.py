@@ -23,7 +23,7 @@ from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
 from kivymd.uix.label import MDLabel
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.1"
+  _version = "v0.1.2"
 
   def exit(self):
     MDApp.get_running_app().stop()
