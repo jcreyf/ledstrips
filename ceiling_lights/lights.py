@@ -189,9 +189,9 @@ def apiPOSTLight(path_vars, request) -> str:
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
 # JCREYF - TODO
-    f = open("/data/runtime/ceiling_lights/jc.log", "a")
-    f.write("Trigger:\n")
-    f.write("ledCount: "+str(_ledCount))
+    f = open("/data/runtime/ceiling_lights/0jc.log", "a")
+    f.write("\nTrigger:")
+    f.write("\nledCount: "+str(_ledCount))
     f.write("\nledBrightness: "+str(_brightness))
     f.write("\nledColor: "+_color)
     f.close()

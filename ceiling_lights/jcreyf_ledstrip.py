@@ -148,7 +148,7 @@ class Light:
 # JCREYF - TODO
 #    color = Color(128, 64, 128, 128)
     colorTuple=self._ledColor.split(",")
-    f = open("/data/runtime/ceiling_lights/jc.log", "a")
+    f = open("/data/runtime/ceiling_lights/0jc.log", "a")
     f.write("\n\nLedstrip:")
     f.write(colorTuple)
     color=Color(colorTuple[0], colorTuple[1], colorTuple[2], self._ledBrightness)
