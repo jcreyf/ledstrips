@@ -172,7 +172,7 @@ def apiPOSTLight(path_vars, request) -> str:
   # if we don't find values in the spots that we expect them.
   # If we don't find any usefull data, then we just toggle the ledstrip on or off.
   _action=request.json.get("action")
-  _brightness=request.json.get("brigthness")
+  _brightness=request.json.get("brightness")
   _color=request.json.get("color")
   _ledCount=request.json.get("led-count")
   _returnValue={}
@@ -190,10 +190,10 @@ def apiPOSTLight(path_vars, request) -> str:
     # We found the light.  Generate the payload to send back with the light's details:
 # JCREYF - TODO
     f = open("/data/runtime/ceiling_lights/jc.log", "a")
-    f.write("Trigger:")
+    f.write("Trigger:\n")
     f.write("ledCount: "+str(_ledCount))
-    f.write("ledBrightness: "+str(_brightness))
-    f.write("ledColor: "+_color)
+    f.write("\nledBrightness: "+str(_brightness))
+    f.write("\nledColor: "+_color)
     f.close()
 #    light.ledCount(_ledCount)
 #    light.ledBrightness(_brightness)
