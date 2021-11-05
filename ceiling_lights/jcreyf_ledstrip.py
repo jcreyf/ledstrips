@@ -145,7 +145,8 @@ class Light:
   def On(self):
     """ Turn the leds on. """
     # Set the leds to white, full brightness:
-    color = Color(255, 64, 128, 255)
+# JCREYF - TODO
+    color = Color(128, 64, 128, 128)
 #    colorTuple=self._ledColor.split(",")
 #    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], self._ledBrightness)
     for i in range(self._strip.numPixels()):
@@ -155,6 +156,7 @@ class Light:
 
   def Off(self):
     """ Turn the leds off. """
+# JCREYF - TODO
     color = Color(0, 0, 0, 0)
 #    colorTuple=self._ledColor.split(",")
 #    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], 0)
