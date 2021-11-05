@@ -146,9 +146,9 @@ class Light:
     """ Turn the leds on. """
     # Set the leds to white, full brightness:
 # JCREYF - TODO
-    color = Color(128, 64, 128, 128)
-#    colorTuple=self._ledColor.split(",")
-#    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], self._ledBrightness)
+#    color = Color(128, 64, 128, 128)
+    colorTuple=self._ledColor.split(",")
+    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], self._ledBrightness)
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
     self._strip.show()
