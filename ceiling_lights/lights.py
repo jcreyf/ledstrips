@@ -20,8 +20,7 @@ import threading
 import json
 
 # See if the DEBUG environment variable was set (false by default):
-#DEBUG=os.getenv('DEBUG', False)
-DEBUG=os.getenv('DEBUG', True)
+DEBUG=os.getenv('DEBUG', False)
 if type(DEBUG) == str:
   DEBUG=DEBUG.lower() in ('true', 'yes', 'y', '1')
 
@@ -327,7 +326,9 @@ if __name__ == '__main__':
     print(" name:", _name)
     print(" port:", _port)
     apiServer=RESTserver(_name)
-    apiServer.debug=DEBUG
+#    apiServer.debug=DEBUG
+    apiServer.debug=True
+
     apiServer.port=_port
     del apiserver_config   # No longer need this config in memory
     del _name
