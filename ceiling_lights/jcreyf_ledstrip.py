@@ -157,7 +157,6 @@ class Light:
     f.write(colorTuple[1])
     f.write(colorTuple[2])
     f.close()
-    color=Color(128, 32, 64, self._ledBrightness)
 
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
