@@ -21,9 +21,10 @@ from kivymd.app import MDApp
 from kivymd.uix.toolbar import MDToolbar
 from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
 from kivymd.uix.label import MDLabel
+#from kivymd.uix.picker import MDColorPicker
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.2"
+  _version = "v0.1.3"
 
   def exit(self):
     MDApp.get_running_app().stop()
@@ -55,9 +56,10 @@ class LedstripsApp(MDApp):
       url="http://192.168.1.12:8888/light/Bureau"
       data={"action": "toggle",
             "led-count": 100,
-            "brightness": 50,
-            "color": "125,54,34"
+            "brightness": 5,
+            "color": "0,0,255"
       }
+      # Green, Red, Blue
       data=json.dumps(data)
       data=data.encode('utf-8')
       req=urllib.request.Request(url, data=data)
