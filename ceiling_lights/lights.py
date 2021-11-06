@@ -174,7 +174,7 @@ def apiPOSTLight(path_vars, request) -> str:
   _action=request.json.get("action")
   _brightness=request.json.get("brightness")
   _color=request.json.get("color")
-  _ledCount=request.json.get("led-count")
+  q_ledCount=request.json.get("led-count")
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
@@ -190,13 +190,12 @@ def apiPOSTLight(path_vars, request) -> str:
     # We found the light.  Generate the payload to send back with the light's details:
 # JCREYF - TODO
     f = open("/data/runtime/ceiling_lights/0jc.log", "a")
-    f.write("\nTrigger:")
-    f.write("\nledCount: "+str(_ledCount))
+    f.write("Trigger:")
+    f.write("\nledCount: "+str(q_ledCount))
     f.write("\nledBrightness: "+str(_brightness))
-    f.write("\nledColor: "+_color)
+    f.write("\nledColor: "+_color+"\n\n")
     f.close()
-    debug("written to file")
-    light.ledCount(_ledCount)
+    light.ledCount(q_ledCount)
     light.ledBrightness(_brightness)
     light.ledColor(_color)
     light.Toggle()
