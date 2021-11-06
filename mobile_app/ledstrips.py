@@ -9,19 +9,25 @@
 # For the APK build, make sure to have these installed (in Fedora in my case):
 #   https://buildozer.readthedocs.io/en/latest/installation.html#targeting-android
 #
-import kivy
-from kivymd.uix.behaviors import elevation
-kivy.require('2.0.0')
-import kivymd
 import urllib.request
 import json
 
-from kivymd.uix.screen import MDScreen
+import kivy
+kivy.require('2.0.0')
+
+import kivymd
 from kivymd.app import MDApp
+from kivymd.uix.screen import MDScreen
+from kivymd.uix.behaviors import elevation
 from kivymd.uix.toolbar import MDToolbar
 from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
 from kivymd.uix.label import MDLabel
+from kivymd.uix.slider import MDSlider
+
+# Not implemented yet in KivyMD (v0.104.2)
+# Will be implemented in KivyMD v1.0.0
 #from kivymd.uix.picker import MDColorPicker
+
 
 class LedstripsApp(MDApp):
   _version = "v0.1.3"
@@ -41,25 +47,23 @@ class LedstripsApp(MDApp):
 
   def bedroom(self, args):
     self.text_log.text = ""
-#    print("Bedroom")
     try:
       contents = urllib.request.urlopen("http://192.168.1.10:8888/light").read()
       self.text_log.text = str(contents)
     except Exception as e:
-#      print("Oops!", e, "occurred.")
       self.text_log.text = str(e)
 
   def bureau(self, args):
+    clr=str(int(self.sliderGreen.value))+","+str(int(self.sliderRed.value))+","+str(int(self.sliderBlue.value))
     self.text_log.text = ""
-#    print("Bureau")
     try:
       url="http://192.168.1.12:8888/light/Bureau"
       data={"action": "toggle",
             "led-count": 100,
-            "brightness": 5,
-            "color": "0,0,255"
+            "brightness": int(self.sliderBrightness.value),
+            "color": clr
       }
-      # Green, Red, Blue
+#      print(data)
       data=json.dumps(data)
       data=data.encode('utf-8')
       req=urllib.request.Request(url, data=data)
@@ -67,7 +71,6 @@ class LedstripsApp(MDApp):
       contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
     except Exception as e:
-#      print("Oops!", e, "occurred.")
       self.text_log.text = str(e)
 
   def build(self):
@@ -93,7 +96,7 @@ class LedstripsApp(MDApp):
     # Log line:
     self.text_log = MDLabel(
       font_size = 18,
-      pos_hint = {"center_x": 0.5, "center_y": 0.20},
+      pos_hint = {"center_x": 0.5, "center_y": 0.10},
       halign = "center",
       theme_text_color = "Error"
     )
@@ -119,6 +122,62 @@ class LedstripsApp(MDApp):
       pos_hint = {"center_x": 0.5, "center_y": 0.40},
       on_press = self.bureau
     ))
+    self.sliderRed = MDSlider(
+      min=0,
+      max=255,
+      value=0,
+      color='red',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='red',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": 0.30},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderRed)
+    self.sliderGreen = MDSlider(
+      min=0,
+      max=255,
+      value=0,
+      color='green',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='green',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": 0.25},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderGreen)
+    self.sliderBlue = MDSlider(
+      min=0,
+      max=255,
+      value=0,
+      color='blue',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='blue',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": 0.20},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderBlue)
+    self.sliderBrightness = MDSlider(
+      min=1,
+      max=255,
+      value=1,
+      color='black',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='black',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": 0.15},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderBrightness)
     # Setting it in stone:
     return screen
 
