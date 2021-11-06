@@ -151,12 +151,13 @@ class Light:
     f = open("/data/runtime/ceiling_lights/0jc.log", "a")
     f.write("\n\nLedstrip:")
     f.write(str(colorTuple))
-    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], self._ledBrightness)
-    f.write(str(color))
+#    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], self._ledBrightness)
+#    f.write(str(color))
     f.write(colorTuple[0])
     f.write(colorTuple[1])
     f.write(colorTuple[2])
     f.close()
+    color=Color(128, 32, 64, self._ledBrightness)
 
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
