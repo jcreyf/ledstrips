@@ -195,6 +195,7 @@ def apiPOSTLight(path_vars, request) -> str:
     f.write("\nledBrightness: "+str(_brightness))
     f.write("\nledColor: "+_color)
     f.close()
+    debug("written to file")
     light.ledCount(_ledCount)
     light.ledBrightness(_brightness)
     light.ledColor(_color)
