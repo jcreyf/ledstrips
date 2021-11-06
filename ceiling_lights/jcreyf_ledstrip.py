@@ -151,7 +151,7 @@ class Light:
     f = open("/data/runtime/ceiling_lights/0jc.log", "a")
     f.write("\n\nLedstrip:")
     f.write(str(colorTuple))
-#    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], self._ledBrightness)
+    color=Color(int(colorTuple[0]), int(colorTuple[1]), int(colorTuple[2]), self._ledBrightness)
 #    f.write(str(color))
     f.write(colorTuple[0])
     f.write(colorTuple[1])
