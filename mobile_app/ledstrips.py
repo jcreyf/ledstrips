@@ -30,7 +30,7 @@ from kivymd.uix.slider import MDSlider
 
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.3"
+  _version = "v0.1.4"
 
   def exit(self):
     MDApp.get_running_app().stop()
@@ -54,14 +54,18 @@ class LedstripsApp(MDApp):
       self.text_log.text = str(e)
 
   def bureau(self, args):
-    clr=str(int(self.sliderGreen.value))+","+str(int(self.sliderRed.value))+","+str(int(self.sliderBlue.value))
     self.text_log.text = ""
     try:
       url="http://192.168.1.12:8888/light/Bureau"
-      data={"action": "toggle",
+      data={"action": "update",
+            "toggle": True,
             "led-count": 100,
             "brightness": int(self.sliderBrightness.value),
-            "color": clr
+            "color": {
+              "red": int(self.sliderRed.value),
+              "green": int(self.sliderGreen.value),
+              "blue": int(self.sliderBlue.value)
+            }
       }
 #      print(data)
       data=json.dumps(data)
@@ -101,21 +105,46 @@ class LedstripsApp(MDApp):
       theme_text_color = "Error"
     )
     screen.add_widget(self.text_log)
+    #
     # Button Loft:
+    #
     screen.add_widget(MDFillRoundFlatButton(
       text="Loft",
       font_size = 24,
       pos_hint = {"center_x": 0.5, "center_y": 0.80},
       on_press = self.loft
     ))
+    #
     # Button Bedroom:
+    #
     screen.add_widget(MDFillRoundFlatButton(
       text="Bedroom",
       font_size = 24,
       pos_hint = {"center_x": 0.5, "center_y": 0.60},
       on_press = self.bedroom
     ))
+    #
     # Button Bureau:
+    #
+    # Get the status of the ledstrip:
+    _redRGB=0
+    _greenRGB=0
+    _blueRGB=0
+    _brightness=0
+    try:
+      url="http://192.168.1.12:8888/light/Bureau"
+      req=urllib.request.Request(url)
+      contents = urllib.request.urlopen(req).read()
+      self.text_log.text = str(contents)
+      encoding = req.info().get_content_charset('utf-8')
+      contents = json.load(contents.decode(encoding))
+      _redRGB=contents.get("color").get("red")
+      _greenRGB=contents.get("color").get("green")
+      _blueRGB=contents.get("color").get("blue")
+      _brightness=contents.get("brightness")
+    except Exception as e:
+      self.text_log.text = str(e)
+
     screen.add_widget(MDFillRoundFlatButton(
       text="Bureau",
       font_size = 24,
@@ -125,7 +154,7 @@ class LedstripsApp(MDApp):
     self.sliderRed = MDSlider(
       min=0,
       max=255,
-      value=0,
+      value=_redRGB,
       color='red',
       hint=True,
       hint_radius=4,
@@ -139,7 +168,7 @@ class LedstripsApp(MDApp):
     self.sliderGreen = MDSlider(
       min=0,
       max=255,
-      value=0,
+      value=_greenRGB,
       color='green',
       hint=True,
       hint_radius=4,
@@ -153,7 +182,7 @@ class LedstripsApp(MDApp):
     self.sliderBlue = MDSlider(
       min=0,
       max=255,
-      value=0,
+      value=_blueRGB,
       color='blue',
       hint=True,
       hint_radius=4,
@@ -167,7 +196,7 @@ class LedstripsApp(MDApp):
     self.sliderBrightness = MDSlider(
       min=1,
       max=255,
-      value=1,
+      value=_brightness,
       color='black',
       hint=True,
       hint_radius=4,
