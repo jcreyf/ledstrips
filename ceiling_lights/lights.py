@@ -91,21 +91,27 @@ def apiGETLight(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>' endpoint.
   This returns a JSON object like this example:
   {
-    "self": "http://pi-leds3/light/Bureau",
+    "self": "http://192.168.1.12:8888/light/Bureau",
     "light": {
-        "name": "Bureau",
-        "uri": "http://pi-leds3/light/Bureau",
-        "state": false
+      "name": "Bureau",
+      "uri": "http://192.168.1.12:8888/light/Bureau",
+      "state": false,
+      "color": {
+        "red": 1,
+        "green": 1,
+        "blue": 1
+      },
+      "brightness": 255
     },
     "switches": [
-        {
-            "name": "Desk",
-            "uri": "http://pi-leds3/light/Bureau/switch/Desk",
-            "state": 1
-        }
+      {
+        "name": "Desk",
+        "uri": "http://192.168.1.12:8888/light/Bureau/switch/Desk",
+        "state": 1
+      }
     ]
   }
-  """
+"""
   debug(request.full_path)
   for path_var in path_vars:
     print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
@@ -159,7 +165,11 @@ def apiPOSTLight(path_vars, request) -> str:
   	"action": "toggle",
 	  "led-count": 100,
   	"brightness": 50,
-	  "color": "125,54,34"
+	  "color": {
+      "red": 125,
+      "green": 54,
+      "blue": 34
+    }
   }
   """
   debug(request.full_path)
@@ -179,7 +189,9 @@ def apiPOSTLight(path_vars, request) -> str:
   # If we don't find any usefull data, then we just toggle the ledstrip on or off.
   _action=request.json.get("action")
   _brightness=request.json.get("brightness")
-  _color=request.json.get("color")
+  _redRGB=request.json.get("color").get("red")
+  _greenRGB=request.json.get("color").get("green")
+  _blueRGB=request.json.get("color").get("blue")
   _ledCount=request.json.get("led-count")
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
@@ -196,7 +208,9 @@ def apiPOSTLight(path_vars, request) -> str:
     # We found the light.  Generate the payload to send back with the light's details:
     light.ledCount=_ledCount
     light.ledBrightness=_brightness
-    light.ledColor=_color
+    light.redRGB=_redRGB
+    light.greenRGB=_greenRGB
+    light.blueRGB=_blueRGB
     light.Toggle()
     html=("<h1>POST - Toggled light {} - {}</h1><br>").format(light.name, light._lightState)
     html+=("<a href='/light/{}'>{}</a>").format(light.name, light.name)
