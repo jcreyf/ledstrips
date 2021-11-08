@@ -129,9 +129,9 @@ def apiGETLight(path_vars, request) -> str:
     _returnValue["light"]={"name": light.name,
                            "uri": request.host_url+("light/{}").format(light.name),
                            "state": light.state
+                           "color": light.ledColor,
+                           "brightness": light.ledBrightness
                           }
-#                           "color": light.ledColor,
-#                           "brightness": light.ledBrightness
     _switches=[]
     for switch in light.switches:
       _switches.append({"name": switch.name,
