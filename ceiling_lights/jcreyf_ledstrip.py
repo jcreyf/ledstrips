@@ -74,7 +74,7 @@ class Light:
   @redRGB.setter
   def redRGB(self, value: int):
     """ Set the red RGB color value of LEDs to use on this light strip. """
-    if not ((value > 0) and (value <= 255)): raise Exception("The red RGB value needs to be between 0 and 255!")
+    if not ((value >= 0) and (value <= 255)): raise Exception("The red RGB value needs to be between 0 and 255!")
     self._redRGB=value
 
   @property
@@ -85,7 +85,7 @@ class Light:
   @greenRGB.setter
   def greenRGB(self, value: int):
     """ Set the green RGB color value of LEDs to use on this light strip. """
-    if not ((value > 0) and (value <= 255)): raise Exception("The green RGB value needs to be between 0 and 255!")
+    if not ((value >= 0) and (value <= 255)): raise Exception("The green RGB value needs to be between 0 and 255!")
     self._greenRGB=value
 
   @property
@@ -96,7 +96,7 @@ class Light:
   @blueRGB.setter
   def blueRGB(self, value: int):
     """ Set the blue RGB color value of LEDs to use on this light strip. """
-    if not ((value > 0) and (value <= 255)): raise Exception("The blue RGB value needs to be between 0 and 255!")
+    if not ((value >= 0) and (value <= 255)): raise Exception("The blue RGB value needs to be between 0 and 255!")
     self._blueRGB=value
 
 #  @property
