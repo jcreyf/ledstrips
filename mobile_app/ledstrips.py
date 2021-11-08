@@ -127,21 +127,40 @@ class LedstripsApp(MDApp):
     # Button Bureau:
     #
     # Get the status of the ledstrip:
+    # {
+    #    "self": "http://192.168.1.12:8888/light/Bureau",
+    #    "light": {
+    #      "name": "Bureau",
+    #      "uri": "http://192.168.1.12:8888/light/Bureau",
+    #      "state": false,
+    #      "color": {
+    #        "red": 1,
+    #        "green": 1,
+    #        "blue": 1
+    #      },
+    #      "brightness": 255
+    #    },
+    #    "switches": [
+    #      {
+    #        "name": "Desk",
+    #        "uri": "http://192.168.1.12:8888/light/Bureau/switch/Desk",
+    #        "state": 1
+    #      }
+    #    ]
+    #  }
     _redRGB=0
     _greenRGB=0
     _blueRGB=0
     _brightness=0
     try:
-      url="http://192.168.1.12:8888/light/Bureau"
-      req=urllib.request.Request(url)
-      contents = urllib.request.urlopen(req).read()
-      self.text_log.text = str(contents)
-      encoding = req.info().get_content_charset('utf-8')
-      contents = json.load(contents.decode(encoding))
-      _redRGB=contents.get("color").get("red")
-      _greenRGB=contents.get("color").get("green")
-      _blueRGB=contents.get("color").get("blue")
-      _brightness=contents.get("brightness")
+      req=urllib.request.urlopen("http://192.168.1.12:8888/light/Bureau")
+      res=req.read()
+      contents = json.loads(res.decode("utf-8"))
+#      self.text_log.text = str(contents)
+      _redRGB=contents["light"]["color"]["red"]
+      _greenRGB=contents["light"]["color"]["green"]
+      _blueRGB=contents["light"]["color"]["blue"]
+      _brightness=contents["light"]["brightness"]
     except Exception as e:
       self.text_log.text = str(e)
 
