@@ -25,7 +25,9 @@ class Light:
     print("  ..creating light object: "+name)
     self._name=name                        # Human name of the LED strip;
     self._ledCount=100                     # Number of individually addressable LEDs on the strip;
-    self._ledColor="[1,1,1]"               # RGB color value;
+    self._redRGB=1                         # RGB Red color value;
+    self._greenRGB=1                       # RGB Green color value;
+    self._blueRGB=1                        # RGB Blue color value;
     self._ledBrightness=255                # Set to 0 for darkest and 255 for brightest;
     self._ledFrequency=800000              # LED signal frequency in hertz (usually 800khz);
     self._ledDmaChannel=10                 # DMA channel to use for generating signal (try 10);
@@ -65,14 +67,47 @@ class Light:
     self._ledCount=value
 
   @property
-  def ledColor(self) -> str:
-    """ Return the RGB color value of the LEDs. """
-    return self._ledColor
+  def redRGB(self) -> int:
+    """ Return the current Red RGB color value for the light strip. """
+    return self._redRGB
   
-  @ledCount.setter
-  def ledColor(self, value: str):
-    """ Set the RGB color value of the LEDs. """
-    self._ledColor=value
+  @redRGB.setter
+  def redRGB(self, value: int):
+    """ Set the red RGB color value of LEDs to use on this light strip. """
+    if not ((value > 0) and (value <= 255)): raise Exception("The red RGB value needs to be between 0 and 255!")
+    self._redRGB=value
+
+  @property
+  def greenRGB(self) -> int:
+    """ Return the current Green RGB color value for the light strip. """
+    return self._greenRGB
+  
+  @greenRGB.setter
+  def greenRGB(self, value: int):
+    """ Set the green RGB color value of LEDs to use on this light strip. """
+    if not ((value > 0) and (value <= 255)): raise Exception("The green RGB value needs to be between 0 and 255!")
+    self._greenRGB=value
+
+  @property
+  def blueRGB(self) -> int:
+    """ Return the current Blue RGB color value for the light strip. """
+    return self._blueRGB
+  
+  @blueRGB.setter
+  def blueRGB(self, value: int):
+    """ Set the blue RGB color value of LEDs to use on this light strip. """
+    if not ((value > 0) and (value <= 255)): raise Exception("The blue RGB value needs to be between 0 and 255!")
+    self._blueRGB=value
+
+#  @property
+#  def ledColor(self) -> str:
+#    """ Return the RGB color value of the LEDs. """
+#    return self._ledColor
+#
+#  @ledColor.setter
+#  def ledColor(self, value: str):
+#    """ Set the RGB color value of the LEDs. """
+#    self._ledColor=value
 
   @property
   def ledBrightness(self) -> int:
@@ -145,9 +180,8 @@ class Light:
 
   def On(self):
     """ Turn the leds on. """
-    # Set the leds to white, full brightness:
-    colorTuple=self._ledColor.split(",")
-    color=Color(int(colorTuple[0]), int(colorTuple[1]), int(colorTuple[2]), self._ledBrightness)
+    # Set the led color, full brightness:
+    color=Color(self._blueRGB, self._greenRGB, self._redRGB, self._ledBrightness)
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
     self._strip.show()
@@ -155,10 +189,7 @@ class Light:
 
   def Off(self):
     """ Turn the leds off. """
-# JCREYF - TODO
     color = Color(0, 0, 0, 0)
-#    colorTuple=self._ledColor.split(",")
-#    color=Color(colorTuple[0], colorTuple[1], colorTuple[2], 0)
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
     self._strip.show()
