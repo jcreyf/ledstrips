@@ -162,7 +162,8 @@ def apiPOSTLight(path_vars, request) -> str:
   """ Callback function for the POST operation at the '/light/<light_name>' endpoint.
   We assume a JSON payload like this:
   {
-  	"action": "toggle",
+  	"action": "update",
+    "toggle": false,
 	  "led-count": 100,
   	"brightness": 50,
 	  "color": {
@@ -188,6 +189,7 @@ def apiPOSTLight(path_vars, request) -> str:
   # if we don't find values in the spots that we expect them.
   # If we don't find any usefull data, then we just toggle the ledstrip on or off.
   _action=request.json.get("action")
+  _toggle=request.json.get("toggle")
   _brightness=request.json.get("brightness")
   _redRGB=request.json.get("color").get("red")
   _greenRGB=request.json.get("color").get("green")
@@ -211,8 +213,13 @@ def apiPOSTLight(path_vars, request) -> str:
     light.redRGB=_redRGB
     light.greenRGB=_greenRGB
     light.blueRGB=_blueRGB
-    light.Toggle()
-    html=("<h1>POST - Toggled light {} - {}</h1><br>").format(light.name, light._lightState)
+    if _toggle:
+      # The user requests to toggle the light on or off:
+      light.Toggle()
+    else:
+      # The user changed values and we need to update the leds:
+      light.Update()
+    html=("<h1>POST - Updated light {} - {}</h1><br>").format(light.name, light._lightState)
     html+=("<a href='/light/{}'>{}</a>").format(light.name, light.name)
   else:
     # We can't find this light!  Oops...
