@@ -102,6 +102,11 @@ class Light:
     self._stripGpioPin=value
 
   @property
+  def state(self) -> bool:
+    """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
+    return self._lightState
+
+  @property
   def debug(self) -> bool:
     """ Return the debug-flag that is set for this light. """
     return self._debug
@@ -124,10 +129,6 @@ class Light:
     """ Remove a switch from this light. """
     self._switches.remove(switch)
     del switch
-
-  def state(self) -> bool:
-    """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
-    return self._lightState
 
   def Start(self):
     """ Initialize the LED strip at the hardware level so that we can start control the individual LEDs. """
