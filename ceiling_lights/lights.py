@@ -128,9 +128,7 @@ def apiGETLight(path_vars, request) -> str:
     # We found the light.  Generate the payload to send back with the light's details:
     _returnValue["light"]={"name": light.name,
                            "uri": request.host_url+("light/{}").format(light.name),
-                           "state": light.state,
-                           "color": 45,
-                           "brightness": 23
+                           "state": light.state
                           }
 #                           "color": light.ledColor,
 #                           "brightness": light.ledBrightness
