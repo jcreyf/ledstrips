@@ -202,6 +202,11 @@ class Light:
     else:
       self.On()
 
+  def Update(self):
+    """ Apply the Updated LED settings if they are on. """
+    if self._lightState:
+      self.off()
+      self.on()
 #
 #----------------------------------
 #
