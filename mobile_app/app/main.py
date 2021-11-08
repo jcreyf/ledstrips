@@ -34,7 +34,12 @@ from kivymd.uix.slider import MDSlider
 
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.3"
+  _version = "v0.1.4"
+  _bureauStatus=False
+  _bureauRed=0
+  _bureauGreen=0
+  _bureauBlue=0
+  _bureauBrightness=0
 
   def exit(self):
     MDApp.get_running_app().stop()
@@ -58,14 +63,31 @@ class LedstripsApp(MDApp):
       self.text_log.text = str(e)
 
   def bureau(self, args):
-    clr=str(int(self.sliderGreen.value))+","+str(int(self.sliderRed.value))+","+str(int(self.sliderBlue.value))
     self.text_log.text = ""
     try:
+      # Determine if we should toggle the light on/off or simply update its values:
+      _red = int(self.sliderRed.value)
+      _green = int(self.sliderGreen.value)
+      _blue = int(self.sliderBlue.value)
+      _brightness = int(self.sliderBrightness.value)
+      if self._bureauRed != _red or \
+         self._bureauGreen != _green or \
+         self._bureauBlue != _blue or \
+         self._bureauBrightness != _brightness:
+           _toggle=False
+      else:
+        _toggle=True
+
       url="http://192.168.1.12:8888/light/Bureau"
-      data={"action": "toggle",
+      data={"action": "update",
+            "toggle": _toggle,
             "led-count": 100,
-            "brightness": int(self.sliderBrightness.value),
-            "color": clr
+            "brightness": _brightness,
+            "color": {
+              "red": _red,
+              "green": _green,
+              "blue": _blue
+            }
       }
 #      print(data)
       data=json.dumps(data)
@@ -74,6 +96,11 @@ class LedstripsApp(MDApp):
       req.add_header("Content-Type", "application/json")
       contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
+      # Update the locally saved values:
+      self._bureauRed=_red
+      self._bureauGreen=_green
+      self._bureauBlue=_blue
+      self._bureauBrightness=_brightness
     except Exception as e:
       self.text_log.text = str(e)
 
@@ -105,21 +132,62 @@ class LedstripsApp(MDApp):
       theme_text_color = "Error"
     )
     screen.add_widget(self.text_log)
+    #
     # Button Loft:
+    #
     screen.add_widget(MDFillRoundFlatButton(
       text="Loft",
       font_size = 24,
       pos_hint = {"center_x": 0.5, "center_y": 0.80},
       on_press = self.loft
     ))
+    #
     # Button Bedroom:
+    #
     screen.add_widget(MDFillRoundFlatButton(
       text="Bedroom",
       font_size = 24,
       pos_hint = {"center_x": 0.5, "center_y": 0.60},
       on_press = self.bedroom
     ))
+    #
     # Button Bureau:
+    #
+    # Get the status of the ledstrip:
+    # {
+    #    "self": "http://192.168.1.12:8888/light/Bureau",
+    #    "light": {
+    #      "name": "Bureau",
+    #      "uri": "http://192.168.1.12:8888/light/Bureau",
+    #      "state": false,
+    #      "color": {
+    #        "red": 1,
+    #        "green": 1,
+    #        "blue": 1
+    #      },
+    #      "brightness": 255
+    #    },
+    #    "switches": [
+    #      {
+    #        "name": "Desk",
+    #        "uri": "http://192.168.1.12:8888/light/Bureau/switch/Desk",
+    #        "state": 1
+    #      }
+    #    ]
+    #  }
+    try:
+      req=urllib.request.urlopen("http://192.168.1.12:8888/light/Bureau")
+      res=req.read()
+      contents = json.loads(res.decode("utf-8"))
+#      self.text_log.text = str(contents)
+      self._bureauStatus=contents["light"]["state"]
+      self._bureauBrightness=contents["light"]["brightness"]
+      self._bureauRed=contents["light"]["color"]["red"]
+      self._bureauGreen=contents["light"]["color"]["green"]
+      self._bureauBlue=contents["light"]["color"]["blue"]
+    except Exception as e:
+      self.text_log.text = str(e)
+
     screen.add_widget(MDFillRoundFlatButton(
       text="Bureau",
       font_size = 24,
@@ -129,7 +197,7 @@ class LedstripsApp(MDApp):
     self.sliderRed = MDSlider(
       min=0,
       max=255,
-      value=0,
+      value=self._bureauRed,
       color='red',
       hint=True,
       hint_radius=4,
@@ -143,7 +211,7 @@ class LedstripsApp(MDApp):
     self.sliderGreen = MDSlider(
       min=0,
       max=255,
-      value=0,
+      value=self._bureauGreen,
       color='green',
       hint=True,
       hint_radius=4,
@@ -157,7 +225,7 @@ class LedstripsApp(MDApp):
     self.sliderBlue = MDSlider(
       min=0,
       max=255,
-      value=0,
+      value=self._bureauBlue,
       color='blue',
       hint=True,
       hint_radius=4,
@@ -171,7 +239,7 @@ class LedstripsApp(MDApp):
     self.sliderBrightness = MDSlider(
       min=1,
       max=255,
-      value=1,
+      value=self._bureauBrightness,
       color='black',
       hint=True,
       hint_radius=4,

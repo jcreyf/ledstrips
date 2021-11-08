@@ -31,6 +31,11 @@ from kivymd.uix.slider import MDSlider
 
 class LedstripsApp(MDApp):
   _version = "v0.1.4"
+  _bureauStatus=False
+  _bureauRed=0
+  _bureauGreen=0
+  _bureauBlue=0
+  _bureauBrightness=0
 
   def exit(self):
     MDApp.get_running_app().stop()
@@ -56,15 +61,28 @@ class LedstripsApp(MDApp):
   def bureau(self, args):
     self.text_log.text = ""
     try:
+      # Determine if we should toggle the light on/off or simply update its values:
+      _red = int(self.sliderRed.value)
+      _green = int(self.sliderGreen.value)
+      _blue = int(self.sliderBlue.value)
+      _brightness = int(self.sliderBrightness.value)
+      if self._bureauRed != _red or \
+         self._bureauGreen != _green or \
+         self._bureauBlue != _blue or \
+         self._bureauBrightness != _brightness:
+           _toggle=False
+      else:
+        _toggle=True
+
       url="http://192.168.1.12:8888/light/Bureau"
       data={"action": "update",
-            "toggle": True,
+            "toggle": _toggle,
             "led-count": 100,
-            "brightness": int(self.sliderBrightness.value),
+            "brightness": _brightness,
             "color": {
-              "red": int(self.sliderRed.value),
-              "green": int(self.sliderGreen.value),
-              "blue": int(self.sliderBlue.value)
+              "red": _red,
+              "green": _green,
+              "blue": _blue
             }
       }
 #      print(data)
@@ -74,6 +92,11 @@ class LedstripsApp(MDApp):
       req.add_header("Content-Type", "application/json")
       contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
+      # Update the locally saved values:
+      self._bureauRed=_red
+      self._bureauGreen=_green
+      self._bureauBlue=_blue
+      self._bureauBrightness=_brightness
     except Exception as e:
       self.text_log.text = str(e)
 
@@ -148,19 +171,16 @@ class LedstripsApp(MDApp):
     #      }
     #    ]
     #  }
-    _redRGB=0
-    _greenRGB=0
-    _blueRGB=0
-    _brightness=0
     try:
       req=urllib.request.urlopen("http://192.168.1.12:8888/light/Bureau")
       res=req.read()
       contents = json.loads(res.decode("utf-8"))
 #      self.text_log.text = str(contents)
-      _redRGB=contents["light"]["color"]["red"]
-      _greenRGB=contents["light"]["color"]["green"]
-      _blueRGB=contents["light"]["color"]["blue"]
-      _brightness=contents["light"]["brightness"]
+      self._bureauStatus=contents["light"]["state"]
+      self._bureauBrightness=contents["light"]["brightness"]
+      self._bureauRed=contents["light"]["color"]["red"]
+      self._bureauGreen=contents["light"]["color"]["green"]
+      self._bureauBlue=contents["light"]["color"]["blue"]
     except Exception as e:
       self.text_log.text = str(e)
 
@@ -173,7 +193,7 @@ class LedstripsApp(MDApp):
     self.sliderRed = MDSlider(
       min=0,
       max=255,
-      value=_redRGB,
+      value=self._bureauRed,
       color='red',
       hint=True,
       hint_radius=4,
@@ -187,7 +207,7 @@ class LedstripsApp(MDApp):
     self.sliderGreen = MDSlider(
       min=0,
       max=255,
-      value=_greenRGB,
+      value=self._bureauGreen,
       color='green',
       hint=True,
       hint_radius=4,
@@ -201,7 +221,7 @@ class LedstripsApp(MDApp):
     self.sliderBlue = MDSlider(
       min=0,
       max=255,
-      value=_blueRGB,
+      value=self._bureauBlue,
       color='blue',
       hint=True,
       hint_radius=4,
@@ -215,7 +235,7 @@ class LedstripsApp(MDApp):
     self.sliderBrightness = MDSlider(
       min=1,
       max=255,
-      value=_brightness,
+      value=self._bureauBrightness,
       color='black',
       hint=True,
       hint_radius=4,
