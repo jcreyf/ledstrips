@@ -181,7 +181,7 @@ class Light:
   def On(self):
     """ Turn the leds on. """
     # Set the led color, full brightness:
-    color=Color(self._blueRGB, self._greenRGB, self._redRGB, self._ledBrightness)
+    color=Color(self._redRGB, self._greenRGB, self._blueRGB, self._ledBrightness)
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
     self._strip.show()
