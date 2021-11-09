@@ -34,42 +34,123 @@ from kivymd.uix.slider import MDSlider
 
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.4"
+  _version = "v0.1.5"
   _bureauStatus=False
   _bureauRed=0
   _bureauGreen=0
   _bureauBlue=0
-  _bureauBrightness=0
+  _bureauBrightness=1
+
+  _bedroomStatus=False
+  _bedroomRed=0
+  _bedroomGreen=0
+  _bedroomBlue=0
+  _bedroomBrightness=1
+
+  _loftStatus=False
+  _loftRed=0
+  _loftGreen=0
+  _loftBlue=0
+  _loftBrightness=1
 
   def exit(self):
     MDApp.get_running_app().stop()
 
+
   def loft(self, args):
     self.text_log.text = ""
-    print("Loft")
     try:
-      contents = urllib.request.urlopen("http://192.168.1.11:8888/light").read()
+      # Determine if we should toggle the light on/off or simply update its values:
+      _red = int(self.sliderRed_loft.value)
+      _green = int(self.sliderGreen_loft.value)
+      _blue = int(self.sliderBlue_loft.value)
+      _brightness = int(self.sliderBrightness_loft.value)
+      if self._loftRed != _red or \
+         self._loftGreen != _green or \
+         self._loftBlue != _blue or \
+         self._loftBrightness != _brightness:
+           _toggle=False
+      else:
+        _toggle=True
+
+      url="http://192.168.1.11:8888/light/Loft"
+      data={"action": "update",
+            "toggle": _toggle,
+            "led-count": 100,
+            "brightness": _brightness,
+            "color": {
+              "red": _red,
+              "green": _green,
+              "blue": _blue
+            }
+      }
+#      print(data)
+      data=json.dumps(data)
+      data=data.encode('utf-8')
+      req=urllib.request.Request(url, data=data)
+      req.add_header("Content-Type", "application/json")
+      contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
+      # Update the locally saved values:
+      self._loftRed=_red
+      self._loftGreen=_green
+      self._loftBlue=_blue
+      self._loftBrightness=_brightness
     except Exception as e:
-#      print("Oops!", e, "occurred.")
       self.text_log.text = str(e)
+
 
   def bedroom(self, args):
     self.text_log.text = ""
     try:
-      contents = urllib.request.urlopen("http://192.168.1.10:8888/light").read()
+      # Determine if we should toggle the light on/off or simply update its values:
+      _red = int(self.sliderRed_bedroom.value)
+      _green = int(self.sliderGreen_bedroom.value)
+      _blue = int(self.sliderBlue_bedroom.value)
+      _brightness = int(self.sliderBrightness_bedroom.value)
+      if self._bedroomRed != _red or \
+         self._bedroomGreen != _green or \
+         self._bedroomBlue != _blue or \
+         self._bedroomBrightness != _brightness:
+           _toggle=False
+      else:
+        _toggle=True
+
+      url="http://192.168.1.10:8888/light/Bedroom"
+      data={"action": "update",
+            "toggle": _toggle,
+            "led-count": 100,
+            "brightness": _brightness,
+            "color": {
+              "red": _red,
+              "green": _green,
+              "blue": _blue
+            }
+      }
+#      print(data)
+      data=json.dumps(data)
+      data=data.encode('utf-8')
+      req=urllib.request.Request(url, data=data)
+      req.add_header("Content-Type", "application/json")
+      contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
+      # Update the locally saved values:
+      self._bedroomRed=_red
+      self._bedroomGreen=_green
+      self._bedroomBlue=_blue
+      self._bedroomBrightness=_brightness
     except Exception as e:
       self.text_log.text = str(e)
+
 
   def bureau(self, args):
     self.text_log.text = ""
     try:
       # Determine if we should toggle the light on/off or simply update its values:
-      _red = int(self.sliderRed.value)
-      _green = int(self.sliderGreen.value)
-      _blue = int(self.sliderBlue.value)
-      _brightness = int(self.sliderBrightness.value)
+      _red = int(self.sliderRed_bureau.value)
+      _green = int(self.sliderGreen_bureau.value)
+      _blue = int(self.sliderBlue_bureau.value)
+      _brightness = int(self.sliderBrightness_bureau.value)
       if self._bureauRed != _red or \
          self._bureauGreen != _green or \
          self._bureauBlue != _blue or \
@@ -104,6 +185,7 @@ class LedstripsApp(MDApp):
     except Exception as e:
       self.text_log.text = str(e)
 
+
   def build(self):
     screen = MDScreen()
     # Top toolbar:
@@ -132,24 +214,173 @@ class LedstripsApp(MDApp):
       theme_text_color = "Error"
     )
     screen.add_widget(self.text_log)
+
+
     #
     # Button Loft:
     #
+    # Get the status of the ledstrip:
+    try:
+      req=urllib.request.urlopen("http://192.168.1.11:8888/light/Loft")
+      res=req.read()
+      contents = json.loads(res.decode("utf-8"))
+#      self.text_log.text = str(contents)
+      print(contents)
+      self._loftStatus=contents["light"]["state"]
+      self._loftBrightness=contents["light"]["brightness"]
+      self._loftRed=contents["light"]["color"]["red"]
+      self._loftGreen=contents["light"]["color"]["green"]
+      self._loftBlue=contents["light"]["color"]["blue"]
+    except Exception as e:
+      self.text_log.text = str(e)
+
+    _loft_pos=0.80
     screen.add_widget(MDFillRoundFlatButton(
       text="Loft",
       font_size = 24,
-      pos_hint = {"center_x": 0.5, "center_y": 0.80},
+      pos_hint = {"center_x": 0.5, "center_y": _loft_pos},
       on_press = self.loft
     ))
+    self.sliderRed_loft = MDSlider(
+      min=0,
+      max=255,
+      value=self._loftRed,
+      color='red',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='red',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.07},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderRed_loft)
+    self.sliderGreen_loft = MDSlider(
+      min=0,
+      max=255,
+      value=self._loftGreen,
+      color='green',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='green',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.10},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderGreen_loft)
+    self.sliderBlue_loft = MDSlider(
+      min=0,
+      max=255,
+      value=self._loftBlue,
+      color='blue',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='blue',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.13},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderBlue_loft)
+    self.sliderBrightness_loft = MDSlider(
+      min=1,
+      max=255,
+      value=self._loftBrightness,
+      color='black',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='black',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.16},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderBrightness_loft)
+
+
     #
     # Button Bedroom:
     #
+    # Get the status of the ledstrip:
+    try:
+      req=urllib.request.urlopen("http://192.168.1.10:8888/light/Bedroom")
+      res=req.read()
+      contents = json.loads(res.decode("utf-8"))
+#      self.text_log.text = str(contents)
+      self._bedroomStatus=contents["light"]["state"]
+      self._bedroomBrightness=contents["light"]["brightness"]
+      self._bedroomRed=contents["light"]["color"]["red"]
+      self._bedroomGreen=contents["light"]["color"]["green"]
+      self._bedroomBlue=contents["light"]["color"]["blue"]
+    except Exception as e:
+      self.text_log.text = str(e)
+
+    _bedroom_pos=0.55
     screen.add_widget(MDFillRoundFlatButton(
       text="Bedroom",
       font_size = 24,
-      pos_hint = {"center_x": 0.5, "center_y": 0.60},
+      pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos},
       on_press = self.bedroom
     ))
+    self.sliderRed_bedroom = MDSlider(
+      min=0,
+      max=255,
+      value=self._bedroomRed,
+      color='red',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='red',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.07},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderRed_bedroom)
+    self.sliderGreen_bedroom = MDSlider(
+      min=0,
+      max=255,
+      value=self._bedroomGreen,
+      color='green',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='green',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.10},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderGreen_bedroom)
+    self.sliderBlue_bedroom = MDSlider(
+      min=0,
+      max=255,
+      value=self._bedroomBlue,
+      color='blue',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='blue',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.13},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderBlue_bedroom)
+    self.sliderBrightness_bedroom = MDSlider(
+      min=1,
+      max=255,
+      value=self._bedroomBrightness,
+      color='black',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='black',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.16},
+      size_hint_x=0.9,
+      size_hint_y=0.05
+    )
+    screen.add_widget(self.sliderBrightness_bedroom)
+
+
     #
     # Button Bureau:
     #
@@ -188,13 +419,14 @@ class LedstripsApp(MDApp):
     except Exception as e:
       self.text_log.text = str(e)
 
+    _bureau_pos=0.30
     screen.add_widget(MDFillRoundFlatButton(
       text="Bureau",
       font_size = 24,
-      pos_hint = {"center_x": 0.5, "center_y": 0.40},
+      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos},
       on_press = self.bureau
     ))
-    self.sliderRed = MDSlider(
+    self.sliderRed_bureau = MDSlider(
       min=0,
       max=255,
       value=self._bureauRed,
@@ -203,12 +435,12 @@ class LedstripsApp(MDApp):
       hint_radius=4,
       hint_bg_color='red',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": 0.30},
+      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos-0.07},
       size_hint_x=0.9,
       size_hint_y=0.05
     )
-    screen.add_widget(self.sliderRed)
-    self.sliderGreen = MDSlider(
+    screen.add_widget(self.sliderRed_bureau)
+    self.sliderGreen_bureau = MDSlider(
       min=0,
       max=255,
       value=self._bureauGreen,
@@ -217,12 +449,12 @@ class LedstripsApp(MDApp):
       hint_radius=4,
       hint_bg_color='green',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": 0.25},
+      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos-0.10},
       size_hint_x=0.9,
       size_hint_y=0.05
     )
-    screen.add_widget(self.sliderGreen)
-    self.sliderBlue = MDSlider(
+    screen.add_widget(self.sliderGreen_bureau)
+    self.sliderBlue_bureau = MDSlider(
       min=0,
       max=255,
       value=self._bureauBlue,
@@ -231,12 +463,12 @@ class LedstripsApp(MDApp):
       hint_radius=4,
       hint_bg_color='blue',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": 0.20},
+      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos-0.13},
       size_hint_x=0.9,
       size_hint_y=0.05
     )
-    screen.add_widget(self.sliderBlue)
-    self.sliderBrightness = MDSlider(
+    screen.add_widget(self.sliderBlue_bureau)
+    self.sliderBrightness_bureau = MDSlider(
       min=1,
       max=255,
       value=self._bureauBrightness,
@@ -245,11 +477,13 @@ class LedstripsApp(MDApp):
       hint_radius=4,
       hint_bg_color='black',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": 0.15},
+      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos-0.16},
       size_hint_x=0.9,
       size_hint_y=0.05
     )
-    screen.add_widget(self.sliderBrightness)
+    screen.add_widget(self.sliderBrightness_bureau)
+
+
     # Setting it in stone:
     return screen
 
