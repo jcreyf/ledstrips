@@ -264,7 +264,10 @@ class Switch:
 
   def hasChanged(self) -> bool:
     """ Method to detect if the state of the switch has changed since last time we checked. """
-    if self._state != self.state:
+    # Using a temp variable to save the current state before calling the self.state() method since that
+    # method is updating the self._state variable before returning.
+    _state=self._state
+    if _state != self.state:
       return True
     else:
       return False
