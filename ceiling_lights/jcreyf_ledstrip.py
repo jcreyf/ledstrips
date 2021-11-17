@@ -12,6 +12,7 @@ This module requires these modules:
 
 from RPi import GPIO
 from rpi_ws281x import Color, PixelStrip, ws
+from time import sleep
 
 class Light:
   """
@@ -264,10 +265,21 @@ class Switch:
 
   def hasChanged(self) -> bool:
     """ Method to detect if the state of the switch has changed since last time we checked. """
-    if self._state != self.state:
-      return True
-    else:
-      return False
+    oldState=self._state
+    ret=False
+    if oldState != self.state:
+      # Turns out we sometimes get false positives for some reason.
+      # It looks like voltage sometimes drops below the threshold value on longer wires from the
+      # RPi to the physical switch, triggering a false positive.  The RPi thinks the switch got triggered
+      # and then switches the light on or off.  It sees the correct state again during the next loop
+      # half a second later and then turns the light on or off again.
+      # The best fix would be to use better quality wires and better pull up resitors but the cheapest
+      # and easiest solution is to have the RPi check the status again after a short time and only decide
+      # if both checks come back with the same result.
+      sleep(0.1)
+      if oldState != self.state:
+        ret=True
+    return ret
 
   def init(self):
     """ Method to initialize the Raspberry PI hardware at GPIO level. """
