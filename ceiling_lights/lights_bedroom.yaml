@@ -1,0 +1,12 @@
+---
+apiserver:
+    name: BedroomAPI
+    port: 8888
+lights:
+    - name: Bedroom
+      gpio_pin: 18
+      led_count: 150
+      brightness: 255
+      switches:
+        - name: Room
+          gpio_pin: 24

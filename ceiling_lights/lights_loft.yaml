@@ -1,0 +1,14 @@
+---
+apiserver:
+    name: LoftAPI
+    port: 8888
+lights:
+    - name: Loft
+      gpio_pin: 18
+      led_count: 250
+      brightness: 255
+      switches:
+        - name: Downstairs
+          gpio_pin: 23
+        - name: Upstairs
+          gpio_pin: 24
