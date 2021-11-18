@@ -2,6 +2,10 @@
 # THIS FILE IS AN EXACT COPY OF ledstrips.py!!!!
 # THIS FILE IS REQUIRED FOR BUILDOZER TO GENERATE THE ANDROID APP
 #
+# ToDo: - create a light class
+#       - turn each light into a light instance so we don't duplicate all the code
+#       - 
+
 #
 # KivyMD docs:
 #   https://kivymd.readthedocs.io/en/latest/
