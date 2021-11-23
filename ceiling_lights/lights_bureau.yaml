@@ -1,0 +1,13 @@
+---
+apiserver:
+    name: BureauAPI
+    port: 8888
+lights:
+    - name: Bureau
+      gpio_pin: 18
+      led_count: 140
+      brightness: 255
+      switches:
+        - name: Desk
+          gpio_pin: 24
+

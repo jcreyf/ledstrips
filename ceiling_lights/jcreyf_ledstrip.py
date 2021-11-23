@@ -10,9 +10,9 @@ This module requires these modules:
 - Color, ws and PixelStrip classes from the rpi_ws281x module; 
 """
 
-from jcreyf_api import RESTserver
 from RPi import GPIO
 from rpi_ws281x import Color, PixelStrip, ws
+from time import sleep
 
 class Light:
   """
@@ -23,10 +23,13 @@ class Light:
 
   def __init__(self, name: str):
     """ Constructor, initializing members with default values. """
-    print("creating light object: "+name)
+    print("  ..creating light object: "+name)
     self._name=name                        # Human name of the LED strip;
     self._ledCount=100                     # Number of individually addressable LEDs on the strip;
-    self._ledBrightness=128                # Set to 0 for darkest and 255 for brightest;
+    self._redRGB=1                         # RGB Red color value;
+    self._greenRGB=1                       # RGB Green color value;
+    self._blueRGB=1                        # RGB Blue color value;
+    self._ledBrightness=255                # Set to 0 for darkest and 255 for brightest;
     self._ledFrequency=800000              # LED signal frequency in hertz (usually 800khz);
     self._ledDmaChannel=10                 # DMA channel to use for generating signal (try 10);
     self._ledInvert=False                  # True to invert the signal (when using NPN transistor level shift);
@@ -36,8 +39,6 @@ class Light:
     self._strip=None                       # Instance of the rpi_ws281x LED strip;
     self._lightState=False                 # Is the light "off" (false) or "on" (true);
     self._switches=[]                      # Optional list of Switch objects that are linked to this light object;
-    self._apiServerPort=None               # The network port on which to run the REST API server;
-    self._apiServer=None                   # Instance of the API server dedicated to this light;
     self._debug=False                      # Debug level logging;
 
   def __del__(self):
@@ -67,6 +68,49 @@ class Light:
     self._ledCount=value
 
   @property
+  def redRGB(self) -> int:
+    """ Return the current Red RGB color value for the light strip. """
+    return self._redRGB
+  
+  @redRGB.setter
+  def redRGB(self, value: int):
+    """ Set the red RGB color value of LEDs to use on this light strip. """
+    if not ((value >= 0) and (value <= 255)): raise Exception("The red RGB value needs to be between 0 and 255!")
+    self._redRGB=value
+
+  @property
+  def greenRGB(self) -> int:
+    """ Return the current Green RGB color value for the light strip. """
+    return self._greenRGB
+  
+  @greenRGB.setter
+  def greenRGB(self, value: int):
+    """ Set the green RGB color value of LEDs to use on this light strip. """
+    if not ((value >= 0) and (value <= 255)): raise Exception("The green RGB value needs to be between 0 and 255!")
+    self._greenRGB=value
+
+  @property
+  def blueRGB(self) -> int:
+    """ Return the current Blue RGB color value for the light strip. """
+    return self._blueRGB
+  
+  @blueRGB.setter
+  def blueRGB(self, value: int):
+    """ Set the blue RGB color value of LEDs to use on this light strip. """
+    if not ((value >= 0) and (value <= 255)): raise Exception("The blue RGB value needs to be between 0 and 255!")
+    self._blueRGB=value
+
+#  @property
+#  def ledColor(self) -> str:
+#    """ Return the RGB color value of the LEDs. """
+#    return self._ledColor
+#
+#  @ledColor.setter
+#  def ledColor(self, value: str):
+#    """ Set the RGB color value of the LEDs. """
+#    self._ledColor=value
+
+  @property
   def ledBrightness(self) -> int:
     """ Return the brightness that the LED have been configured with (0 to 255). """
     return self._ledBrightness
@@ -94,6 +138,11 @@ class Light:
     self._stripGpioPin=value
 
   @property
+  def state(self) -> bool:
+    """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
+    return self._lightState
+
+  @property
   def debug(self) -> bool:
     """ Return the debug-flag that is set for this light. """
     return self._debug
@@ -117,21 +166,6 @@ class Light:
     self._switches.remove(switch)
     del switch
 
-  @property
-  def apiServerPort(self) -> int:
-    """ Return the number of the network port on which the REST API server to control this light object. """
-    return self._apiServerPort
-  
-  @apiServerPort.setter
-  def apiServerPort(self, value: int):
-    """ Set the network port of the RESTful web server.  This is an integer between 1 and 65535. """
-    if value < 1 or value > 65535: raise Exception("The server port should be between 1 and 65535!")
-    self._apiServerPort=value
-
-  def state(self) -> bool:
-    """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
-    return self._lightState
-
   def Start(self):
     """ Initialize the LED strip at the hardware level so that we can start control the individual LEDs. """
     self._strip=PixelStrip(self._ledCount, \
@@ -144,49 +178,11 @@ class Light:
                 self._stripType)
     # Initialize the library (must be called once before other functions):
     self._strip.begin()
-    # Setup the REST server so we can control the lights over the network:
-    print(("setting up the {} REST API server...").format(self._name))
-    self._apiServer=RESTserver(self._name)
-    self._apiServer.debug=self._debug
-    self._apiServer.port=self._apiServerPort
-    # View the whole setup: http://0.0.0.0:80/
-    self._apiServer.add_endpoint(endpoint='/', endpoint_name='home', \
-                                               htmlTemplateFile='home.html', \
-                                               htmlTemplateData={'title': 'Ledstrip', \
-                                                                 'name': self._name, \
-                                                                 'switches': self._switches}, \
-                                               allowedMethods=['GET',])
-    # View all the Light objects in the setup: http://0.0.0.0:80/lights
-    self._apiServer.add_endpoint(endpoint='/lights', endpoint_name='lights', \
-                                                    getHandler=self.apiGETLights, \
-                                                    allowedMethods=['GET',])
-    # View the setup of 1 specific Light object: http://0.0.0.0:80/light/<name>
-    # 'GET' shows the config;
-    # 'POST' to update its config (config in body as JSON payload);
-    self._apiServer.add_endpoint(endpoint='/light/<light_name>', endpoint_name='light', \
-                                                    getHandler=self.apiGETLight, \
-                                                    postHandler=self.apiPOSTLight, \
-                                                    allowedMethods=['GET','POST',])
-    # View all the Switch objects in the setup for a specific Light: http://0.0.0.0:80/light/<name>/switches
-    self._apiServer.add_endpoint(endpoint='/light/<light_name>/switches', endpoint_name='switches', \
-                                                    getHandler=self.apiGETLightSwitches, \
-                                                    allowedMethods=['GET',])
-    # View the setup of 1 specific Switch object for a specific Light: http://0.0.0.0:80/light/<name>/switch/<name>
-    self._apiServer.add_endpoint(endpoint='/light/<light_name>/switch/<switch_name>', endpoint_name='switch', \
-                                                    getHandler=self.apiGETLightSwitch, \
-                                                    allowedMethods=['GET',])
-
-
-
-#  allowedMethods=['GET','POST','PUT','DELETE',])
-#    self._apiServer.add_endpoint(endpoint='/lichten/', defaults={'light_name': None})
-
-    self._apiServer.start()
 
   def On(self):
     """ Turn the leds on. """
-    # Set the leds to white, full brightness:
-    color = Color(0, 0, 0, 255)
+    # Set the led color, full brightness:
+    color=Color(self._greenRGB, self._redRGB, self._blueRGB, self._ledBrightness)
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
     self._strip.show()
@@ -207,27 +203,11 @@ class Light:
     else:
       self.On()
 
-  def apiGETLights(self) -> str:
-    """ Callback function for the GET operation at the '/lights' endpoint. """
-    return "GET - Lights"
-
-  def apiGETLight(self) -> str:
-    """ Callback function for the GET operation at the '/light/<light_name>' endpoint. """
-    return ("My name is: {}<br>my state is: {}").format(self._name, self._lightState)
-
-  def apiPOSTLight(self) -> str:
-    """ Callback function for the POST operation at the '/light/<light_name>' endpoint. """
-    self.Toggle()
-    return ("POST - Toggled light {} - {}").format(self._name, self._lightState)
-
-  def apiGETLightSwitches(self) -> str:
-    """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
-    return "GET - Light Switches"
-
-  def apiGETLightSwitch(self) -> str:
-    """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
-    return "GET - Light Switch"
-
+  def Update(self):
+    """ Apply the Updated LED settings if they are on. """
+    if self._lightState:
+      self.Off()
+      self.On()
 #
 #----------------------------------
 #
@@ -242,7 +222,7 @@ class Switch:
 
   def __init__(self, name: str):
     """ Constructor setting some default values. """
-    print("creating switch object: "+name)
+    print("  ..creating switch object: "+name)
     self._state=True
     self._name=name
     self._gpioPin=0
@@ -285,10 +265,21 @@ class Switch:
 
   def hasChanged(self) -> bool:
     """ Method to detect if the state of the switch has changed since last time we checked. """
-    if self._state != self.state:
-      return True
-    else:
-      return False
+    oldState=self._state
+    ret=False
+    if oldState != self.state:
+      # Turns out we sometimes get false positives for some reason.
+      # It looks like voltage sometimes drops below the threshold value on longer wires from the
+      # RPi to the physical switch, triggering a false positive.  The RPi thinks the switch got triggered
+      # and then switches the light on or off.  It sees the correct state again during the next loop
+      # half a second later and then turns the light on or off again.
+      # The best fix would be to use better quality wires and better pull up resitors but the cheapest
+      # and easiest solution is to have the RPi check the status again after a short time and only decide
+      # if both checks come back with the same result.
+      sleep(0.1)
+      if oldState != self.state:
+        ret=True
+    return ret
 
   def init(self):
     """ Method to initialize the Raspberry PI hardware at GPIO level. """
