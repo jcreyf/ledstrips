@@ -492,7 +492,29 @@ if __name__ == '__main__':
         for switch in light.switches:
           if switch.hasChanged():
             debug(("switch {} event -> toggling light {}").format(switch.name, light.name))
-            light.Toggle()
+            # We want the switch to always turn on the ledstrip with white light and full brightness.
+            if light.State():
+              # The light is on.  Turn it off without changing settings:
+              light.Off()
+            else:
+              # The light is off.
+              # Get the current settings:
+              _red=light.redRGB()
+              _green=light.greenRGB()
+              _blue=light.blueRGB()
+              _brightness=light.ledBrightness()
+              # Change the settings to white with full brightness:
+              light.redRGB(255)
+              light.greenRGB(255)
+              light.blueRGB(255)
+              light.ledBrightness(255)
+              # Turn the light on:
+              light.On()
+              # Restore the settings:
+              light.redRGB(_red)
+              light.greenRGB(_green)
+              light.blueRGB(_blue)
+              light.ledBrightness(_brightness)
 
   except KeyboardInterrupt:
     # Ctrl-C was hit!
