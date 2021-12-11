@@ -493,7 +493,7 @@ if __name__ == '__main__':
           if switch.hasChanged():
             debug(("switch {} event -> toggling light {}").format(switch.name, light.name))
             # We want the switch to always turn on the ledstrip with white light and full brightness.
-            if light.state():
+            if light.state:
               # The light is on.  Turn it off without changing settings:
               light.Off()
             else:
