@@ -499,10 +499,10 @@ if __name__ == '__main__':
             else:
               # The light is off.
               # Get the current settings:
-              _red=light.redRGB()
-              _green=light.greenRGB()
-              _blue=light.blueRGB()
-              _brightness=light.ledBrightness()
+              _red=light.redRGB
+              _green=light.greenRGB
+              _blue=light.blueRGB
+              _brightness=light.ledBrightness
               # Change the settings to white with full brightness:
               light.redRGB(255)
               light.greenRGB(255)
