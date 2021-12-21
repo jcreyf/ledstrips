@@ -259,6 +259,7 @@ class Light:
 
   def Christmass_Code(self):
     print("Start of Christmass thread")
+    LED_CHANNEL=0
     LED_STRIP = ws.SK6812W_STRIP
     # Define colors which will be used by the example.  Each color is an unsigned
     # 32-bit value where the lower 24 bits define the red, green, blue data (each
