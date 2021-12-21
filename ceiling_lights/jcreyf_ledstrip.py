@@ -163,7 +163,14 @@ class Light:
   @name.setter
   def behaviorModule(self, value: str):
     """ Set the name for the behavior module to run. """
-    self._behaviorModule=value
+    if self._behaviorModule != value:
+      if self._behaviorModule == "Christmass":
+        # Clean up of heap
+        # ToDo: move this to a finalizer method in the Behavior Module class!!!
+        self.Christmass_Code(stop=True)
+      # Reset the ledstrip object if we're switching between behavior modules:
+      self._strip=None
+      self._behaviorModule=value
 
   @property
   def switches(self) -> list:
@@ -225,8 +232,8 @@ class Light:
       self.On()
 
 #********** THE BELOW METHODS NEED TO MOVE INTO MODULES *********
-  def Default_On(self):
-    """ Turn the leds on. """
+
+  def Default_Code(self):
     # Initialize the ledstrip if that's not done yet:
     if self._strip == None:
       self._strip=PixelStrip(self._ledCount, \
@@ -239,30 +246,34 @@ class Light:
                   self._stripType)
       # Initialize the library (must be called once before other functions):
       self._strip.begin()
-
-    # Set the led color, full brightness:
-    color=Color(self._greenRGB, self._redRGB, self._blueRGB, self._ledBrightness)
+    if self._lightState:
+      # The light is on -> turn the leds off:
+      color=Color(0, 0, 0, 0)
+    else:
+      # The light is off -> set the led color and brightness:
+      color=Color(self._greenRGB, self._redRGB, self._blueRGB, self._ledBrightness)
+    # Loop and set all leds on the strip:
     for i in range(self._strip.numPixels()):
       self._strip.setPixelColor(i, color)
+    # Execute:
     self._strip.show()
+
+  def Default_On(self):
+    """ Turn the leds on. """
     self._lightState=True
+    self.Default_Code()
 
   def Default_Off(self):
     """ Turn the leds off. """
-    color=Color(0, 0, 0, 0)
-    for i in range(self._strip.numPixels()):
-      self._strip.setPixelColor(i, color)
-    self._strip.show()
     self._lightState=False
+    self.Default_Code()
 
 #---------------
 
-  def Christmass_Code(self):
+  def Christmass_Code(self, stop = False: bool):
     print("Start of Christmass thread")
-    self._strip=ws.SK6812W_STRIP
-    # Define colors which will be used by the example.  Each color is an unsigned
-    # 32-bit value where the lower 24 bits define the red, green, blue data (each
-    # being 8 bits long).
+    # Define colors which will be used by the module.
+    # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
     DOT_COLORS=[0x200000,   # red
                 0x201000,   # orange
                 0x202000,   # yellow
@@ -271,6 +282,8 @@ class Light:
                 0x000020,   # blue
                 0x100010,   # purple
                 0x200010]   # pink
+    if self._strip == None:
+      self._strip=ws.SK6812W_STRIP
     # Create a ws2811_t structure from the LED configuration.
     # Note that this structure will be created on the heap so you need to be careful
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
@@ -337,10 +350,12 @@ class Light:
     self._lightState=True
     mod=threading.Thread(target=self.Christmass_Code)
     mod.start()
+    print("Turning on (Christmass thread started)")
 
   def Christmass_Off(self):
     """ Turn the leds off. """
     self._lightState=False
+    print("Turning off (this should end the Christmass thread)")
 
 #
 #----------------------------------
