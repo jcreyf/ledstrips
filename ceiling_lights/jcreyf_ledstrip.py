@@ -167,7 +167,8 @@ class Light:
       if self._behaviorModule == "Christmass":
         # Clean up of heap
         # ToDo: move this to a finalizer method in the Behavior Module class!!!
-        self.Christmass_Code(stop=True)
+#        self.Christmass_Code(stop=True)
+        print("swapping to other behavior module...need to clean up the old module!")
       # Reset the ledstrip object if we're switching between behavior modules:
       self._strip=None
       self._behaviorModule=value
