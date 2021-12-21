@@ -333,6 +333,10 @@ class Light:
           offset += 1
       # The loop ended.
       print("End of Christmass thread")
+      # Turn all the leds off:
+      for i in range(self._ledCount):
+        ws.ws2811_led_set(channel, i, 0)
+        ws.ws2811_render(leds)
     finally:
       print("Christmass cleanup...")
       # Ensure ws2811_fini is called before the program quits.
