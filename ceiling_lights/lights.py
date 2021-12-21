@@ -505,10 +505,10 @@ if __name__ == '__main__':
               _blue=light.blueRGB
               _brightness=light.ledBrightness
               # Change the settings to white with full brightness:
-              if _module == "Default":
-                light.behaviorModule="Christmass"
-              else:
-                light.behaviorModule="Default"
+#              if _module == "Default":
+#                light.behaviorModule="Christmass"
+#              else:
+#                light.behaviorModule="Default"
               light.redRGB=255
               light.greenRGB=255
               light.blueRGB=255
