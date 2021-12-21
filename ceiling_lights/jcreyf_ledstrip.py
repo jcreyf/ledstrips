@@ -259,8 +259,7 @@ class Light:
 
   def Christmass_Code(self):
     print("Start of Christmass thread")
-    LED_CHANNEL=0
-    LED_STRIP = ws.SK6812W_STRIP
+    self._strip=ws.SK6812W_STRIP
     # Define colors which will be used by the example.  Each color is an unsigned
     # 32-bit value where the lower 24 bits define the red, green, blue data (each
     # being 8 bits long).
@@ -284,16 +283,16 @@ class Light:
       ws.ws2811_channel_t_invert_set(channel, 0)
       ws.ws2811_channel_t_brightness_set(channel, 0)
 
-    channel = ws.ws2811_channel_get(leds, LED_CHANNEL)
+    channel = ws.ws2811_channel_get(leds, self._ledChannel)
 
-    ws.ws2811_channel_t_count_set(channel, LED_COUNT)
-    ws.ws2811_channel_t_gpionum_set(channel, LED_GPIO)
-    ws.ws2811_channel_t_invert_set(channel, LED_INVERT)
-    ws.ws2811_channel_t_brightness_set(channel, LED_BRIGHTNESS)
-    ws.ws2811_channel_t_strip_type_set(channel, LED_STRIP)
+    ws.ws2811_channel_t_count_set(channel, self._ledCount)
+    ws.ws2811_channel_t_gpionum_set(channel, self._stripGpioPin)
+    ws.ws2811_channel_t_invert_set(channel, self._ledInvert)
+    ws.ws2811_channel_t_brightness_set(channel, self._ledBrightness)
+    ws.ws2811_channel_t_strip_type_set(channel, self._strip)
 
-    ws.ws2811_t_freq_set(leds, LED_FREQ_HZ)
-    ws.ws2811_t_dmanum_set(leds, LED_DMA_NUM)
+    ws.ws2811_t_freq_set(leds, self._ledFrequency)
+    ws.ws2811_t_dmanum_set(leds, self._ledDmaChannel)
 
     # Initialize library with LED configuration.
     resp = ws.ws2811_init(leds)
@@ -307,7 +306,7 @@ class Light:
       # Keep looping in the thread until the user switches off the lights:
       while self._lightState:
         # Update each LED color in the buffer.
-        for i in range(LED_COUNT):
+        for i in range(self._ledCount):
           # Pick a color based on LED position and an offset for animation.
           color = DOT_COLORS[(i + offset) % len(DOT_COLORS)]
           # Set the LED color buffer value.
