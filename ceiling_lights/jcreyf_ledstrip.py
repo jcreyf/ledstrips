@@ -270,7 +270,7 @@ class Light:
 
 #---------------
 
-  def Christmass_Code(self, stop = False: bool):
+  def Christmass_Code(self, stop: bool = False):
     print("Start of Christmass thread")
     # Define colors which will be used by the module.
     # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
