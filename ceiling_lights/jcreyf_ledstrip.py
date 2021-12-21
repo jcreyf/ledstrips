@@ -344,10 +344,6 @@ class Light:
 
   def Christmass_On(self):
     """ Turn the leds on. """
-    # Remove the previous ledstrip object if that was set before switching to Christmass mode:
-    if self._strip != None:
-      self._strip=None
-
     self._lightState=True
     mod=threading.Thread(target=self.Christmass_Code)
     mod.start()
