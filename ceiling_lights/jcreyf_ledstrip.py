@@ -13,6 +13,8 @@ This module requires these modules:
 from RPi import GPIO
 from rpi_ws281x import Color, PixelStrip, ws
 from time import sleep
+import threading
+
 
 class Light:
   """
@@ -40,6 +42,7 @@ class Light:
     self._lightState=False                 # Is the light "off" (false) or "on" (true);
     self._switches=[]                      # Optional list of Switch objects that are linked to this light object;
     self._debug=False                      # Debug level logging;
+    self._behaviorModule="Default"         # Name of the module that has the code to turn the leds on/off
 
   def __del__(self):
     """ Destructor will turn off this light. """
@@ -153,6 +156,16 @@ class Light:
     self._debug=flag
 
   @property
+  def behaviorModule(self):
+    """ Return the name of the behavior module to run. """
+    return self._behaviorModule
+  
+  @name.setter
+  def behaviorModule(self, value: str):
+    """ Set the name for the behavior module to run. """
+    self._behaviorModule=value
+
+  @property
   def switches(self) -> list:
     """ Return a list of 0 or more Switch objects that have been mapped to this light. """
     return self._switches
@@ -168,33 +181,35 @@ class Light:
 
   def Start(self):
     """ Initialize the LED strip at the hardware level so that we can start control the individual LEDs. """
-    self._strip=PixelStrip(self._ledCount, \
-                self._stripGpioPin, \
-                self._ledFrequency, \
-                self._ledDmaChannel, \
-                self._ledInvert, \
-                self._ledBrightness, \
-                self._ledChannel, \
-                self._stripType)
-    # Initialize the library (must be called once before other functions):
-    self._strip.begin()
+#    self._strip=PixelStrip(self._ledCount, \
+#                self._stripGpioPin, \
+#                self._ledFrequency, \
+#                self._ledDmaChannel, \
+#                self._ledInvert, \
+#                self._ledBrightness, \
+#                self._ledChannel, \
+#                self._stripType)
+#    # Initialize the library (must be called once before other functions):
+#    self._strip.begin()
+    print("jcreyf_ledstrip.Start() called!!!")
 
   def On(self):
     """ Turn the leds on. """
-    # Set the led color, full brightness:
-    color=Color(self._greenRGB, self._redRGB, self._blueRGB, self._ledBrightness)
-    for i in range(self._strip.numPixels()):
-      self._strip.setPixelColor(i, color)
-    self._strip.show()
-    self._lightState=True
+    if self._behaviorModule == "Default":
+      # Basic On behavior:
+      self.Default_On()
+    else:
+      # Christmass party:
+      self.Christmass_On()
 
   def Off(self):
     """ Turn the leds off. """
-    color = Color(0, 0, 0, 0)
-    for i in range(self._strip.numPixels()):
-      self._strip.setPixelColor(i, color)
-    self._strip.show()
-    self._lightState=False
+    if self._behaviorModule == "Default":
+      # Basic Off behavior:
+      self.Default_Off()
+    else:
+      # Christmass party:
+      self.Christmass_Off()
   
   def Toggle(self):
     """ Toggle the light on or off. """
@@ -208,6 +223,131 @@ class Light:
     if self._lightState:
       self.Off()
       self.On()
+
+#********** THE BELOW METHODS NEED TO MOVE INTO MODULES *********
+  def Default_On(self):
+    """ Turn the leds on. """
+    # Initialize the ledstrip if that's not done yet:
+    if self._strip == None:
+      self._strip=PixelStrip(self._ledCount, \
+                  self._stripGpioPin, \
+                  self._ledFrequency, \
+                  self._ledDmaChannel, \
+                  self._ledInvert, \
+                  self._ledBrightness, \
+                  self._ledChannel, \
+                  self._stripType)
+      # Initialize the library (must be called once before other functions):
+      self._strip.begin()
+
+    # Set the led color, full brightness:
+    color=Color(self._greenRGB, self._redRGB, self._blueRGB, self._ledBrightness)
+    for i in range(self._strip.numPixels()):
+      self._strip.setPixelColor(i, color)
+    self._strip.show()
+    self._lightState=True
+
+  def Default_Off(self):
+    """ Turn the leds off. """
+    color=Color(0, 0, 0, 0)
+    for i in range(self._strip.numPixels()):
+      self._strip.setPixelColor(i, color)
+    self._strip.show()
+    self._lightState=False
+
+#---------------
+
+  def Christmass_Code(self):
+    print("Start of Christmass thread")
+    LED_STRIP = ws.SK6812W_STRIP
+    # Define colors which will be used by the example.  Each color is an unsigned
+    # 32-bit value where the lower 24 bits define the red, green, blue data (each
+    # being 8 bits long).
+    DOT_COLORS = [0x200000,   # red
+                  0x201000,   # orange
+                  0x202000,   # yellow
+                  0x002000,   # green
+                  0x002020,   # lightblue
+                  0x000020,   # blue
+                  0x100010,   # purple
+                  0x200010]   # pink
+    # Create a ws2811_t structure from the LED configuration.
+    # Note that this structure will be created on the heap so you need to be careful
+    # that you delete its memory by calling delete_ws2811_t when it's not needed.
+    leds = ws.new_ws2811_t()
+    # Initialize all channels to off
+    for channum in range(2):
+      channel = ws.ws2811_channel_get(leds, channum)
+      ws.ws2811_channel_t_count_set(channel, 0)
+      ws.ws2811_channel_t_gpionum_set(channel, 0)
+      ws.ws2811_channel_t_invert_set(channel, 0)
+      ws.ws2811_channel_t_brightness_set(channel, 0)
+
+    channel = ws.ws2811_channel_get(leds, LED_CHANNEL)
+
+    ws.ws2811_channel_t_count_set(channel, LED_COUNT)
+    ws.ws2811_channel_t_gpionum_set(channel, LED_GPIO)
+    ws.ws2811_channel_t_invert_set(channel, LED_INVERT)
+    ws.ws2811_channel_t_brightness_set(channel, LED_BRIGHTNESS)
+    ws.ws2811_channel_t_strip_type_set(channel, LED_STRIP)
+
+    ws.ws2811_t_freq_set(leds, LED_FREQ_HZ)
+    ws.ws2811_t_dmanum_set(leds, LED_DMA_NUM)
+
+    # Initialize library with LED configuration.
+    resp = ws.ws2811_init(leds)
+    if resp != ws.WS2811_SUCCESS:
+      message = ws.ws2811_get_return_t_str(resp)
+      raise RuntimeError('ws2811_init failed with code {0} ({1})'.format(resp, message))
+
+    # Wrap following code in a try/finally to ensure cleanup functions are called after library is initialized.
+    try:
+      offset = 0
+      # Keep looping in the thread until the user switches off the lights:
+      while self._lightState:
+        # Update each LED color in the buffer.
+        for i in range(LED_COUNT):
+          # Pick a color based on LED position and an offset for animation.
+          color = DOT_COLORS[(i + offset) % len(DOT_COLORS)]
+          # Set the LED color buffer value.
+          ws.ws2811_led_set(channel, i, color)
+          # Send the LED color data to the hardware.
+          resp = ws.ws2811_render(leds)
+          if resp != ws.WS2811_SUCCESS:
+            message = ws.ws2811_get_return_t_str(resp)
+            raise RuntimeError('ws2811_render failed with code {0} ({1})'.format(resp, message))
+
+          # Delay for a small period of time.
+          time.sleep(0.25)
+
+          # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
+          offset += 1
+      # The loop ended.
+      print("End of Christmass thread")
+
+    finally:
+      print("Christmass cleanup...")
+      # Ensure ws2811_fini is called before the program quits.
+      ws.ws2811_fini(leds)
+      # Example of calling delete function to clean up structure memory.  Isn't
+      # strictly necessary at the end of the program execution here, but is good practice.
+      ws.delete_ws2811_t(leds)
+
+
+  def Christmass_On(self):
+    """ Turn the leds on. """
+    # Remove the previous ledstrip object if that was set before switching to Christmass mode:
+    if self._strip != None:
+      self._strip=None
+
+    self._lightState=True
+    mod=threading.Thread(target=self.Christmass_Code)
+    mod.start()
+
+  def Christmass_Off(self):
+    """ Turn the leds off. """
+    self._lightState=False
+
 #
 #----------------------------------
 #
