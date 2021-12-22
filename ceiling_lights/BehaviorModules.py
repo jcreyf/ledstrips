@@ -31,11 +31,11 @@ class BehaviorModule(threading.Thread):
     self._ledSettings=ledSettings
     # The type of the LED strip (just RGB or does it also include a White LED);
     self._stripType=ws.SK6812_STRIP_RGBW
-    self.log(f"BehaviorModule '{self._name}': Constructor", debug=True)
+    self.log(f"'{self._name}': Constructor", debug=True)
 
   def __del__(self):
     """ Destructor will turn off the leds. """
-    self.log(f"BehaviorModule '{self._name}': Destructor", debug=True)
+    self.log(f"'{self._name}': Destructor", debug=True)
 
   @property
   def name(self):
@@ -73,13 +73,13 @@ class BehaviorModule(threading.Thread):
   def On(self):
     """ Method to start the behavior. """
     self.log("On()")
-    self.log(self._ledSettings, debug=True)
+    self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self.log(f"'{self._name}': Starting behavior...", debug=True)
 
   def Off(self):
     """ Method to stop the behavior. """
     self.log("Off()")
-    self.log(self._ledSettings, debug=True)
+    self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self.log(f"'{self._name}': Stopping the behavior...", debug=True)
 
   def Finalize(self):
@@ -104,7 +104,7 @@ class DefaultModule(BehaviorModule):
 
   def On(self):
     self.log("On()")
-    self.log(self._ledSettings, debug=True)
+    self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self.log(f"'{self._name}': turning the leds on...", debug=True)
     self._ledSettings["lightState"]=True
     self.log(self._ledSettings, debug=True)
@@ -112,7 +112,7 @@ class DefaultModule(BehaviorModule):
 
   def Off(self):
     self.log("Off()")
-    self.log(self._ledSettings, debug=True)
+    self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self.log(f"'{self._name}': turning the leds off...", debug=True)
     self._ledSettings["lightState"]=False
     self.log(self._ledSettings, debug=True)
@@ -167,6 +167,7 @@ class ChristmassModule(BehaviorModule):
 
   def On(self):
     self.log(f"'{self._name}': turning the leds on...", debug=True)
+    self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self._ledSettings["lightState"]=True
 #    mod=threading.Thread(target=self.Christmass_Code)
 #    mod.start()
@@ -174,6 +175,7 @@ class ChristmassModule(BehaviorModule):
 
   def Off(self):
     self.log(f"'{self._name}': turning the leds off...", debug=True)
+    self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self._ledSettings["lightState"]=False
     self.log("Turning off (this should end the Christmass thread)")
 
