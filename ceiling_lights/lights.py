@@ -410,6 +410,7 @@ if __name__ == '__main__':
         log(f"  GPIO pin: {_gpioPin}")
         # Create the switch and set its properties:
         _switch=Switch(_name)
+        _switch.debug=DEBUG
         _switch.gpioPin=_gpioPin
         _switch.init()
         _light.addSwitch(_switch)

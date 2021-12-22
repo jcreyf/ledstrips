@@ -24,7 +24,7 @@ class Light:
 
   def __init__(self, name: str):
     """ Constructor, initializing members with default values. """
-    print(f"  ..creating light object: {name}")
+    self.log(f"Creating light object: {name}")
     self._name=name                        # Human name of the LED strip;
     self._switches=[]                      # Optional list of Switch objects that are linked to this light object;
     self._debug=False                      # Debug level logging;
@@ -44,10 +44,11 @@ class Light:
       "strip": None,                       # Instance of the rpi_ws281x LED strip;
       "lightState": False                  # Is the light "off" (false) or "on" (true);
     }
+    self.log(f"ledSettings: {self._ledSettings}")
 
   def __del__(self):
     """ Destructor will turn off this light. """
-    print(f"destroying light object: {self._name}")
+    self.log(f"destroying light object: {self._name}")
     self.Off()
 
   @property
@@ -236,14 +237,15 @@ class Switch:
 
   def __init__(self, name: str):
     """ Constructor setting some default values. """
-    print(f"  ..creating switch object: {name}")
+    self.log(f"Creating switch object: {name}")
     self._state=True
     self._name=name
     self._gpioPin=0
+    self._debug=True
 
   def __del__(self):
     """ Destructor to release and clean up GPIO resources. """
-    print(f"destroying switch object: {self._name}")
+    self.log(f"Destroying switch object: {self._name}")
 
   @property
   def state(self) -> bool:
@@ -277,6 +279,30 @@ class Switch:
     if not ((value >= 2) and (value <= 26)): raise Exception("The RPi GPIO port needs to be between 2 and 26!")
     self._gpioPin=value
 
+  @property
+  def debug(self) -> bool:
+    """ Return the debug-flag that is set for this light. """
+    return self._debug
+
+  @debug.setter
+  def debug(self, flag: bool):
+    """ Set the debug level. """
+    self._debug=flag
+
+  def log(self, *args, debug: bool=False):
+    """ Simple function to log messages to the console. """
+    _log=True
+    if debug and not self._debug:
+      _log=False
+    if _log:
+      # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
+      if len(args) == 1:
+        print(f"{type(self)}: {args[0]}")
+      else:
+        print(f"{type(self)}: {args}")
+      # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
+      sys.stdout.flush()
+
   def hasChanged(self) -> bool:
     """ Method to detect if the state of the switch has changed since last time we checked. """
     oldState=self._state
@@ -292,14 +318,17 @@ class Switch:
       # if both checks come back with the same result.
       sleep(0.1)
       if oldState != self.state:
+        self.log("switch flipped", debug=True)
         ret=True
     return ret
 
   def init(self):
     """ Method to initialize the Raspberry PI hardware at GPIO level. """
+    self.log("init hardware", debug=True)
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(self._gpioPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
   def cleanUp():
     """ Static method to cleanup the GPIO ports that this app used on the RPi. """
+    print(f"{__name__}: cleanup hardware")
     GPIO.cleanup()
