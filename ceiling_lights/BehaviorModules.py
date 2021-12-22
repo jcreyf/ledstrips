@@ -10,9 +10,10 @@ This module requires these modules:
 - Threading to allow visual effects to happen in their own non-blocking thread;
 """
 
+import threading
+import sys
 from rpi_ws281x import Color, PixelStrip, ws
 from time import sleep
-import threading
 
 
 #
@@ -26,35 +27,61 @@ class BehaviorModule(threading.Thread):
     """ Constructor """
     threading.Thread.__init__(self)
     self._name=name
+    self._debug=True
     self._ledSettings=ledSettings
     # The type of the LED strip (just RGB or does it also include a White LED);
     self._stripType=ws.SK6812_STRIP_RGBW
-    print(f"BehaviorModule '{self._name}': Constructor")
+    self.debug(f"BehaviorModule '{self._name}': Constructor")
 
   def __del__(self):
     """ Destructor will turn off the leds. """
-    print(f"BehaviorModule '{self._name}': Destructor")
+    self.debug(f"BehaviorModule '{self._name}': Destructor")
 
   @property
   def name(self):
     """ Return the name of this behavior module. """
     return self._name
 
+  @property
+  def debug(self) -> bool:
+    """ Return the debug-flag that is set for this light. """
+    return self._debug
+
+  @debug.setter
+  def debug(self, flag: bool):
+    """ Set the debug level. """
+    self._debug=flag
+
+  def log(self, *args):
+    """ Simple function to log messages to the console. """
+    # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
+    if len(args) == 1:
+      print(f"{__name__}: {args[0]}")
+    else:
+      print(f"{__name__}: {args}")
+    # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
+    sys.stdout.flush()
+
+  def debug(self, *args):
+    """ Simple function to log messages to the console if the DEBUG-flag is set. """
+    if self._debug:
+      self.log(f"debug -> {args}")
+
   def run(self):
     """ Method that is called when the thread starts. """
-    print(f"BehaviorModule '{self._name}': Starting thread")
+    self.debug(f"BehaviorModule '{self._name}': Starting thread")
 
   def On(self):
     """ Method to start the behavior. """
-    print(f"BehaviorModule '{self._name}': Starting behavior...")
+    self.debug(f"BehaviorModule '{self._name}': Starting behavior...")
 
   def Off(self):
     """ Method to stop the behavior. """
-    print(f"BehaviorModule '{self._name}': Stopping the behavior...")
+    self.debug(f"BehaviorModule '{self._name}': Stopping the behavior...")
 
   def Finalize(self):
     """ Destructor method to release and cleanup resources. """
-    print(f"BehaviorModule '{self._name}': Finalizing behavior...")
+    self.debug(f"BehaviorModule '{self._name}': Finalizing behavior...")
 
 
 #
@@ -69,23 +96,23 @@ class DefaultModule(BehaviorModule):
     super().__init__(name="Default", ledSettings=ledSettings)
 
   def run(self):
-    print(f"BehaviorModule '{self._name}': starting the behavior...")
+    self.debug(f"BehaviorModule '{self._name}': starting the behavior...")
 
   def On(self):
-    print(f"BehaviorModule '{self._name}': turning the leds on...")
+    self.debug(f"BehaviorModule '{self._name}': turning the leds on...")
     self._ledSettings["lightState"]=True
     self.Code()
 
   def Off(self):
-    print(f"BehaviorModule '{self._name}': turning the leds off...")
+    self.debug(f"BehaviorModule '{self._name}': turning the leds off...")
     self._ledSettings["lightState"]=False
     self.Code()
 
   def Finalize(self):
-    print(f"BehaviorModule '{self._name}': cleaning up resources...")
+    self.debug(f"BehaviorModule '{self._name}': cleaning up resources...")
 
   def Code(self):
-    print(f"BehaviorModule '{self._name}': Settings -> \n{self._ledSettings}")
+    self.debug(f"BehaviorModule '{self._name}': Settings -> \n{self._ledSettings}")
     # Initialize the ledstrip if that's not done yet:
     if self._ledSettings["strip"] == None:
       self._ledSettings["strip"]=PixelStrip(self._ledSettings["ledCount"], \
@@ -126,25 +153,25 @@ class ChristmassModule(BehaviorModule):
     super().__init__(name="Christmass", ledSettings=ledSettings)
   
   def run(self):
-    print(f"BehaviorModule '{self._name}': starting the behavior...")
+    self.debug(f"BehaviorModule '{self._name}': starting the behavior...")
 
   def On(self):
-    print(f"BehaviorModule '{self._name}': turning the leds on...")
+    self.debug(f"BehaviorModule '{self._name}': turning the leds on...")
     self._ledSettings["lightState"]=True
 #    mod=threading.Thread(target=self.Christmass_Code)
 #    mod.start()
-    print("Turning on (Christmass thread started)")
+    self.log("Turning on (Christmass thread started)")
 
   def Off(self):
-    print(f"BehaviorModule '{self._name}': turning the leds off...")
+    self.debug(f"BehaviorModule '{self._name}': turning the leds off...")
     self._ledSettings["lightState"]=False
-    print("Turning off (this should end the Christmass thread)")
+    self.log("Turning off (this should end the Christmass thread)")
 
   def Finalize(self):
-    print(f"BehaviorModule '{self._name}': cleaning up resources...")
+    self.debug(f"BehaviorModule '{self._name}': cleaning up resources...")
 
   def Christmass_Code(self, stop: bool=False):
-    print(f"BehaviorModule '{self._name}': start of thread")
+    self.debug(f"BehaviorModule '{self._name}': start of thread")
     # Define colors which will be used by the module.
     # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
     DOT_COLORS=[0x200000,   # red
@@ -204,13 +231,13 @@ class ChristmassModule(BehaviorModule):
           # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
           offset += 1
       # The loop ended.
-      print(f"BehaviorModule '{self._name}': end of thread")
+      self.log(f"BehaviorModule '{self._name}': end of thread")
       # Turn all the leds off:
       for i in range(self._ledSettings["ledCount"]):
         ws.ws2811_led_set(channel, i, 0)
         ws.ws2811_render(leds)
     finally:
-      print(f"BehaviorModule '{self._name}': cleanup...")
+      self.debug(f"BehaviorModule '{self._name}': cleanup...")
       # Ensure ws2811_fini is called before the program quits.
       ws.ws2811_fini(leds)
       # Example of calling delete function to clean up structure memory.  Isn't

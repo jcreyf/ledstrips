@@ -10,6 +10,7 @@ This module requires these modules:
 """
 
 import BehaviorModules
+import sys
 from RPi import GPIO
 from time import sleep
 
@@ -164,6 +165,7 @@ class Light:
       else:
         # Set the default On/Off behavior:
         self._behaviorModule=BehaviorModules.DefaultModule(self._ledSettings)
+      self._behaviorModule.debug=self._debug
       self._behaviorModuleName=self._behaviorModule.name
 
   @property
@@ -179,6 +181,21 @@ class Light:
     """ Remove a switch from this light. """
     self._switches.remove(switch)
     del switch
+
+  def log(self, *args):
+    """ Simple function to log messages to the console. """
+    # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
+    if len(args) == 1:
+      print(f"{__name__}: {args[0]}")
+    else:
+      print(f"{__name__}: {args}")
+    # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
+    sys.stdout.flush()
+
+  def debug(self, *args):
+    """ Simple function to log messages to the console if the DEBUG-flag is set. """
+    if self._debug:
+      self.log(f"debug -> {args}")
 
   def On(self):
     """ Turn the leds on. """
