@@ -60,31 +60,31 @@ class BehaviorModule(threading.Thread):
     if _log:
       # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
       if len(args) == 1:
-        print(f"{__class__.__name__}: {type(self)}: {args[0]}")
+        print(f"{type(self)}: {args[0]}")
       else:
-        print(f"{__class__.__name__}: {type(self)}: {args}")
+        print(f"{type(self)}: {args}")
       # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
       sys.stdout.flush()
 
   def run(self):
     """ Method that is called when the thread starts. """
-    self.log(f"BehaviorModule '{self._name}': Starting thread", debug=True)
+    self.log(f"'{self._name}': Starting thread", debug=True)
 
   def On(self):
     """ Method to start the behavior. """
     self.log("On()")
     self.log(self._ledSettings, debug=True)
-    self.log(f"BehaviorModule '{self._name}': Starting behavior...", debug=True)
+    self.log(f"'{self._name}': Starting behavior...", debug=True)
 
   def Off(self):
     """ Method to stop the behavior. """
     self.log("Off()")
     self.log(self._ledSettings, debug=True)
-    self.log(f"BehaviorModule '{self._name}': Stopping the behavior...", debug=True)
+    self.log(f"'{self._name}': Stopping the behavior...", debug=True)
 
   def Finalize(self):
     """ Destructor method to release and cleanup resources. """
-    self.log(f"BehaviorModule '{self._name}': Finalizing behavior...", debug=True)
+    self.log(f"'{self._name}': Finalizing behavior...", debug=True)
 
 
 #
@@ -100,12 +100,12 @@ class DefaultModule(BehaviorModule):
     self.log(ledSettings, debug=True)
 
   def run(self):
-    self.log(f"BehaviorModule '{self._name}': starting the behavior...", debug=True)
+    self.log(f"'{self._name}': starting the behavior...", debug=True)
 
   def On(self):
     self.log("On()")
     self.log(self._ledSettings, debug=True)
-    self.log(f"BehaviorModule '{self._name}': turning the leds on...", debug=True)
+    self.log(f"'{self._name}': turning the leds on...", debug=True)
     self._ledSettings["lightState"]=True
     self.log(self._ledSettings, debug=True)
     self.Code()
@@ -113,16 +113,16 @@ class DefaultModule(BehaviorModule):
   def Off(self):
     self.log("Off()")
     self.log(self._ledSettings, debug=True)
-    self.log(f"BehaviorModule '{self._name}': turning the leds off...", debug=True)
+    self.log(f"'{self._name}': turning the leds off...", debug=True)
     self._ledSettings["lightState"]=False
     self.log(self._ledSettings, debug=True)
     self.Code()
 
   def Finalize(self):
-    self.log(f"BehaviorModule '{self._name}': cleaning up resources...", debug=True)
+    self.log(f"'{self._name}': cleaning up resources...", debug=True)
 
   def Code(self):
-    self.log(f"BehaviorModule '{self._name}': Settings -> \n{self._ledSettings}", debug=True)
+    self.log(f"'{self._name}': Settings -> \n{self._ledSettings}", debug=True)
     # Initialize the ledstrip if that's not done yet:
     if self._ledSettings["strip"] == None:
       self._ledSettings["strip"]=PixelStrip(self._ledSettings["ledCount"], \
@@ -163,25 +163,25 @@ class ChristmassModule(BehaviorModule):
     super().__init__(name="Christmass", ledSettings=ledSettings)
   
   def run(self):
-    self.log(f"BehaviorModule '{self._name}': starting the behavior...", debug=True)
+    self.log(f"'{self._name}': starting the behavior...", debug=True)
 
   def On(self):
-    self.log(f"BehaviorModule '{self._name}': turning the leds on...", debug=True)
+    self.log(f"'{self._name}': turning the leds on...", debug=True)
     self._ledSettings["lightState"]=True
 #    mod=threading.Thread(target=self.Christmass_Code)
 #    mod.start()
     self.log("Turning on (Christmass thread started)")
 
   def Off(self):
-    self.log(f"BehaviorModule '{self._name}': turning the leds off...", debug=True)
+    self.log(f"'{self._name}': turning the leds off...", debug=True)
     self._ledSettings["lightState"]=False
     self.log("Turning off (this should end the Christmass thread)")
 
   def Finalize(self):
-    self.log(f"BehaviorModule '{self._name}': cleaning up resources...")
+    self.log(f"'{self._name}': cleaning up resources...")
 
   def Christmass_Code(self, stop: bool=False):
-    self.log(f"BehaviorModule '{self._name}': start of thread")
+    self.log(f"'{self._name}': start of thread")
     # Define colors which will be used by the module.
     # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
     DOT_COLORS=[0x200000,   # red
@@ -241,13 +241,13 @@ class ChristmassModule(BehaviorModule):
           # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
           offset += 1
       # The loop ended.
-      self.log(f"BehaviorModule '{self._name}': end of thread")
+      self.log(f"'{self._name}': end of thread")
       # Turn all the leds off:
       for i in range(self._ledSettings["ledCount"]):
         ws.ws2811_led_set(channel, i, 0)
         ws.ws2811_render(leds)
     finally:
-      self.log(f"BehaviorModule '{self._name}': cleanup...")
+      self.log(f"'{self._name}': cleanup...")
       # Ensure ws2811_fini is called before the program quits.
       ws.ws2811_fini(leds)
       # Example of calling delete function to clean up structure memory.  Isn't
