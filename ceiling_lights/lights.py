@@ -222,7 +222,7 @@ def apiPOSTLight(path_vars, request) -> str:
     else:
       # The user changed values and we need to update the leds:
       light.Update()
-    html=f"<h1>POST - Updated light {light.name} - {light._lightState}</h1><br>"
+    html=f"<h1>POST - Updated light {light.name} - {light.state}</h1><br>"
     html+=f"<a href='/light/{light.name}'>{light.name}</a>"
   else:
     # We can't find this light!  Oops...
