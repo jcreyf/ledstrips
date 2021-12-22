@@ -32,7 +32,7 @@ class Light:
     self._switches=[]                      # Optional list of Switch objects that are linked to this light object;
     self._debug=False                      # Debug level logging;
     self._behaviorModuleName="Default"     # Name of the module that has the code to turn the leds on/off
-    self._behaviorModule=None              # The actual BehaviorModule object
+    self._behaviorModule=BehaviorModules.BehaviorModule()              # The actual BehaviorModule object
     self._ledSettings={
       "ledCount": 100,                     # Number of individually addressable LEDs on the strip;
       "redRGB": 1,                         # RGB Red color value;
