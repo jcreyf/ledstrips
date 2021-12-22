@@ -31,11 +31,11 @@ class BehaviorModule(threading.Thread):
     self._ledSettings=ledSettings
     # The type of the LED strip (just RGB or does it also include a White LED);
     self._stripType=ws.SK6812_STRIP_RGBW
-    self.debug(f"BehaviorModule '{self._name}': Constructor")
+    self.log(f"BehaviorModule '{self._name}': Constructor", debug=True)
 
   def __del__(self):
     """ Destructor will turn off the leds. """
-    self.debug(f"BehaviorModule '{self._name}': Destructor")
+    self.log(f"BehaviorModule '{self._name}': Destructor", debug=True)
 
   @property
   def name(self):
@@ -52,36 +52,35 @@ class BehaviorModule(threading.Thread):
     """ Set the debug level. """
     self._debug=flag
 
-  def log(self, *args):
+  def log(self, debug: bool=False, *args):
     """ Simple function to log messages to the console. """
-    # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
-    if len(args) == 1:
-      print(f"{__name__}: {args[0]}")
-    else:
-      print(f"{__name__}: {args}")
-    # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
-    sys.stdout.flush()
-
-  def debug(self, *args):
-    """ Simple function to log messages to the console if the DEBUG-flag is set. """
-    if self._debug:
-      self.log(f"debug -> {args}")
+    _log=True
+    if debug and not self._debug:
+      _log=False
+    if _log:
+      # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
+      if len(args) == 1:
+        print(f"{__name__}: {args[0]}")
+      else:
+        print(f"{__name__}: {args}")
+      # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
+      sys.stdout.flush()
 
   def run(self):
     """ Method that is called when the thread starts. """
-    self.debug(f"BehaviorModule '{self._name}': Starting thread")
+    self.log(f"BehaviorModule '{self._name}': Starting thread", debug=True)
 
   def On(self):
     """ Method to start the behavior. """
-    self.debug(f"BehaviorModule '{self._name}': Starting behavior...")
+    self.log(f"BehaviorModule '{self._name}': Starting behavior...", debug=True)
 
   def Off(self):
     """ Method to stop the behavior. """
-    self.debug(f"BehaviorModule '{self._name}': Stopping the behavior...")
+    self.log(f"BehaviorModule '{self._name}': Stopping the behavior...", debug=True)
 
   def Finalize(self):
     """ Destructor method to release and cleanup resources. """
-    self.debug(f"BehaviorModule '{self._name}': Finalizing behavior...")
+    self.log(f"BehaviorModule '{self._name}': Finalizing behavior...", debug=True)
 
 
 #
@@ -94,25 +93,26 @@ class DefaultModule(BehaviorModule):
   def __init__(self, ledSettings: dict):
     """ Constructor """
     super().__init__(name="Default", ledSettings=ledSettings)
+    self.log(ledSettings, debug=True)
 
   def run(self):
-    self.debug(f"BehaviorModule '{self._name}': starting the behavior...")
+    self.log(f"BehaviorModule '{self._name}': starting the behavior...", debug=True)
 
   def On(self):
-    self.debug(f"BehaviorModule '{self._name}': turning the leds on...")
+    self.log(f"BehaviorModule '{self._name}': turning the leds on...", debug=True)
     self._ledSettings["lightState"]=True
     self.Code()
 
   def Off(self):
-    self.debug(f"BehaviorModule '{self._name}': turning the leds off...")
+    self.log(f"BehaviorModule '{self._name}': turning the leds off...", debug=True)
     self._ledSettings["lightState"]=False
     self.Code()
 
   def Finalize(self):
-    self.debug(f"BehaviorModule '{self._name}': cleaning up resources...")
+    self.log(f"BehaviorModule '{self._name}': cleaning up resources...", debug=True)
 
   def Code(self):
-    self.debug(f"BehaviorModule '{self._name}': Settings -> \n{self._ledSettings}")
+    self.log(f"BehaviorModule '{self._name}': Settings -> \n{self._ledSettings}", debug=True)
     # Initialize the ledstrip if that's not done yet:
     if self._ledSettings["strip"] == None:
       self._ledSettings["strip"]=PixelStrip(self._ledSettings["ledCount"], \
@@ -153,25 +153,25 @@ class ChristmassModule(BehaviorModule):
     super().__init__(name="Christmass", ledSettings=ledSettings)
   
   def run(self):
-    self.debug(f"BehaviorModule '{self._name}': starting the behavior...")
+    self.log(f"BehaviorModule '{self._name}': starting the behavior...", debug=True)
 
   def On(self):
-    self.debug(f"BehaviorModule '{self._name}': turning the leds on...")
+    self.log(f"BehaviorModule '{self._name}': turning the leds on...", debug=True)
     self._ledSettings["lightState"]=True
 #    mod=threading.Thread(target=self.Christmass_Code)
 #    mod.start()
     self.log("Turning on (Christmass thread started)")
 
   def Off(self):
-    self.debug(f"BehaviorModule '{self._name}': turning the leds off...")
+    self.log(f"BehaviorModule '{self._name}': turning the leds off...", debug=True)
     self._ledSettings["lightState"]=False
     self.log("Turning off (this should end the Christmass thread)")
 
   def Finalize(self):
-    self.debug(f"BehaviorModule '{self._name}': cleaning up resources...")
+    self.log(f"BehaviorModule '{self._name}': cleaning up resources...")
 
   def Christmass_Code(self, stop: bool=False):
-    self.debug(f"BehaviorModule '{self._name}': start of thread")
+    self.log(f"BehaviorModule '{self._name}': start of thread")
     # Define colors which will be used by the module.
     # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
     DOT_COLORS=[0x200000,   # red
@@ -237,7 +237,7 @@ class ChristmassModule(BehaviorModule):
         ws.ws2811_led_set(channel, i, 0)
         ws.ws2811_render(leds)
     finally:
-      self.debug(f"BehaviorModule '{self._name}': cleanup...")
+      self.log(f"BehaviorModule '{self._name}': cleanup...")
       # Ensure ws2811_fini is called before the program quits.
       ws.ws2811_fini(leds)
       # Example of calling delete function to clean up structure memory.  Isn't

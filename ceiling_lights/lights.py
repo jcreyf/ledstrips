@@ -25,26 +25,25 @@ if type(DEBUG) == str:
   DEBUG=DEBUG.lower() in ('true', 'yes', 'y', '1')
 
 
-def log(*args):
+def log(debug: bool=False, *args):
   """ Simple function to log messages to the console. """
-  # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
-  if len(args) == 1:
-    print(f"lights: {args[0]}")
-  else:
-    print(f"lights: {args}")
-  # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
-  sys.stdout.flush()
-
-def debug(*args):
-  """ Simple function to log messages to the console if the DEBUG-flag is set. """
-  if DEBUG:
-    log(f"debug -> {args}")
+  _log=True
+  if debug and not DEBUG:
+    _log=False
+  if _log:
+    # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
+    if len(args) == 1:
+      print(f"lights: {args[0]}")
+    else:
+      print(f"lights: {args}")
+    # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
+    sys.stdout.flush()
 
 
 #def apiGETHome(host_url, uri, path_vars, parms) -> str:
 def apiGETHome(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/' endpoint. """
-  debug(uri)
+  log(uri, debug=True)
   for path_var in path_vars:
     log(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
   for arg in request.args:
@@ -74,7 +73,7 @@ def apiGETLights(path_vars, request) -> str:
     ]
   }
   """
-  debug(request.full_path)
+  log(request.full_path, debug=True)
   for path_var in path_vars:
     log(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
   for arg in request.args:
@@ -118,7 +117,7 @@ def apiGETLight(path_vars, request) -> str:
     ]
   }
 """
-  debug(request.full_path)
+  log(request.full_path, debug=True)
   for path_var in path_vars:
     log(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
     if path_var == "light_name":
@@ -179,7 +178,7 @@ def apiPOSTLight(path_vars, request) -> str:
     }
   }
   """
-  debug(request.full_path)
+  log(request.full_path, debug=True)
   for path_var in path_vars:
     log(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
     if path_var == "light_name":
@@ -241,7 +240,7 @@ def apiPOSTLight(path_vars, request) -> str:
 #def apiGETLightSwitches(host_url, uri, path_vars, parms) -> str:
 def apiGETLightSwitches(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
-  debug(request.full_path)
+  log(request.full_path, debug=True)
   for path_var in path_vars:
     log(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
     if path_var == "light_name":
@@ -277,7 +276,7 @@ def apiGETLightSwitches(path_vars, request) -> str:
 #def apiGETLightSwitch(host_url, uri, path_vars, parms) -> str:
 def apiGETLightSwitch(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
-  debug(request.full_path)
+  log(request.full_path, debug=True)
   for path_var in path_vars:
     log(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
     if path_var == "light_name":
@@ -348,7 +347,7 @@ if __name__ == '__main__':
 
   # There may be config for multiple lights in the yaml-file.
   # Lets set them all up:
-  debug(f"config: {config}")
+  log(f"config: {config}", debug=True)
 
   # The API server is optional:
   try:
@@ -368,11 +367,11 @@ if __name__ == '__main__':
     log("there's no config for an API server")
 
   lights_config=config["lights"]
-  debug(f"Number of light configurations: {len(lights_config)}")
+  log(f"Number of light configurations: {len(lights_config)}", debug=True)
   log("===================")
   for light_config in lights_config:
     log("Light:")
-    debug(f"light: {light_config}")
+    log(f"light: {light_config}", debug=True)
     _name=light_config['name']
     _ledCount=light_config['led_count']
     _brightness=light_config['brightness']
@@ -404,7 +403,7 @@ if __name__ == '__main__':
       # Lets set them all up for this light:
       for switch_config in switches_config:
         log(" switch:")
-        debug(f"switch config: {switch_config}")
+        log(f"switch config: {switch_config}", debug=True)
         _name=switch_config['name']
         _gpioPin=switch_config['gpio_pin']
         log(f"  name: {_name}")
@@ -436,9 +435,9 @@ if __name__ == '__main__':
   if DEBUG:
     log("---------------")
     for light in lights:
-      debug(f"Light object: {light.name}")
+      log(f"Light object: {light.name}")
       for switch in light.switches:
-        debug(f"  Switch object: {switch.name}")
+        log(f"  Switch object: {switch.name}")
     log("---------------")
 
   log("===================")
@@ -495,11 +494,11 @@ if __name__ == '__main__':
       # Infinite loop, checking each button status every so many milliseconds and toggling the lights
       # if a change in one of the switches is detected:
       sleep(0.5)
-      debug("checking switches...")
+      log("checking switches...", debug=True)
       for light in lights:
         for switch in light.switches:
           if switch.hasChanged():
-            debug(f"switch {switch.name} event -> toggling light {light.name}")
+            log(f"switch {switch.name} event -> toggling light {light.name}", debug=True)
             # We want the switch to always turn on the ledstrip with white light and full brightness.
             if light.state:
               # The light is on.  Turn it off without changing settings:
@@ -537,9 +536,9 @@ if __name__ == '__main__':
     del apiServer
     for light in lights:
       for switch in light.switches:
-        debug(f"destroying switch: {switch.name}")
+        log(f"destroying switch: {switch.name}", debug=True)
         light.delSwitch(switch)
-      debug(f"destroying light: {light.name}")
+      log(f"destroying light: {light.name}", debug=True)
       del light
     # Release the ports that were setup on the RPi for this app:
     Switch.cleanUp()
