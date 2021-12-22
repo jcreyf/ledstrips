@@ -1,3 +1,15 @@
+"""
+This module contains the classes for both the multiple light behavior modules.
+A Behavior Module contains specific code to manipulate the leds on the ledstrip.
+The DefaultModule will simply turn on/off all leds at the same time on the strip,
+whereas other modules can create more visual effects (like the ChristmassModule doing more
+colorfull things).
+
+This module requires these modules:
+- Color, ws and PixelStrip classes from the rpi_ws281x module;
+- Threading to allow visual effects to happen in their own non-blocking thread;
+"""
+
 from rpi_ws281x import Color, PixelStrip, ws
 from time import sleep
 import threading
@@ -15,6 +27,8 @@ class BehaviorModule(threading.Thread):
     threading.Thread.__init__(self)
     self._name=name
     self._ledSettings=ledSettings
+    # The type of the LED strip (just RGB or does it also include a White LED);
+    self._stripType=ws.SK6812_STRIP_RGBW
     print(f"BehaviorModule '{self._name}': Constructor")
 
   def __del__(self):
@@ -71,6 +85,7 @@ class DefaultModule(BehaviorModule):
     print(f"BehaviorModule '{self._name}': cleaning up resources...")
 
   def Code(self):
+    print(f"BehaviorModule '{self._name}': Settings -> \n{self._ledSettings")
     # Initialize the ledstrip if that's not done yet:
     if self._ledSettings["strip"] == None:
       self._ledSettings["strip"]=PixelStrip(self._ledSettings["ledCount"], \
@@ -80,7 +95,7 @@ class DefaultModule(BehaviorModule):
                   self._ledSettings["ledInvert"], \
                   self._ledSettings["ledBrightness"], \
                   self._ledSettings["ledChannel"], \
-                  self._ledSettings["stripType"])
+                  super()._stripType)
       # Initialize the library (must be called once before other functions):
       self._ledSettings["strip"].begin()
     if self._ledSettings["lightState"]:

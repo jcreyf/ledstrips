@@ -319,7 +319,7 @@ def apiGETLightSwitch(path_vars, request) -> str:
 # The app starts here...
 #--------------------------------------------------#
 if __name__ == '__main__':
-  print(f"number of threads: {threading.activeCount()}")
+#  print(f"number of threads: {threading.activeCount()}")
   print("Reading the config...")
   apiServer=None        # the REST API server wrapper
   lights=[]             # list of Light objects (typically 1)

@@ -7,15 +7,11 @@ This module contains the classes for both the 'Light' and 'Switch' objects:
 
 This module requires these modules:
 - Raspberry PI GPIO class from the RPi module;
-- Color, ws and PixelStrip classes from the rpi_ws281x module; 
 """
 
 import BehaviorModules
 from RPi import GPIO
-#from rpi_ws281x import Color, PixelStrip, ws
-from rpi_ws281x import ws
 from time import sleep
-#import threading
 
 
 class Light:
@@ -34,7 +30,7 @@ class Light:
     self._behaviorModuleName="Default"     # Name of the module that has the code to turn the leds on/off
     self._behaviorModule=BehaviorModules.BehaviorModule()              # The actual BehaviorModule object
     self._ledSettings={
-      "ledCount": 100,                     # Number of individually addressable LEDs on the strip;
+      "ledCount": 10,                      # Number of individually addressable LEDs on the strip;
       "redRGB": 1,                         # RGB Red color value;
       "greenRGB": 1,                       # RGB Green color value;
       "blueRGB": 1,                        # RGB Blue color value;
@@ -44,7 +40,6 @@ class Light:
       "ledInvert": False,                  # True to invert the signal (when using NPN transistor level shift);
       "ledChannel": 0,
       "stripGpioPin": 18,                  # RaspberryPI GPIO pin that is used to drive the LED strip;
-      "stripType": ws.SK6812_STRIP_RGBW,   # The type of the LED strip (just RGB or does it also include a White LED);
       "strip": None,                       # Instance of the rpi_ws281x LED strip;
       "lightState": False                  # Is the light "off" (false) or "on" (true);
     }
