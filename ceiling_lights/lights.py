@@ -23,7 +23,8 @@ import json
 DEBUG=os.getenv('DEBUG', False)
 if type(DEBUG) == str:
   DEBUG=DEBUG.lower() in ('true', 'yes', 'y', '1')
-
+#ToDo: remove Temp override
+DEBUG=True
 
 def log(*args, debug: bool=False):
   """ Simple function to log messages to the console. """
