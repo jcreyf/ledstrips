@@ -60,9 +60,9 @@ class BehaviorModule(threading.Thread):
     if _log:
       # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
       if len(args) == 1:
-        print(f"{__name__}: {args[0]}")
+        print(f"{self.__name__}: {args[0]}")
       else:
-        print(f"{__name__}: {args}")
+        print(f"{self.__name__}: {args}")
       # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
       sys.stdout.flush()
 
