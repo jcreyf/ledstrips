@@ -85,7 +85,7 @@ class DefaultModule(BehaviorModule):
     print(f"BehaviorModule '{self._name}': cleaning up resources...")
 
   def Code(self):
-    print(f"BehaviorModule '{self._name}': Settings -> \n{self._ledSettings")
+    print(f"BehaviorModule '{self._name}': Settings -> \n{self._ledSettings}")
     # Initialize the ledstrip if that's not done yet:
     if self._ledSettings["strip"] == None:
       self._ledSettings["strip"]=PixelStrip(self._ledSettings["ledCount"], \
