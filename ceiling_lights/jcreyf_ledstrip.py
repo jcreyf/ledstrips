@@ -156,6 +156,7 @@ class Light:
     """ Set the name for the behavior module to run. """
     # Do not change anything if the same behavior is selected.
     if self._behaviorModuleName != value:
+      self.log("Behavior Module changing", debug=True)
       # The behavior is changing.  Call the finalizer of the current behavior to get resources released:
       self._behaviorModule.Finalize()
       self._behaviorModule=None
@@ -198,10 +199,14 @@ class Light:
 
   def On(self):
     """ Turn the leds on. """
+    self.log("On()")
+    self.log(self._ledSettings, debug=True)
     self._behaviorModule.On()
 
   def Off(self):
     """ Turn the leds off. """
+    self.log("Off()")
+    self.log(self._ledSettings, debug=True)
     self._behaviorModule.Off()
   
   def Toggle(self):

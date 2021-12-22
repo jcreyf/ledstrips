@@ -72,10 +72,14 @@ class BehaviorModule(threading.Thread):
 
   def On(self):
     """ Method to start the behavior. """
+    self.log("On()")
+    self.log(self._ledSettings, debug=True)
     self.log(f"BehaviorModule '{self._name}': Starting behavior...", debug=True)
 
   def Off(self):
     """ Method to stop the behavior. """
+    self.log("Off()")
+    self.log(self._ledSettings, debug=True)
     self.log(f"BehaviorModule '{self._name}': Stopping the behavior...", debug=True)
 
   def Finalize(self):
@@ -99,13 +103,19 @@ class DefaultModule(BehaviorModule):
     self.log(f"BehaviorModule '{self._name}': starting the behavior...", debug=True)
 
   def On(self):
+    self.log("On()")
+    self.log(self._ledSettings, debug=True)
     self.log(f"BehaviorModule '{self._name}': turning the leds on...", debug=True)
     self._ledSettings["lightState"]=True
+    self.log(self._ledSettings, debug=True)
     self.Code()
 
   def Off(self):
+    self.log("Off()")
+    self.log(self._ledSettings, debug=True)
     self.log(f"BehaviorModule '{self._name}': turning the leds off...", debug=True)
     self._ledSettings["lightState"]=False
+    self.log(self._ledSettings, debug=True)
     self.Code()
 
   def Finalize(self):
