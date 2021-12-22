@@ -95,7 +95,7 @@ class DefaultModule(BehaviorModule):
                   self._ledSettings["ledInvert"], \
                   self._ledSettings["ledBrightness"], \
                   self._ledSettings["ledChannel"], \
-                  super()._stripType)
+                  self._stripType)
       # Initialize the library (must be called once before other functions):
       self._ledSettings["strip"].begin()
     if self._ledSettings["lightState"]:
