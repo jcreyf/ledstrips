@@ -178,18 +178,17 @@ def apiPOSTLight(path_vars, request) -> str:
     }
   }
   """
-  log(request.full_path, debug=True)
+  log(f"apiPOSTLight: {request.full_path}")
   for path_var in path_vars:
-    log(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
+    log(f"apiPOSTLight: path variable = '{path_var}': '{path_vars[path_var]}'", debug=True)
     if path_var == "light_name":
       light_name=path_vars[path_var]
   for arg in request.args:
-    log(f"  argument     = '{arg}': '{request.args[arg]}'")
+    log(f"apiPOSTLight: argument = '{arg}': '{request.args[arg]}'", debug=True)
   # We're going to assume that we receive a JSON data payload if we receive anything.
   # We just ignore everything if it's not JSON.
   if request.is_json:
-    log("JSON payload:")
-    log(request.json)
+    log(f"apiPOSTLight: JSON payload -> {request.json}", debug=True)
   # We're also very flexible in the payload structure!  We try to parse some fields and don't care too much
   # if we don't find values in the spots that we expect them.
   # If we don't find any usefull data, then we just toggle the ledstrip on or off.
@@ -234,6 +233,7 @@ def apiPOSTLight(path_vars, request) -> str:
     _errors=[]
     _errors.append({"error": f"Light '{light_name}' not found!"})
     _returnValue["errors"]=_errors
+  log(f"apiPOSTLight: returning -> {_returnValue}", debug=True)
   return json.dumps(_returnValue)
 
 
@@ -324,7 +324,7 @@ def apiGETLightSwitch(path_vars, request) -> str:
 # The app starts here...
 #--------------------------------------------------#
 if __name__ == '__main__':
-#  log(f"number of threads: {threading.activeCount()}")
+  log(f"Debug: {DEBUG}")
   log("Reading the config...")
   apiServer=None        # the REST API server wrapper
   lights=[]             # list of Light objects (typically 1)
