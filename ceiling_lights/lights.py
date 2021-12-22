@@ -25,7 +25,7 @@ if type(DEBUG) == str:
   DEBUG=DEBUG.lower() in ('true', 'yes', 'y', '1')
 
 
-def log(debug: bool=False, *args):
+def log(*args, debug: bool=False):
   """ Simple function to log messages to the console. """
   _log=True
   if debug and not DEBUG:

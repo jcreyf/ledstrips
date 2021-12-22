@@ -182,20 +182,19 @@ class Light:
     self._switches.remove(switch)
     del switch
 
-  def log(self, *args):
+  def log(self, *args, debug: bool=False):
     """ Simple function to log messages to the console. """
-    # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
-    if len(args) == 1:
-      print(f"{__name__}: {args[0]}")
-    else:
-      print(f"{__name__}: {args}")
-    # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
-    sys.stdout.flush()
-
-  def debug(self, *args):
-    """ Simple function to log messages to the console if the DEBUG-flag is set. """
-    if self._debug:
-      self.log(f"debug -> {args}")
+    _log=True
+    if debug and not self._debug:
+      _log=False
+    if _log:
+      # We don't want to log the message as a list between '()' if we only got 1 element in the argument list:
+      if len(args) == 1:
+        print(f"{__name__}: {args[0]}")
+      else:
+        print(f"{__name__}: {args}")
+      # We need to flush the stdout buffer in python for log statements to reach the Linux systemd journal:
+      sys.stdout.flush()
 
   def On(self):
     """ Turn the leds on. """

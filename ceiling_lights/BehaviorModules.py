@@ -52,7 +52,7 @@ class BehaviorModule(threading.Thread):
     """ Set the debug level. """
     self._debug=flag
 
-  def log(self, debug: bool=False, *args):
+  def log(self, *args, debug: bool=False):
     """ Simple function to log messages to the console. """
     _log=True
     if debug and not self._debug:
