@@ -30,9 +30,9 @@ def debug(*args):
   if DEBUG:
     # We don't want to print the message as a list between '()' if we only got 1 element in the argument list:
     if len(args) == 1:
-      print(("debug -> {}").format(args[0]))
+      print(f"debug -> {args[0]}")
     else:
-      print(("debug -> {}").format(args))
+      print(f"debug -> {args}")
 
 
 #def apiGETHome(host_url, uri, path_vars, parms) -> str:
@@ -40,13 +40,13 @@ def apiGETHome(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/' endpoint. """
   debug(uri)
   for path_var in path_vars:
-    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    print(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
   for arg in request.args:
-    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
+    print(f"  argument     = '{arg}': '{request.args[arg]}'")
   html="<h1>Ceiling Lights:</h1>"
   for light in lights:
-    url=("/light/{}").format(light._name)
-    html+=("<h3>{}</h3>Url: <a href='{}'>{}</a><br><br>").format(light._name, url, url)
+    url=f"/light/{light._name}"
+    html+=f"<h3>{light._name}</h3>Url: <a href='{url}'>{url}</a><br><br>"
   return html
 
 
@@ -70,9 +70,9 @@ def apiGETLights(path_vars, request) -> str:
   """
   debug(request.full_path)
   for path_var in path_vars:
-    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    print(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
   for arg in request.args:
-    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
+    print(f"  argument     = '{arg}': '{request.args[arg]}'")
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
@@ -114,11 +114,11 @@ def apiGETLight(path_vars, request) -> str:
 """
   debug(request.full_path)
   for path_var in path_vars:
-    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    print(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
     if path_var == "light_name":
       light_name=path_vars[path_var]
   for arg in request.args:
-    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
+    print(f"  argument     = '{arg}': '{request.args[arg]}'")
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
@@ -133,7 +133,7 @@ def apiGETLight(path_vars, request) -> str:
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
     _returnValue["light"]={"name": light.name,
-                           "uri": request.host_url+("light/{}").format(light.name),
+                           "uri": request.host_url+f"light/{light.name}",
                            "state": light.state,
                            "color": {
                              "red": light.redRGB,
@@ -145,14 +145,14 @@ def apiGETLight(path_vars, request) -> str:
     _switches=[]
     for switch in light.switches:
       _switches.append({"name": switch.name,
-                        "uri": request.host_url+("light/{}/switch/{}").format(light.name, switch.name),
+                        "uri": request.host_url+f"light/{light.name}/switch/{switch.name}",
                         "state": switch._state
                        })
     _returnValue["switches"]=_switches
   else:
     # We can't find this light!  Oops...
     _errors=[]
-    _errors.append({"error": "Light "+light_name+" not found!"})
+    _errors.append({"error": f"Light {light_name} not found!"})
     _returnValue["errors"]=_errors
   return json.dumps(_returnValue)
 
@@ -175,11 +175,11 @@ def apiPOSTLight(path_vars, request) -> str:
   """
   debug(request.full_path)
   for path_var in path_vars:
-    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    print(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
     if path_var == "light_name":
       light_name=path_vars[path_var]
   for arg in request.args:
-    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
+    print(f"  argument     = '{arg}': '{request.args[arg]}'")
   # We're going to assume that we receive a JSON data payload if we receive anything.
   # We just ignore everything if it's not JSON.
   if request.is_json:
@@ -213,20 +213,21 @@ def apiPOSTLight(path_vars, request) -> str:
     light.redRGB=_redRGB
     light.greenRGB=_greenRGB
     light.blueRGB=_blueRGB
-    # Set Christmass mode :-)
-    light.behaviorMode="Christmass"
+#    # Set Christmass mode :-)
+#    light.behaviorModeName="Christmass"
+    light.behaviorModeName="Default"
     if _toggle:
       # The user requests to toggle the light on or off:
       light.Toggle()
     else:
       # The user changed values and we need to update the leds:
       light.Update()
-    html=("<h1>POST - Updated light {} - {}</h1><br>").format(light.name, light._lightState)
-    html+=("<a href='/light/{}'>{}</a>").format(light.name, light.name)
+    html=f"<h1>POST - Updated light {light.name} - {light._lightState}</h1><br>"
+    html+=f"<a href='/light/{light.name}'>{light.name}</a>"
   else:
     # We can't find this light!  Oops...
     _errors=[]
-    _errors.append({"error": "Light '"+light_name+"' not found!"})
+    _errors.append({"error": f"Light '{light_name}' not found!"})
     _returnValue["errors"]=_errors
   return json.dumps(_returnValue)
 
@@ -236,11 +237,11 @@ def apiGETLightSwitches(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switches' endpoint. """
   debug(request.full_path)
   for path_var in path_vars:
-    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    print(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
     if path_var == "light_name":
       light_name=path_vars[path_var]
   for arg in request.args:
-    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
+    print(f"  argument     = '{arg}': '{request.args[arg]}'")
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
@@ -254,15 +255,15 @@ def apiGETLightSwitches(path_vars, request) -> str:
       break
   if _found:
     # We found the light.  Generate the payload to send back with the light's switches:
-    html=("<h1>GET - Light {}, Switches</h1>").format(light.name)
+    html=f"<h1>GET - Light {light.name}, Switches</h1>"
     for switch in light.switches:
-      html+=("<a href='/light/{}/switch/{}'>{}</a><br>").format(light.name, switch.name, switch.name)
-    html+=("<a href='/light/{}'>Light {}</a><br>").format(light_name, light_name)
+      html+=f"<a href='/light/{light.name}/switch/{switch.name}'>{switch.name}</a><br>"
+    html+=f"<a href='/light/{light_name}'>Light {light_name}</a><br>"
     html+="<a href='/lights'>Lights</a><br>"
   else:
     # We can't find this light!  Oops...
     _errors=[]
-    _errors.append({"error": "Light "+light_name+" not found!"})
+    _errors.append({"error": f"Light {light_name} not found!"})
     _returnValue["errors"]=_errors
   return json.dumps(_returnValue)
 
@@ -272,13 +273,13 @@ def apiGETLightSwitch(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>/switch/<switch_name>' endpoint. """
   debug(request.full_path)
   for path_var in path_vars:
-    print(("  path variable = '{}': '{}'").format(path_var, path_vars[path_var]))
+    print(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
     if path_var == "light_name":
       light_name=path_vars[path_var]
     elif path_var == "switch_name":
       switch_name=path_vars[path_var]
   for arg in request.args:
-    print(("  argument     = '{}': '{}'").format(arg, request.args[arg]))
+    print(f"  argument     = '{arg}': '{request.args[arg]}'")
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
   # In real life, this is removing the leading slash and trailing questionmark
@@ -297,19 +298,19 @@ def apiGETLightSwitch(path_vars, request) -> str:
       _found=True
       break
     if _found:
-      html=("<h1>GET - Light {}, switch {}</h1>").format(light.name, switch.state)
-      html+=("<a href='/light/{}/switches'>{} switches</a><br>").format(light_name, light_name)
-      html+=("<a href='/light/{}'>Light {}</a><br>").format(light_name, light_name)
+      html=f"<h1>GET - Light {light.name}, switch {switch.state}</h1>"
+      html+=f"<a href='/light/{light_name}/switches'>{light_name} switches</a><br>"
+      html+=f"<a href='/light/{light_name}'>Light {light_name}</a><br>"
       html+="<a href='/lights'>Lights</a><br>"
     else:
       # We can't find this switch!  Oops...
-      html=("<h1>GET - Light {}, Switch {} not found!:</h1>").format(light_name, switch_name)
-      html+=("<a href='/light/{}/switches>Switches</a><br>").format(light_name)
+      html=f"<h1>GET - Light {light_name}, Switch {switch_name} not found!:</h1>"
+      html+=f"<a href='/light/{light_name}/switches>Switches</a><br>"
       html+="<a href='/lights'>Lights</a><br>"
   else:
     # We can't find this light!  Oops...
     _errors=[]
-    _errors.append({"error": "Light "+light_name+" not found!"})
+    _errors.append({"error": f"Light {light_name} not found!"})
     _returnValue["errors"]=_errors
   return json.dumps(_returnValue)
 
@@ -318,7 +319,7 @@ def apiGETLightSwitch(path_vars, request) -> str:
 # The app starts here...
 #--------------------------------------------------#
 if __name__ == '__main__':
-  print(("number of threads: {}").format(threading.activeCount()))
+  print(f"number of threads: {threading.activeCount()}")
   print("Reading the config...")
   apiServer=None        # the REST API server wrapper
   lights=[]             # list of Light objects (typically 1)
@@ -328,7 +329,7 @@ if __name__ == '__main__':
   # directory before trying to open the file:
   _dir=os.path.dirname(__file__)
   if not _dir == "":
-    print("Running this in directory: "+_dir)
+    print(f"Running this in directory: {_dir}")
     os.chdir(_dir)
 
   # Now open the yaml config-file and read it:
@@ -341,7 +342,7 @@ if __name__ == '__main__':
 
   # There may be config for multiple lights in the yaml-file.
   # Lets set them all up:
-  debug(("config: {}").format(config))
+  debug(f"config: {config}")
 
   # The API server is optional:
   try:
@@ -349,8 +350,8 @@ if __name__ == '__main__':
     _name=apiserver_config["name"]
     _port=apiserver_config["port"]
     print("API Server:")
-    print(" name:", _name)
-    print(" port:", _port)
+    print(f" name: {_name}")
+    print(f" port: {_port}")
     apiServer=RESTserver(_name)
     apiServer.debug=DEBUG
     apiServer.port=_port
@@ -361,26 +362,25 @@ if __name__ == '__main__':
     print("there's no config for an API server")
 
   lights_config=config["lights"]
-  debug(("Number of light configurations: {}").format(len(lights_config)))
+  debug(f"Number of light configurations: {len(lights_config)}")
   print("===================")
   for light_config in lights_config:
     print("Light:")
-    debug("light:", light_config)
+    debug(f"light: {light_config}")
     _name=light_config['name']
     _ledCount=light_config['led_count']
     _brightness=light_config['brightness']
     _gpioPin=light_config['gpio_pin']
-    print(" name:", _name)
-    print(" led count:", _ledCount)
-    print(" brightness:", _brightness)
-    print(" GPIO pin:", _gpioPin)
+    print(f" name: {_name}")
+    print(f" led count: {_ledCount}")
+    print(f" brightness: {_brightness}")
+    print(f" GPIO pin: {_gpioPin}")
     # Create a light instance and set its properties:
     _light=Light(_name)
     _light.debug=DEBUG
     _light.ledCount=_ledCount
     _light.ledBrightness=_brightness
     _light.stripGpioPin=_gpioPin
-#    _light.Start()
 
     # Each light may have 0 or more switches to control it.
     try:
@@ -398,11 +398,11 @@ if __name__ == '__main__':
       # Lets set them all up for this light:
       for switch_config in switches_config:
         print(" switch:")
-        debug(("switch config: {}").format(switch_config))
+        debug(f"switch config: {switch_config}")
         _name=switch_config['name']
         _gpioPin=switch_config['gpio_pin']
-        print("  name:", _name)
-        print("  GPIO pin:", _gpioPin)
+        print(f"  name: {_name}")
+        print(f"  GPIO pin: {_gpioPin}")
         # Create the switch and set its properties:
         _switch=Switch(_name)
         _switch.gpioPin=_gpioPin
@@ -430,9 +430,9 @@ if __name__ == '__main__':
   if DEBUG:
     print("---------------")
     for light in lights:
-      debug(("Light object: {}").format(light.name))
+      debug(f"Light object: {light.name}")
       for switch in light.switches:
-        debug(("  Switch object: {}").format(switch.name))
+        debug(f"  Switch object: {switch.name}")
     print("---------------")
 
   print("===================")
@@ -493,7 +493,7 @@ if __name__ == '__main__':
       for light in lights:
         for switch in light.switches:
           if switch.hasChanged():
-            debug(("switch {} event -> toggling light {}").format(switch.name, light.name))
+            debug(f"switch {switch.name} event -> toggling light {light.name}")
             # We want the switch to always turn on the ledstrip with white light and full brightness.
             if light.state:
               # The light is on.  Turn it off without changing settings:
@@ -501,14 +501,14 @@ if __name__ == '__main__':
             else:
               # The light is off.
               # Get the current settings:
-              _module=light.behaviorModule
+              _module=light.behaviorModuleName
               _red=light.redRGB
               _green=light.greenRGB
               _blue=light.blueRGB
               _brightness=light.ledBrightness
               # Change the settings to standard on/off, white with full brightness:
-              light.behaviorModule="Default"
-#              light.behaviorModule="Christmass"
+              light.behaviorModuleName="Default"
+#              light.behaviorModuleName="Christmass"
               light.redRGB=255
               light.greenRGB=255
               light.blueRGB=255
@@ -516,7 +516,7 @@ if __name__ == '__main__':
               # Turn the light on:
               light.On()
               # Restore the settings:
-              light.behaviorModule=_module
+              light.behaviorModuleName=_module
               light.redRGB=_red
               light.greenRGB=_green
               light.blueRGB=_blue
@@ -531,9 +531,9 @@ if __name__ == '__main__':
     del apiServer
     for light in lights:
       for switch in light.switches:
-        debug(("destroying switch: {}").format(switch.name))
+        debug(f"destroying switch: {switch.name}")
         light.delSwitch(switch)
-      debug(("destroying light: {}").format(light.name))
+      debug(f"destroying light: {light.name}")
       del light
     # Release the ports that were setup on the RPi for this app:
     Switch.cleanUp()

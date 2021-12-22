@@ -10,10 +10,12 @@ This module requires these modules:
 - Color, ws and PixelStrip classes from the rpi_ws281x module; 
 """
 
+import BehaviorModules
 from RPi import GPIO
-from rpi_ws281x import Color, PixelStrip, ws
+#from rpi_ws281x import Color, PixelStrip, ws
+from rpi_ws281x import ws
 from time import sleep
-import threading
+#import threading
 
 
 class Light:
@@ -25,28 +27,31 @@ class Light:
 
   def __init__(self, name: str):
     """ Constructor, initializing members with default values. """
-    print("  ..creating light object: "+name)
+    print(f"  ..creating light object: {name}")
     self._name=name                        # Human name of the LED strip;
-    self._ledCount=100                     # Number of individually addressable LEDs on the strip;
-    self._redRGB=1                         # RGB Red color value;
-    self._greenRGB=1                       # RGB Green color value;
-    self._blueRGB=1                        # RGB Blue color value;
-    self._ledBrightness=255                # Set to 0 for darkest and 255 for brightest;
-    self._ledFrequency=800000              # LED signal frequency in hertz (usually 800khz);
-    self._ledDmaChannel=10                 # DMA channel to use for generating signal (try 10);
-    self._ledInvert=False                  # True to invert the signal (when using NPN transistor level shift);
-    self._ledChannel=0
-    self._stripGpioPin=18                  # RaspberryPI GPIO pin that is used to drive the LED strip;
-    self._stripType=ws.SK6812_STRIP_RGBW   # The type of the LED strip (just RGB or does it also include a White LED);
-    self._strip=None                       # Instance of the rpi_ws281x LED strip;
-    self._lightState=False                 # Is the light "off" (false) or "on" (true);
     self._switches=[]                      # Optional list of Switch objects that are linked to this light object;
     self._debug=False                      # Debug level logging;
-    self._behaviorModule="Default"         # Name of the module that has the code to turn the leds on/off
+    self._behaviorModuleName="Default"     # Name of the module that has the code to turn the leds on/off
+    self._behaviorModule=None              # The actual BehaviorModule object
+    self._ledSettings={
+      "ledCount": 100,                     # Number of individually addressable LEDs on the strip;
+      "redRGB": 1,                         # RGB Red color value;
+      "greenRGB": 1,                       # RGB Green color value;
+      "blueRGB": 1,                        # RGB Blue color value;
+      "ledBrightness": 255,                # Set to 0 for darkest and 255 for brightest;
+      "ledFrequency": 800000,              # LED signal frequency in hertz (usually 800khz);
+      "ledDmaChannel": 10,                 # DMA channel to use for generating signal (try 10);
+      "ledInvert": False,                  # True to invert the signal (when using NPN transistor level shift);
+      "ledChannel": 0,
+      "stripGpioPin": 18,                  # RaspberryPI GPIO pin that is used to drive the LED strip;
+      "stripType": ws.SK6812_STRIP_RGBW,   # The type of the LED strip (just RGB or does it also include a White LED);
+      "strip": None,                       # Instance of the rpi_ws281x LED strip;
+      "lightState": False                  # Is the light "off" (false) or "on" (true);
+    }
 
   def __del__(self):
     """ Destructor will turn off this light. """
-    print("destroying light object: "+self._name)
+    print(f"destroying light object: {self._name}")
     self.Off()
 
   @property
@@ -62,72 +67,62 @@ class Light:
   @property
   def ledCount(self) -> int:
     """ Return the number of individual LEDs on the light strip. """
-    return self._ledCount
+    return self._ledSettings["ledCount"]
   
   @ledCount.setter
   def ledCount(self, value: int):
     """ Set the number of LEDs to use on this light strip.  You can activate fewer than available. """
     if not (value > 0): raise Exception("You need to have at least 1 LED on the strip!")
-    self._ledCount=value
+    self._ledSettings["ledCount"]=value
 
   @property
   def redRGB(self) -> int:
     """ Return the current Red RGB color value for the light strip. """
-    return self._redRGB
+    return self._ledSettings["redRGB"]
   
   @redRGB.setter
   def redRGB(self, value: int):
     """ Set the red RGB color value of LEDs to use on this light strip. """
     if not ((value >= 0) and (value <= 255)): raise Exception("The red RGB value needs to be between 0 and 255!")
-    self._redRGB=value
+    self._ledSettings["redRGB"]=value
 
   @property
   def greenRGB(self) -> int:
     """ Return the current Green RGB color value for the light strip. """
-    return self._greenRGB
+    return self._ledSettings["greenRGB"]
   
   @greenRGB.setter
   def greenRGB(self, value: int):
     """ Set the green RGB color value of LEDs to use on this light strip. """
     if not ((value >= 0) and (value <= 255)): raise Exception("The green RGB value needs to be between 0 and 255!")
-    self._greenRGB=value
+    self._ledSettings["greenRGB"]=value
 
   @property
   def blueRGB(self) -> int:
     """ Return the current Blue RGB color value for the light strip. """
-    return self._blueRGB
+    return self._ledSettings["blueRGB"]
   
   @blueRGB.setter
   def blueRGB(self, value: int):
     """ Set the blue RGB color value of LEDs to use on this light strip. """
     if not ((value >= 0) and (value <= 255)): raise Exception("The blue RGB value needs to be between 0 and 255!")
-    self._blueRGB=value
-
-#  @property
-#  def ledColor(self) -> str:
-#    """ Return the RGB color value of the LEDs. """
-#    return self._ledColor
-#
-#  @ledColor.setter
-#  def ledColor(self, value: str):
-#    """ Set the RGB color value of the LEDs. """
-#    self._ledColor=value
+    self._ledSettings["blueRGB"]=value
 
   @property
   def ledBrightness(self) -> int:
     """ Return the brightness that the LED have been configured with (0 to 255). """
-    return self._ledBrightness
+    return self._ledSettings["ledBrightness"]
   
   @ledBrightness.setter
   def ledBrightness(self, value: int):
     """ Set the brightness of the LEDs (0 to 255). """
     if not ((value > 0) and (value <= 255)): raise Exception("Brightness needs to be between 1 and 255!")
-    self._ledBrightness=value
+    self._ledSettings["ledBrightness"]=value
 
   @property
   def stripGpioPin(self) -> int:
     """ Return the Raspberry PI GPIO pin the LED strip is connected to (data). """
-    return self._stripGpioPin
+    return self._ledSettings["stripGpioPin"]
 
   @stripGpioPin.setter
   def stripGpioPin(self, value: int):
@@ -138,12 +133,12 @@ class Light:
     # I've decided to have a very rough validator here that enforces a port between 2 and 26.
     # I know this is not a great validator and I should probably make it more specific at some point.
     if not ((value >= 2) and (value <= 26)): raise Exception("The RPi GPIO port needs to be between 2 and 26!")
-    self._stripGpioPin=value
+    self._ledSettings["stripGpioPin"]=value
 
   @property
   def state(self) -> bool:
     """ Show if the light is currently on or off.  "True" means "On" and "False" means "Off". """
-    return self._lightState
+    return self._ledSettings["lightState"]
 
   @property
   def debug(self) -> bool:
@@ -156,22 +151,25 @@ class Light:
     self._debug=flag
 
   @property
-  def behaviorModule(self):
+  def behaviorModuleName(self):
     """ Return the name of the behavior module to run. """
-    return self._behaviorModule
+    return self._behaviorModuleName
   
   @name.setter
-  def behaviorModule(self, value: str):
+  def behaviorModuleName(self, value: str):
     """ Set the name for the behavior module to run. """
-    if self._behaviorModule != value:
-      if self._behaviorModule == "Christmass":
-        # Clean up of heap
-        # ToDo: move this to a finalizer method in the Behavior Module class!!!
-#        self.Christmass_Code(stop=True)
-        print("swapping to other behavior module...need to clean up the old module!")
-      # Reset the ledstrip object if we're switching between behavior modules:
-      self._strip=None
-      self._behaviorModule=value
+    # Do not change anything if the same behavior is selected.
+    if self._behaviorModuleName != value:
+      # The behavior is changing.  Call the finalizer of the current behavior to get resources released:
+      self._behaviorModule.Finalize()
+      self._behaviorModule=None
+      # Now set the new behavior:
+      if value == "Christmass":
+        self._behaviorModule=BehaviorModules.ChristmassModule(self._ledSettings)
+      else:
+        # Set the default On/Off behavior:
+        self._behaviorModule=BehaviorModules.DefaultModule(self._ledSettings)
+      self._behaviorModuleName=self._behaviorModule.name
 
   @property
   def switches(self) -> list:
@@ -187,181 +185,31 @@ class Light:
     self._switches.remove(switch)
     del switch
 
-  def Start(self):
-    """ Initialize the LED strip at the hardware level so that we can start control the individual LEDs. """
-#    self._strip=PixelStrip(self._ledCount, \
-#                self._stripGpioPin, \
-#                self._ledFrequency, \
-#                self._ledDmaChannel, \
-#                self._ledInvert, \
-#                self._ledBrightness, \
-#                self._ledChannel, \
-#                self._stripType)
-#    # Initialize the library (must be called once before other functions):
-#    self._strip.begin()
-    print("jcreyf_ledstrip.Start() called!!!")
-
   def On(self):
     """ Turn the leds on. """
-    if self._behaviorModule == "Default":
-      # Basic On behavior:
-      self.Default_On()
-    else:
-      # Christmass party:
-      self.Christmass_On()
+    self._behaviorModule.On()
 
   def Off(self):
     """ Turn the leds off. """
-    if self._behaviorModule == "Default":
-      # Basic Off behavior:
-      self.Default_Off()
-    else:
-      # Christmass party:
-      self.Christmass_Off()
+    self._behaviorModule.Off()
   
   def Toggle(self):
     """ Toggle the light on or off. """
-    if self._lightState:
+    if self.state:
       self.Off()
     else:
       self.On()
 
   def Update(self):
     """ Apply the Updated LED settings if they are on. """
-    if self._lightState:
+    if self.state:
       self.Off()
       self.On()
 
-#********** THE BELOW METHODS NEED TO MOVE INTO MODULES *********
-
-  def Default_Code(self):
-    # Initialize the ledstrip if that's not done yet:
-    if self._strip == None:
-      self._strip=PixelStrip(self._ledCount, \
-                  self._stripGpioPin, \
-                  self._ledFrequency, \
-                  self._ledDmaChannel, \
-                  self._ledInvert, \
-                  self._ledBrightness, \
-                  self._ledChannel, \
-                  self._stripType)
-      # Initialize the library (must be called once before other functions):
-      self._strip.begin()
-    if self._lightState:
-      # The light is on -> turn the leds off:
-      color=Color(0, 0, 0, 0)
-    else:
-      # The light is off -> set the led color and brightness:
-      color=Color(self._greenRGB, self._redRGB, self._blueRGB, self._ledBrightness)
-    # Loop and set all leds on the strip:
-    for i in range(self._strip.numPixels()):
-      self._strip.setPixelColor(i, color)
-    # Execute:
-    self._strip.show()
-
-  def Default_On(self):
-    """ Turn the leds on. """
-    self._lightState=True
-    self.Default_Code()
-
-  def Default_Off(self):
-    """ Turn the leds off. """
-    self._lightState=False
-    self.Default_Code()
-
-#---------------
-
-  def Christmass_Code(self, stop: bool = False):
-    print("Start of Christmass thread")
-    # Define colors which will be used by the module.
-    # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
-    DOT_COLORS=[0x200000,   # red
-                0x201000,   # orange
-                0x202000,   # yellow
-                0x002000,   # green
-                0x002020,   # lightblue
-                0x000020,   # blue
-                0x100010,   # purple
-                0x200010]   # pink
-    if self._strip == None:
-      self._strip=ws.SK6812W_STRIP
-    # Create a ws2811_t structure from the LED configuration.
-    # Note that this structure will be created on the heap so you need to be careful
-    # that you delete its memory by calling delete_ws2811_t when it's not needed.
-    leds=ws.new_ws2811_t()
-    # Initialize all channels to off
-    for channum in range(2):
-      channel=ws.ws2811_channel_get(leds, channum)
-      ws.ws2811_channel_t_count_set(channel, 0)
-      ws.ws2811_channel_t_gpionum_set(channel, 0)
-      ws.ws2811_channel_t_invert_set(channel, 0)
-      ws.ws2811_channel_t_brightness_set(channel, 0)
-
-    channel=ws.ws2811_channel_get(leds, self._ledChannel)
-    ws.ws2811_channel_t_count_set(channel, self._ledCount)
-    ws.ws2811_channel_t_gpionum_set(channel, self._stripGpioPin)
-    ws.ws2811_channel_t_invert_set(channel, self._ledInvert)
-    ws.ws2811_channel_t_brightness_set(channel, self._ledBrightness)
-    ws.ws2811_channel_t_strip_type_set(channel, self._strip)
-    ws.ws2811_t_freq_set(leds, self._ledFrequency)
-    ws.ws2811_t_dmanum_set(leds, self._ledDmaChannel)
-    # Initialize library with LED configuration.
-    resp=ws.ws2811_init(leds)
-    if resp != ws.WS2811_SUCCESS:
-      message=ws.ws2811_get_return_t_str(resp)
-      raise RuntimeError('ws2811_init failed with code {0} ({1})'.format(resp, message))
-
-    # Wrap following code in a try/finally to ensure cleanup functions are called after library is initialized.
-    try:
-      offset=0
-      # Keep looping in the thread until the user switches off the lights:
-      while self._lightState:
-        # Update each LED color in the buffer.
-        for i in range(self._ledCount):
-          # Pick a color based on LED position and an offset for animation.
-          color=DOT_COLORS[(i + offset) % len(DOT_COLORS)]
-          # Set the LED color buffer value.
-          ws.ws2811_led_set(channel, i, color)
-          # Send the LED color data to the hardware.
-          resp=ws.ws2811_render(leds)
-          if resp != ws.WS2811_SUCCESS:
-            message=ws.ws2811_get_return_t_str(resp)
-            raise RuntimeError('ws2811_render failed with code {0} ({1})'.format(resp, message))
-          # Delay for a small period of time.
-#          sleep(0.25)
-          # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
-          offset += 1
-      # The loop ended.
-      print("End of Christmass thread")
-      # Turn all the leds off:
-      for i in range(self._ledCount):
-        ws.ws2811_led_set(channel, i, 0)
-        ws.ws2811_render(leds)
-    finally:
-      print("Christmass cleanup...")
-      # Ensure ws2811_fini is called before the program quits.
-      ws.ws2811_fini(leds)
-      # Example of calling delete function to clean up structure memory.  Isn't
-      # strictly necessary at the end of the program execution here, but is good practice.
-      ws.delete_ws2811_t(leds)
-
-
-  def Christmass_On(self):
-    """ Turn the leds on. """
-    self._lightState=True
-    mod=threading.Thread(target=self.Christmass_Code)
-    mod.start()
-    print("Turning on (Christmass thread started)")
-
-  def Christmass_Off(self):
-    """ Turn the leds off. """
-    self._lightState=False
-    print("Turning off (this should end the Christmass thread)")
 
 #
 #----------------------------------
 #
-
 class Switch:
   """
   Class that represents a typical and standard on/off toggle switch connected to a Raspberry PI.
@@ -372,14 +220,14 @@ class Switch:
 
   def __init__(self, name: str):
     """ Constructor setting some default values. """
-    print("  ..creating switch object: "+name)
+    print(f"  ..creating switch object: {name}")
     self._state=True
     self._name=name
     self._gpioPin=0
 
   def __del__(self):
     """ Destructor to release and clean up GPIO resources. """
-    print("destroying switch object: "+self._name)
+    print(f"destroying switch object: {self._name}")
 
   @property
   def state(self) -> bool:
