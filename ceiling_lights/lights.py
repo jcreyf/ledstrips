@@ -496,7 +496,7 @@ if __name__ == '__main__':
       # Infinite loop, checking each button status every so many milliseconds and toggling the lights
       # if a change in one of the switches is detected:
       sleep(0.5)
-      log("checking switches...", debug=True)
+#      log("checking switches...", debug=True)
       for light in lights:
         for switch in light.switches:
           if switch.hasChanged():
