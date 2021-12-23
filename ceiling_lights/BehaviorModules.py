@@ -105,19 +105,17 @@ class DefaultModule(BehaviorModule):
 
   def On(self):
     self.log("On()")
-    self.log(f"ledSettings: {self._ledSettings}", debug=True)
-    self.Code()
+    self.Code(state=True)
 
   def Off(self):
     self.log("Off()")
-    self.log(f"ledSettings: {self._ledSettings}", debug=True)
-    self.Code()
+    self.Code(state=False)
 
   def Finalize(self):
     self.log(f"'{self._name}': cleaning up resources...", debug=True)
 
-  def Code(self):
-    self.log(f"'{self._name}': Settings -> \n{self._ledSettings}", debug=True)
+  def Code(self, state: bool):
+    self.log(f"ledSettings -> {self._ledSettings}", debug=True)
     # Initialize the ledstrip if that's not done yet:
     if self._ledSettings["strip"] == None:
       self._ledSettings["strip"]=PixelStrip(self._ledSettings["ledCount"], \
@@ -130,22 +128,24 @@ class DefaultModule(BehaviorModule):
                   self._stripType)
       # Initialize the library (must be called once before other functions):
       self._ledSettings["strip"].begin()
-    if self._ledSettings["lightState"]:
-      # The light is on -> turn the leds off:
-      color=Color(0, 0, 0, 0)
-    else:
+    if state:
       # The light is off -> set the led color and brightness:
       color=Color(self._ledSettings["greenRGB"], \
                   self._ledSettings["redRGB"], \
                   self._ledSettings["blueRGB"], \
                   self._ledSettings["ledBrightness"])
+      self.log("turn leds on", debug=True)
+    else:
+      # The light is on -> turn the leds off:
+      color=Color(0, 0, 0, 0)
+      self.log("turn leds off", debug=True)
     # Loop and set all leds on the strip:
     for i in range(self._ledSettings["strip"].numPixels()):
       self._ledSettings["strip"].setPixelColor(i, color)
     # Execute:
     self._ledSettings["strip"].show()
     # Flip the light status:
-    self._ledSettings["lightState"]=not self._ledSettings["lightState"]
+    self._ledSettings["lightState"]=state
 
 
 
