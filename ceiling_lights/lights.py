@@ -427,7 +427,7 @@ if __name__ == '__main__':
     #       Setting explicitly to off might be best though to avoid having any or all lights
     #       automatically turned on after a power outage.  Those sometimes happen when nobody
     #       is at home or in the middle of the night when everyone is asleep.
-    _light.Off()
+    _light.On()
     # Add the light to the list and move on to the next one (if any)
     lights.append(_light)
 
