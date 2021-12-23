@@ -241,7 +241,7 @@ class Switch:
   def __init__(self, name: str):
     """ Constructor setting some default values. """
     self.log(f"Creating switch object: {name}")
-    self._state=True
+    self._state=False
     self._name=name
     self._gpioPin=0
     self._debug=True
