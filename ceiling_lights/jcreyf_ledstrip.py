@@ -28,8 +28,6 @@ class Light:
     self._name=name                        # Human name of the LED strip;
     self._switches=[]                      # Optional list of Switch objects that are linked to this light object;
     self._debug=False                      # Debug level logging;
-    self._behaviorModuleName="Default"     # Name of the module that has the code to turn the leds on/off
-    self._behaviorModule=BehaviorModules.BehaviorModule()              # The actual BehaviorModule object
     self._ledSettings={
       "ledCount": 10,                      # Number of individually addressable LEDs on the strip;
       "redRGB": 1,                         # RGB Red color value;
@@ -44,7 +42,8 @@ class Light:
       "strip": None,                       # Instance of the rpi_ws281x LED strip;
       "lightState": False                  # Is the light "off" (false) or "on" (true);
     }
-    self.log(f"ledSettings: {self._ledSettings}")
+    self._behaviorModuleName="Default"     # Name of the module that has the code to turn the leds on/off
+    self._behaviorModule=BehaviorModules.DefaultModule(self._ledSettings)  # The actual BehaviorModule object
 
   def __del__(self):
     """ Destructor will turn off this light. """
