@@ -69,7 +69,7 @@ class BehaviorModule(threading.Thread):
 
   def run(self):
     """ Method that is called when the thread starts. """
-    self.log(f"'{self._name}': Starting thread", debug=True)
+    self.log(f"'{self._name}': Starting thread in its own thread", debug=True)
 
   def On(self):
     """ Method to start the behavior. """
@@ -101,14 +101,14 @@ class DefaultModule(BehaviorModule):
     self.log(f"ledSettings: {ledSettings}", debug=True)
 
   def run(self):
-    self.log(f"'{self._name}': starting the behavior...", debug=True)
+    self.log(f"'{self._name}': starting the behavior in its own thread...", debug=True)
 
   def On(self):
     self.log("On()")
     self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self.log(f"'{self._name}': turning the leds on...", debug=True)
     self._ledSettings["lightState"]=True
-    self.log(self._ledSettings, debug=True)
+    self.log(f"Light on: {self._ledSettings}", debug=True)
     self.Code()
 
   def Off(self):
@@ -116,7 +116,7 @@ class DefaultModule(BehaviorModule):
     self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self.log(f"'{self._name}': turning the leds off...", debug=True)
     self._ledSettings["lightState"]=False
-    self.log(self._ledSettings, debug=True)
+    self.log(f"Light off: {self._ledSettings}", debug=True)
     self.Code()
 
   def Finalize(self):
@@ -165,7 +165,7 @@ class ChristmassModule(BehaviorModule):
     self.log(f"ledSettings: {ledSettings}", debug=True)
   
   def run(self):
-    self.log(f"'{self._name}': starting the behavior...", debug=True)
+    self.log(f"'{self._name}': starting the behavior in its own thread...", debug=True)
 
   def On(self):
     self.log(f"'{self._name}': turning the leds on...", debug=True)
