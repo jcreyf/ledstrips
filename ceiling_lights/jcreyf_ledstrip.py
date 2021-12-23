@@ -156,7 +156,7 @@ class Light:
     """ Set the name for the behavior module to run. """
     # Do not change anything if the same behavior is selected.
     if self._behaviorModuleName != value:
-      self.log(f"Behavior Module changing from {self._behaviorModuleName} to {value}", debug=True)
+      self.log(f"Behavior Module changing from '{self._behaviorModuleName}' to '{value}'", debug=True)
       # The behavior is changing.  Call the finalizer of the current behavior to get resources released:
       self._behaviorModule.Finalize()
       self._behaviorModule=None
