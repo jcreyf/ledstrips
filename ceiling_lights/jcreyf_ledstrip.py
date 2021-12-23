@@ -40,7 +40,7 @@ class Light:
       "ledChannel": 0,
       "stripGpioPin": 18,                  # RaspberryPI GPIO pin that is used to drive the LED strip;
       "strip": None,                       # Instance of the rpi_ws281x LED strip;
-      "lightState": False                  # Is the light "off" (false) or "on" (true);
+      "lightState": True                  # Is the light "off" (false) or "on" (true);
     }
     self._behaviorModuleName="Default"     # Name of the module that has the code to turn the leds on/off
     self._behaviorModule=BehaviorModules.DefaultModule(self._ledSettings)  # The actual BehaviorModule object
