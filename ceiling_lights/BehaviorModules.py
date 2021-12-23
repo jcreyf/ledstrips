@@ -27,16 +27,16 @@ class BehaviorModule(threading.Thread):
     """ Constructor """
     threading.Thread.__init__(self)
     self._name=name
-    self._debug=False
+    self._debug=True
     self._ledSettings=ledSettings
     # The type of the LED strip (just RGB or does it also include a White LED);
     self._stripType=ws.SK6812_STRIP_RGBW
-    self.log(f"'{self._name}': Constructor", debug=True)
+    self.log(f"'{self._name}': Constructor")
     self.log(f"ledSettings: {ledSettings}", debug=True)
 
   def __del__(self):
     """ Destructor will turn off the leds. """
-    self.log(f"'{self._name}': Destructor", debug=True)
+    self.log(f"'{self._name}': Destructor")
 
   @property
   def name(self):
