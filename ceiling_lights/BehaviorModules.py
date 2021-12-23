@@ -193,8 +193,9 @@ class ChristmassModule(BehaviorModule):
                 0x000020,   # blue
                 0x100010,   # purple
                 0x200010]   # pink
-    if self._ledSettings["strip"] == None:
-      self._ledSettings["strip"]=ws.SK6812W_STRIP
+#    if self._ledSettings["strip"] == None:
+#      self._ledSettings["strip"]=ws.SK6812W_STRIP
+    self._ledSettings["strip"]=ws.SK6812W_STRIP
     # Create a ws2811_t structure from the LED configuration.
     # Note that this structure will be created on the heap so you need to be careful
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
