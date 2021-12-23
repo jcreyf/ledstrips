@@ -222,8 +222,8 @@ def apiPOSTLight(path_vars, request) -> str:
     light.greenRGB=_greenRGB
     light.blueRGB=_blueRGB
     # Set Christmass mode :-)
-    light.behaviorModeName="Christmass"
-#    light.behaviorModeName="Default"
+    light.behaviorModuleName="Christmass"
+#    light.behaviorModuleName="Default"
     if _toggle:
       # The user requests to toggle the light on or off:
       light.Toggle()
@@ -380,19 +380,19 @@ if __name__ == '__main__':
     _ledCount=light_config['led_count']
     _brightness=light_config['brightness']
     _gpioPin=light_config['gpio_pin']
-    _behaviorModule=light_config['behavior_module']
+    _behaviorModuleName=light_config['behavior_module']
     log(f" name: {_name}")
     log(f" led count: {_ledCount}")
     log(f" brightness: {_brightness}")
     log(f" GPIO pin: {_gpioPin}")
-    log(f" behavior module: {_behaviorModule}")
+    log(f" behavior module: {_behaviorModuleName}")
     # Create a light instance and set its properties:
     _light=Light(_name)
     _light.debug=DEBUG
     _light.ledCount=_ledCount
     _light.ledBrightness=_brightness
     _light.stripGpioPin=_gpioPin
-    _light.behaviorModuleName=_behaviorModule
+    _light.behaviorModuleName=_behaviorModuleName
 
     # Each light may have 0 or more switches to control it.
     try:
@@ -520,7 +520,7 @@ if __name__ == '__main__':
             else:
               # The light is off.
               # Get the current settings:
-              _module=light.behaviorModuleName
+              _moduleName=light.behaviorModuleName
               _red=light.redRGB
               _green=light.greenRGB
               _blue=light.blueRGB
@@ -534,7 +534,7 @@ if __name__ == '__main__':
               # Turn the light on:
               light.On()
               # Restore the settings:
-              light.behaviorModuleName=_module
+              light.behaviorModuleName=_moduleName
               light.redRGB=_red
               light.greenRGB=_green
               light.blueRGB=_blue
