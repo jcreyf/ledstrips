@@ -102,6 +102,7 @@ def apiGETLight(path_vars, request) -> str:
       "name": "Bureau",
       "uri": "http://192.168.1.12:8888/light/Bureau",
       "state": false,
+      "led-count": 140,
       "color": {
         "red": 1,
         "green": 1,
@@ -141,6 +142,7 @@ def apiGETLight(path_vars, request) -> str:
     _returnValue["light"]={"name": light.name,
                            "uri": request.host_url+f"light/{light.name}",
                            "state": light.state,
+                           "led-count": light.ledCount,
                            "color": {
                              "red": light.redRGB,
                              "green": light.greenRGB,
@@ -213,7 +215,8 @@ def apiPOSTLight(path_vars, request) -> str:
       break
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
-    light.ledCount=_ledCount
+# ToDo: we probably don't want to override the ledCount for the strip ... or do we?
+#    light.ledCount=_ledCount
     light.ledBrightness=_brightness
     light.redRGB=_redRGB
     light.greenRGB=_greenRGB
@@ -416,6 +419,12 @@ if __name__ == '__main__':
         _switch.init()
         _light.addSwitch(_switch)
 
+    # Turn the light off
+    # ToDo: We may want to keep track of the previous state and restore state.
+    #       Setting explicitly to off might be best though to avoid having any or all lights
+    #       automatically turned on after a power outage.  Those sometimes happen when nobody
+    #       is at home or in the middle of the night when everyone is asleep.
+    _light.Off()
     # Add the light to the list and move on to the next one (if any)
     lights.append(_light)
 
