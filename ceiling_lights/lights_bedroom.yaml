@@ -7,6 +7,7 @@ lights:
       gpio_pin: 18
       led_count: 150
       brightness: 255
+      behavior_module: Default
       switches:
         - name: Room
           gpio_pin: 24

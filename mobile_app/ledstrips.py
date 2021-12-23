@@ -36,18 +36,21 @@ from kivymd.uix.slider import MDSlider
 class LedstripsApp(MDApp):
   _version = "v0.1.5"
   _bureauStatus=False
+  _bureauLedCount=0
   _bureauRed=0
   _bureauGreen=0
   _bureauBlue=0
   _bureauBrightness=1
 
   _bedroomStatus=False
+  _bedroomLedCount=0
   _bedroomRed=0
   _bedroomGreen=0
   _bedroomBlue=0
   _bedroomBrightness=1
 
   _loftStatus=False
+  _loftLedCount=0
   _loftRed=0
   _loftGreen=0
   _loftBlue=0
@@ -76,7 +79,7 @@ class LedstripsApp(MDApp):
       url="http://192.168.1.11:8888/light/Loft"
       data={"action": "update",
             "toggle": _toggle,
-            "led-count": 100,
+            "led-count": self._loftLedCount,
             "brightness": _brightness,
             "color": {
               "red": _red,
@@ -119,7 +122,7 @@ class LedstripsApp(MDApp):
       url="http://192.168.1.10:8888/light/Bedroom"
       data={"action": "update",
             "toggle": _toggle,
-            "led-count": 100,
+            "led-count": self._bedroomLedCount,
             "brightness": _brightness,
             "color": {
               "red": _red,
@@ -162,7 +165,7 @@ class LedstripsApp(MDApp):
       url="http://192.168.1.12:8888/light/Bureau"
       data={"action": "update",
             "toggle": _toggle,
-            "led-count": 100,
+            "led-count": self._bureauLedCount,
             "brightness": _brightness,
             "color": {
               "red": _red,
@@ -227,6 +230,7 @@ class LedstripsApp(MDApp):
 #      self.text_log.text = str(contents)
       print(contents)
       self._loftStatus=contents["light"]["state"]
+      self._loftLedCount=contents["light"]["led-count"]
       self._loftBrightness=contents["light"]["brightness"]
       self._loftRed=contents["light"]["color"]["red"]
       self._loftGreen=contents["light"]["color"]["green"]
@@ -309,6 +313,7 @@ class LedstripsApp(MDApp):
       contents = json.loads(res.decode("utf-8"))
 #      self.text_log.text = str(contents)
       self._bedroomStatus=contents["light"]["state"]
+      self._bedroomLedCount=contents["light"]["led-count"]
       self._bedroomBrightness=contents["light"]["brightness"]
       self._bedroomRed=contents["light"]["color"]["red"]
       self._bedroomGreen=contents["light"]["color"]["green"]
@@ -391,6 +396,7 @@ class LedstripsApp(MDApp):
     #      "name": "Bureau",
     #      "uri": "http://192.168.1.12:8888/light/Bureau",
     #      "state": false,
+    #      "led-count": 140,
     #      "color": {
     #        "red": 1,
     #        "green": 1,
@@ -412,6 +418,7 @@ class LedstripsApp(MDApp):
       contents = json.loads(res.decode("utf-8"))
 #      self.text_log.text = str(contents)
       self._bureauStatus=contents["light"]["state"]
+      self._bureauLedCount=contents["light"]["led-count"]
       self._bureauBrightness=contents["light"]["brightness"]
       self._bureauRed=contents["light"]["color"]["red"]
       self._bureauGreen=contents["light"]["color"]["green"]

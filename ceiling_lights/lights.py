@@ -380,17 +380,19 @@ if __name__ == '__main__':
     _ledCount=light_config['led_count']
     _brightness=light_config['brightness']
     _gpioPin=light_config['gpio_pin']
+    _behaviorModule=light_config['behavior_module']
     log(f" name: {_name}")
     log(f" led count: {_ledCount}")
     log(f" brightness: {_brightness}")
     log(f" GPIO pin: {_gpioPin}")
+    log(f" behavior module: {_behaviorModule}")
     # Create a light instance and set its properties:
     _light=Light(_name)
     _light.debug=DEBUG
     _light.ledCount=_ledCount
     _light.ledBrightness=_brightness
     _light.stripGpioPin=_gpioPin
-    _light.behaviorModuleName="Default"
+    _light.behaviorModuleName=_behaviorModule
 
     # Each light may have 0 or more switches to control it.
     try:
@@ -425,7 +427,7 @@ if __name__ == '__main__':
     #       Setting explicitly to off might be best though to avoid having any or all lights
     #       automatically turned on after a power outage.  Those sometimes happen when nobody
     #       is at home or in the middle of the night when everyone is asleep.
-#    _light.Off()
+    _light.Off()
     # Add the light to the list and move on to the next one (if any)
     lights.append(_light)
 

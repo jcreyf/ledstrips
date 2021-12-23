@@ -7,6 +7,7 @@ lights:
       gpio_pin: 18
       led_count: 250
       brightness: 255
+      behavior_module: Default
       switches:
         - name: Downstairs
           gpio_pin: 23
