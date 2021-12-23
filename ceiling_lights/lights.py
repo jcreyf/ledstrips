@@ -390,6 +390,7 @@ if __name__ == '__main__':
     _light.ledCount=_ledCount
     _light.ledBrightness=_brightness
     _light.stripGpioPin=_gpioPin
+    _light.behaviorModuleName="Default"
 
     # Each light may have 0 or more switches to control it.
     try:
