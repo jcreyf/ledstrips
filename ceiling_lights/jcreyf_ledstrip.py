@@ -212,6 +212,7 @@ class Light:
   def Toggle(self):
     """ Toggle the light on or off. """
     self.log("Toggle()", debug=True)
+    self.log(f"light on: {self._ledSettings['lightState']}", debug=True)
     if self.state:
       self.Off()
     else:
@@ -220,6 +221,7 @@ class Light:
   def Update(self):
     """ Apply the Updated LED settings if they are on. """
     self.log("Update()", debug=True)
+    self.log(f"light on: {self._ledSettings['lightState']}", debug=True)
     if self.state:
       self.Off()
       self.On()
