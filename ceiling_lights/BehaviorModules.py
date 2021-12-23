@@ -168,20 +168,20 @@ class ChristmassModule(BehaviorModule):
     self.log(f"'{self._name}': turning the leds on...", debug=True)
     self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self._ledSettings["lightState"]=True
-#    mod=threading.Thread(target=self.Christmass_Code)
-#    mod.start()
-    self.log("Turning on (Christmass thread started)")
+    self.Code(state=True)
+#    self.log("Turning on (Christmass thread started)")
 
   def Off(self):
     self.log(f"'{self._name}': turning the leds off...", debug=True)
     self.log(f"ledSettings: {self._ledSettings}", debug=True)
     self._ledSettings["lightState"]=False
-    self.log("Turning off (this should end the Christmass thread)")
+#    self.Code(state=False)
+#    self.log("Turning off (this should end the Christmass thread)")
 
   def Finalize(self):
     self.log(f"'{self._name}': cleaning up resources...")
 
-  def Christmass_Code(self, stop: bool=False):
+  def Code(self, state: bool):
     self.log(f"'{self._name}': start of thread")
     # Define colors which will be used by the module.
     # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
