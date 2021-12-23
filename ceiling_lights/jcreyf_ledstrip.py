@@ -157,8 +157,9 @@ class Light:
     # Do not change anything if the same behavior is selected.
     if self._behaviorModuleName != value:
       self.log(f"Behavior Module changing from '{self._behaviorModuleName}' to '{value}'", debug=True)
-      # The behavior is changing.  Call the finalizer of the current behavior to get resources released:
-      self._behaviorModule.Finalize()
+      # The behavior is changing.  Remove the current behavior.
+      # Probably not necessary to explicitly remove it, but we're dealing with hardware and need
+      # to make sure the object's finalizer is called and all hardware resources are released:
       self._behaviorModule=None
       # Now set the new behavior:
       if value == "Christmass":
@@ -208,7 +209,7 @@ class Light:
     self.log("Off()")
     self.log(self._ledSettings, debug=True)
     self._behaviorModule.Off()
-  
+
   def Toggle(self):
     """ Toggle the light on or off. """
     self.log("Toggle()", debug=True)
