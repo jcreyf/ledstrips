@@ -24,22 +24,48 @@ class BehaviorModule(threading.Thread):
   Template Class for ledstrip behavior modules.
   """
   def __init__(self, name: str="Blank", ledSettings: dict=None):
-    """ Constructor """
+    """ Constructor of our BehaviorModule instance.
+    
+    Arguments:
+      name (str):         the name of this specific behavior (default="Blank").
+                          (others could be: "Default", "Christmass", ...)
+      ledSettings (dict): dictionary with settings that we need to drive the ledstrip.
+                          required_settings={
+                            "ledCount": <1..N>,           # Number of individually addressable LEDs on the strip;
+                            "redRGB": <0..255>,           # RGB Red color value;
+                            "greenRGB": <0..255>,         # RGB Green color value;
+                            "blueRGB": <0..255>,          # RGB Blue color value;
+                            "ledBrightness": <0..255>,    # Set to 0 for darkest and 255 for brightest;
+                            "ledFrequency": 800000,       # LED signal frequency in hertz (usually 800khz);
+                            "ledDmaChannel": 10,          # DMA channel to use for generating signal (try 10);
+                            "ledInvert": False,           # True to invert the signal (when using NPN transistor level shift);
+                            "ledChannel": 0,
+                            "stripGpioPin": 18,           # RaspberryPI GPIO pin that is used to drive the LED strip;
+                            "strip": None,                # Instance of the rpi_ws281x LED strip;
+                            "lightState": [True|False]    # Is the light "off" (false) or "on" (true);
+                          }
+    """
     threading.Thread.__init__(self)
+    # Setting the name of the thread:
+    self.name=name
+    # ToDo: This _name is redundant and can probably be removed.
+    #       This _name property was added to the initial code, before we started using threads
+    #       to run behavior code.
     self._name=name
     self._debug=True
     self._ledSettings=ledSettings
     # The type of the LED strip (just RGB or does it also include a White LED);
     self._stripType=ws.SK6812_STRIP_RGBW
-    self.log(f"'{self._name}': Constructor")
+    self.log("Constructor")
     self.log(f"ledSettings: {ledSettings}", debug=True)
 
   def __del__(self):
     """ Destructor will turn off the leds. """
-    self.log(f"'{self._name}': Destructor")
+    self.log("Destructor")
+    self.finalize()
 
   @property
-  def name(self):
+  def name(self) -> str:
     """ Return the name of this behavior module. """
     return self._name
 
@@ -69,23 +95,21 @@ class BehaviorModule(threading.Thread):
 
   def run(self):
     """ Method that is called when the thread starts. """
-    self.log(f"'{self._name}': Starting thread in its own thread", debug=True)
+    self.log(f"Starting thread in its own thread", debug=True)
 
   def On(self):
     """ Method to start the behavior. """
     self.log("On()")
     self.log(f"ledSettings: {self._ledSettings}", debug=True)
-    self.log(f"'{self._name}': Starting behavior...", debug=True)
 
   def Off(self):
     """ Method to stop the behavior. """
     self.log("Off()")
     self.log(f"ledSettings: {self._ledSettings}", debug=True)
-    self.log(f"'{self._name}': Stopping the behavior...", debug=True)
 
-  def Finalize(self):
+  def finalize(self):
     """ Destructor method to release and cleanup resources. """
-    self.log(f"'{self._name}': Finalizing behavior...", debug=True)
+    self.log("Finalizing and cleaning up resources...", debug=True)
 
 
 #
@@ -101,20 +125,25 @@ class DefaultModule(BehaviorModule):
     self.log(f"ledSettings: {ledSettings}", debug=True)
 
   def run(self):
-    self.log(f"'{self._name}': starting the behavior in its own thread...", debug=True)
+    """ We don't need any code running in a separate thread for this basic On/Off behavior. """
+    self.log("Thread started but no code to run", debug=True)
 
   def On(self):
+    """ Turn the behavior on, which is basically simply turning the light on. """
     self.log("On()")
     self.Code(state=True)
 
   def Off(self):
+    """ Turn the behavior on, which is basically simply turning the light off. """
     self.log("Off()")
     self.Code(state=False)
 
-  def Finalize(self):
-    self.log(f"'{self._name}': cleaning up resources...", debug=True)
-
   def Code(self, state: bool):
+    """ Here we have the actual code to turn the ledstrip on or off.
+
+    Arguments:
+      state (bool): True == turn leds on; False == turn leds off
+    """
     self.log(f"ledSettings -> {self._ledSettings}", debug=True)
     # Initialize the ledstrip if that's not done yet:
     if self._ledSettings["strip"] == None:
@@ -129,22 +158,24 @@ class DefaultModule(BehaviorModule):
       # Initialize the library (must be called once before other functions):
       self._ledSettings["strip"].begin()
     if state:
-      # The light is off -> set the led color and brightness:
+      # Turn the leds on.
+      # Generate the color setting for each led:
       color=Color(self._ledSettings["greenRGB"], \
                   self._ledSettings["redRGB"], \
                   self._ledSettings["blueRGB"], \
                   self._ledSettings["ledBrightness"])
       self.log("turn leds on", debug=True)
     else:
-      # The light is on -> turn the leds off:
+      # Turn the leds off.
+      # The color setting of each led needs to be set to 0:
       color=Color(0, 0, 0, 0)
       self.log("turn leds off", debug=True)
-    # Loop and set all leds on the strip:
+    # Loop and apply the color setting to all leds on the strip:
     for i in range(self._ledSettings["strip"].numPixels()):
       self._ledSettings["strip"].setPixelColor(i, color)
-    # Execute:
+    # Force the ledstrip to show the applied changes:
     self._ledSettings["strip"].show()
-    # Flip the light status:
+    # Set our light status accordingly:
     self._ledSettings["lightState"]=state
 
 
@@ -160,64 +191,43 @@ class ChristmassModule(BehaviorModule):
     """ Constructor """
     super().__init__(name="Christmass", ledSettings=ledSettings)
     self.log(f"ledSettings: {ledSettings}", debug=True)
-  
-  def run(self):
-    self.log(f"'{self._name}': starting the behavior in its own thread...", debug=True)
-
-  def On(self):
-    self.log(f"'{self._name}': turning the leds on...", debug=True)
-    self.log(f"ledSettings: {self._ledSettings}", debug=True)
-    self._ledSettings["lightState"]=True
-    self.Code(state=True)
-#    self.log("Turning on (Christmass thread started)")
-
-  def Off(self):
-    self.log(f"'{self._name}': turning the leds off...", debug=True)
-    self.log(f"ledSettings: {self._ledSettings}", debug=True)
-    self._ledSettings["lightState"]=False
-#    self.Code(state=False)
-#    self.log("Turning off (this should end the Christmass thread)")
-
-  def Finalize(self):
-    self.log(f"'{self._name}': cleaning up resources...")
-
-  def Code(self, state: bool):
-    self.log(f"'{self._name}': start of thread")
     # Define colors which will be used by the module.
     # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
-    DOT_COLORS=[0x200000,   # red
-                0x201000,   # orange
-                0x202000,   # yellow
-                0x002000,   # green
-                0x002020,   # lightblue
-                0x000020,   # blue
-                0x100010,   # purple
-                0x200010]   # pink
-#    if self._ledSettings["strip"] == None:
-#      self._ledSettings["strip"]=ws.SK6812W_STRIP
-    self._ledSettings["strip"]=ws.SK6812W_STRIP
+    self._DOT_COLORS=[0x200000,   # red
+                      0x201000,   # orange
+                      0x202000,   # yellow
+                      0x002000,   # green
+                      0x002020,   # lightblue
+                      0x000020,   # blue
+                      0x100010,   # purple
+                      0x200010]   # pink
     # Create a ws2811_t structure from the LED configuration.
     # Note that this structure will be created on the heap so you need to be careful
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
-    leds=ws.new_ws2811_t()
+    self._leds=ws.new_ws2811_t()
+  
+  def run(self):
+    self.log("starting the behavior in its own thread...", debug=True)
+#    if self._ledSettings["strip"] == None:
+#      self._ledSettings["strip"]=ws.SK6812W_STRIP
     # Initialize all channels to off
     for channum in range(2):
-      channel=ws.ws2811_channel_get(leds, channum)
+      channel=ws.ws2811_channel_get(self._leds, channum)
       ws.ws2811_channel_t_count_set(channel, 0)
       ws.ws2811_channel_t_gpionum_set(channel, 0)
       ws.ws2811_channel_t_invert_set(channel, 0)
       ws.ws2811_channel_t_brightness_set(channel, 0)
 
-    channel=ws.ws2811_channel_get(leds, self._ledSettings["ledChannel"])
+    channel=ws.ws2811_channel_get(self._leds, self._ledSettings["ledChannel"])
     ws.ws2811_channel_t_count_set(channel, self._ledSettings["ledCount"])
     ws.ws2811_channel_t_gpionum_set(channel, self._ledSettings["stripGpioPin"])
     ws.ws2811_channel_t_invert_set(channel, self._ledSettings["ledInvert"])
     ws.ws2811_channel_t_brightness_set(channel, self._ledSettings["ledBrightness"])
     ws.ws2811_channel_t_strip_type_set(channel, self._ledSettings["strip"])
-    ws.ws2811_t_freq_set(leds, self._ledSettings["ledFrequency"])
-    ws.ws2811_t_dmanum_set(leds, self._ledSettings["ledDmaChannel"])
+    ws.ws2811_t_freq_set(self._leds, self._ledSettings["ledFrequency"])
+    ws.ws2811_t_dmanum_set(self._leds, self._ledSettings["ledDmaChannel"])
     # Initialize library with LED configuration.
-    resp=ws.ws2811_init(leds)
+    resp=ws.ws2811_init(self._leds)
     if resp != ws.WS2811_SUCCESS:
       message=ws.ws2811_get_return_t_str(resp)
       raise RuntimeError('ws2811_init failed with code {0} ({1})'.format(resp, message))
@@ -230,28 +240,41 @@ class ChristmassModule(BehaviorModule):
         # Update each LED color in the buffer.
         for i in range(self._ledSettings["ledCount"]):
           # Pick a color based on LED position and an offset for animation.
-          color=DOT_COLORS[(i + offset) % len(DOT_COLORS)]
+          color=self._DOT_COLORS[(i + offset) % len(self._DOT_COLORS)]
           # Set the LED color buffer value.
           ws.ws2811_led_set(channel, i, color)
           # Send the LED color data to the hardware.
-          resp=ws.ws2811_render(leds)
+          resp=ws.ws2811_render(self._leds)
           if resp != ws.WS2811_SUCCESS:
             message=ws.ws2811_get_return_t_str(resp)
             raise RuntimeError(f"ws2811_render failed with code {resp} ({message})")
           # Delay for a small period of time.
-#          sleep(0.25)
+# ToDo: add a class parameter to configure the speed delay:
+#          sleep(0.25) # 250 milliseconds
           # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
           offset += 1
       # The loop ended.
-      self.log(f"'{self._name}': end of thread")
+      self.log("ending Christmass thread...", debug=True)
       # Turn all the leds off:
       for i in range(self._ledSettings["ledCount"]):
         ws.ws2811_led_set(channel, i, 0)
-        ws.ws2811_render(leds)
+        ws.ws2811_render(self._leds)
     finally:
-      self.log(f"'{self._name}': cleanup...")
-      # Ensure ws2811_fini is called before the program quits.
-      ws.ws2811_fini(leds)
-      # Example of calling delete function to clean up structure memory.  Isn't
-      # strictly necessary at the end of the program execution here, but is good practice.
-      ws.delete_ws2811_t(leds)
+      # Clean up hardware resources
+      self.finalize()
+
+  def On(self):
+    self.log("turning the leds on...")
+    self._ledSettings["lightState"]=True
+
+  def Off(self):
+    self.log("turning the leds off...")
+    self._ledSettings["lightState"]=False
+
+  def finalize(self):
+    self.log("cleaning up resources...")
+    # Ensure ws2811_fini is called before the program quits.
+    ws.ws2811_fini(self._leds)
+    # Example of calling delete function to clean up structure memory.  Isn't
+    # strictly necessary at the end of the program execution here, but is good practice.
+    ws.delete_ws2811_t(self._leds)
