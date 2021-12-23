@@ -27,7 +27,7 @@ class BehaviorModule(threading.Thread):
     """ Constructor """
     threading.Thread.__init__(self)
     self._name=name
-    self._debug=True
+    self._debug=False
     self._ledSettings=ledSettings
     # The type of the LED strip (just RGB or does it also include a White LED);
     self._stripType=ws.SK6812_STRIP_RGBW
