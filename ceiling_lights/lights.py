@@ -221,9 +221,9 @@ def apiPOSTLight(path_vars, request) -> str:
     light.redRGB=_redRGB
     light.greenRGB=_greenRGB
     light.blueRGB=_blueRGB
-#    # Set Christmass mode :-)
-#    light.behaviorModeName="Christmass"
-    light.behaviorModeName="Default"
+    # Set Christmass mode :-)
+    light.behaviorModeName="Christmass"
+#    light.behaviorModeName="Default"
     if _toggle:
       # The user requests to toggle the light on or off:
       light.Toggle()
@@ -527,7 +527,6 @@ if __name__ == '__main__':
               _brightness=light.ledBrightness
               # Change the settings to standard on/off, white with full brightness:
               light.behaviorModuleName="Default"
-#              light.behaviorModuleName="Christmass"
               light.redRGB=255
               light.greenRGB=255
               light.blueRGB=255
