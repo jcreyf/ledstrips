@@ -46,11 +46,6 @@ class BehaviorModule(threading.Thread):
                           }
     """
     threading.Thread.__init__(self)
-    # Setting the name of the thread:
-    self.name=name
-    # ToDo: This _name is redundant and can probably be removed.
-    #       This _name property was added to the initial code, before we started using threads
-    #       to run behavior code.
     self._name=name
     self._debug=True
     self._ledSettings=ledSettings
