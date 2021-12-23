@@ -106,17 +106,11 @@ class DefaultModule(BehaviorModule):
   def On(self):
     self.log("On()")
     self.log(f"ledSettings: {self._ledSettings}", debug=True)
-    self.log(f"'{self._name}': turning the leds on...", debug=True)
-    self._ledSettings["lightState"]=True
-    self.log(f"Light on: {self._ledSettings}", debug=True)
     self.Code()
 
   def Off(self):
     self.log("Off()")
     self.log(f"ledSettings: {self._ledSettings}", debug=True)
-    self.log(f"'{self._name}': turning the leds off...", debug=True)
-    self._ledSettings["lightState"]=False
-    self.log(f"Light off: {self._ledSettings}", debug=True)
     self.Code()
 
   def Finalize(self):
@@ -150,6 +144,9 @@ class DefaultModule(BehaviorModule):
       self._ledSettings["strip"].setPixelColor(i, color)
     # Execute:
     self._ledSettings["strip"].show()
+    # Flip the light status:
+    self._ledSettings["lightState"]=not self._ledSettings["lightState"]
+
 
 
 #
