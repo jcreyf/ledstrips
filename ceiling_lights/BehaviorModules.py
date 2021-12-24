@@ -278,3 +278,6 @@ class ChristmassModule(BehaviorModule):
       # Example of calling delete function to clean up structure memory.  Isn't
       # strictly necessary at the end of the program execution here, but is good practice.
       ws.delete_ws2811_t(self._leds)
+    except:
+      # it failed.  we don't care!
+      self.log("ws2811 threw an error")
