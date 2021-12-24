@@ -202,7 +202,7 @@ class ChristmassModule(BehaviorModule):
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
     self._leds=ws.new_ws2811_t()
     self._channel=None
-    self._delayMilliseconds=50
+    self._delayMilliseconds=75
     self._intialized=False
     self._thread=None
   
