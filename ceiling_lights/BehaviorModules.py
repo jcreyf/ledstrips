@@ -285,6 +285,7 @@ class ChristmassModule(BehaviorModule):
 
   def finalize(self):
     self.log("cleaning up resources...")
+    self._ledSettings["strip"]=None
     try:
       # Ensure ws2811_fini is called before the program quits.
       ws.ws2811_fini(self._leds)
