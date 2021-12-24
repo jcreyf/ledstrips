@@ -219,15 +219,18 @@ class ChristmassModule(BehaviorModule):
         ws.ws2811_led_set(self._channel, i, color)
         # Send the LED color data to the hardware.
 #        resp=ws.ws2811_render(self._leds)
-        if resp != ws.WS2811_SUCCESS:
-          message=ws.ws2811_get_return_t_str(resp)
-          raise RuntimeError(f"ws2811_render failed with code {resp} ({message})")
+#        if resp != ws.WS2811_SUCCESS:
+#          message=ws.ws2811_get_return_t_str(resp)
+#          raise RuntimeError(f"ws2811_render failed with code {resp} ({message})")
 #        # Optionally slow down the loop:
 #        if self._delayMilliseconds > 0:
 #          sleep(self._delayMilliseconds / 1000)
         # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
         offset += 1
       resp=ws.ws2811_render(self._leds)
+      if resp != ws.WS2811_SUCCESS:
+        message=ws.ws2811_get_return_t_str(resp)
+        raise RuntimeError(f"ws2811_render failed with code {resp} ({message})")
     # The loop ended.
     self.log("ending Christmass thread...", debug=True)
     # Turn all the leds off:
