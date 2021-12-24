@@ -202,7 +202,7 @@ class ChristmassModule(BehaviorModule):
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
     self._leds=ws.new_ws2811_t()
     self._channel=None
-    self._delayMilliseconds=250
+    self._delayMilliseconds=100
     self._intialized=False
     self._thread=None
   
@@ -227,10 +227,12 @@ class ChristmassModule(BehaviorModule):
 #          sleep(self._delayMilliseconds / 1000)
         # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
         offset += 1
+      # Send the LED color data to the hardware:
       resp=ws.ws2811_render(self._leds)
       if resp != ws.WS2811_SUCCESS:
         message=ws.ws2811_get_return_t_str(resp)
         raise RuntimeError(f"ws2811_render failed with code {resp} ({message})")
+      # Optionally slow down the loop:
       if self._delayMilliseconds > 0:
          sleep(self._delayMilliseconds / 1000)
     # The loop ended.
