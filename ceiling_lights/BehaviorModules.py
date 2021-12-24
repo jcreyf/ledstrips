@@ -204,9 +204,7 @@ class ChristmassModule(BehaviorModule):
     self._channel=None
     self._delayMilliseconds=0
     self._intialized=False
-    # Another way of adding threading:
-#    self._thread=threading.Thread(target=self.run)
-#    self._thread.start()
+    self._thread=None
   
   def run(self):
     self.log("starting the behavior in its own thread...", debug=True)
@@ -243,10 +241,16 @@ class ChristmassModule(BehaviorModule):
     # The thread will loop for as long as the 'lightState' is true:
     self._ledSettings["lightState"]=True
     # Start the thread if not running yet:
-    if not self._thread.isAlive():
-      self.log("Need to start the thread", debug=True)
+    if self._thread == None:
+      self.log("Creating a new thread", debug=True)
       self._thread=threading.Thread(target=self.run)
       self._thread.start()
+#    else:
+#      if not self._thread.isAlive():
+#        self.log("Need to start the thread", debug=True)
+#        self._thread=None
+#        self._thread=threading.Thread(target=self.run)
+#        self._thread.start()
 
   def Off(self):
     self.log("turning the leds off...")
