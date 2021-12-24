@@ -520,7 +520,7 @@ if __name__ == '__main__':
             else:
               # The light is off.
               # Get the current settings:
-              _moduleName=light.behaviorModuleName
+              _behaviorModuleName=light.behaviorModuleName
               _red=light.redRGB
               _green=light.greenRGB
               _blue=light.blueRGB
@@ -534,7 +534,7 @@ if __name__ == '__main__':
               # Turn the light on:
               light.On()
               # Restore the settings:
-              light.behaviorModuleName=_moduleName
+              light.behaviorModuleName=_behaviorModuleName
               light.redRGB=_red
               light.greenRGB=_green
               light.blueRGB=_blue

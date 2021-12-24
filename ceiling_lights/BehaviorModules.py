@@ -105,6 +105,7 @@ class BehaviorModule(threading.Thread):
   def finalize(self):
     """ Destructor method to release and cleanup resources. """
     self.log("Finalizing and cleaning up resources...", debug=True)
+    self._ledSettings["strip"]=None
 
 
 #
@@ -204,7 +205,7 @@ class ChristmassModule(BehaviorModule):
   def run(self):
     self.log("starting the behavior in its own thread...", debug=True)
 #    if self._ledSettings["strip"] == None:
-#      self._ledSettings["strip"]=ws.SK6812W_STRIP
+    self._ledSettings["strip"]=ws.SK6812W_STRIP
     # Initialize all channels to off
     for channum in range(2):
       channel=ws.ws2811_channel_get(self._leds, channum)
@@ -261,6 +262,9 @@ class ChristmassModule(BehaviorModule):
   def On(self):
     self.log("turning the leds on...")
     self._ledSettings["lightState"]=True
+    # Start the thread if not running yet:
+    if not self.is_alive:
+      self.start()
 
   def Off(self):
     self.log("turning the leds off...")
@@ -268,8 +272,9 @@ class ChristmassModule(BehaviorModule):
 
   def finalize(self):
     self.log("cleaning up resources...")
-    # Ensure ws2811_fini is called before the program quits.
-    ws.ws2811_fini(self._leds)
-    # Example of calling delete function to clean up structure memory.  Isn't
-    # strictly necessary at the end of the program execution here, but is good practice.
-    ws.delete_ws2811_t(self._leds)
+    try:
+      # Ensure ws2811_fini is called before the program quits.
+      ws.ws2811_fini(self._leds)
+      # Example of calling delete function to clean up structure memory.  Isn't
+      # strictly necessary at the end of the program execution here, but is good practice.
+      ws.delete_ws2811_t(self._leds)
