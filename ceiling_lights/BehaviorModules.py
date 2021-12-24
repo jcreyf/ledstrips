@@ -202,7 +202,7 @@ class ChristmassModule(BehaviorModule):
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
     self._leds=ws.new_ws2811_t()
     self._channel=None
-    self._delayMilliseconds=100
+    self._delayMilliseconds=50
     self._intialized=False
     self._thread=None
   
@@ -217,7 +217,7 @@ class ChristmassModule(BehaviorModule):
         color=self._DOT_COLORS[(i + offset) % len(self._DOT_COLORS)]
         # Set the LED color buffer value.
         ws.ws2811_led_set(self._channel, i, color)
-        # Send the LED color data to the hardware.
+#        # Send the LED color data to the hardware.
 #        resp=ws.ws2811_render(self._leds)
 #        if resp != ws.WS2811_SUCCESS:
 #          message=ws.ws2811_get_return_t_str(resp)
@@ -240,7 +240,7 @@ class ChristmassModule(BehaviorModule):
     # Turn all the leds off:
     for i in range(self._ledSettings["ledCount"]):
       ws.ws2811_led_set(self._channel, i, 0)
-      ws.ws2811_render(self._leds)
+    ws.ws2811_render(self._leds)
 
   def On(self):
     self.log("turning the leds on...")
