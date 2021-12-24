@@ -245,12 +245,12 @@ class ChristmassModule(BehaviorModule):
       self.log("Creating a new thread", debug=True)
       self._thread=threading.Thread(target=self.run)
       self._thread.start()
-#    else:
-#      if not self._thread.isAlive():
-#        self.log("Need to start the thread", debug=True)
-#        self._thread=None
-#        self._thread=threading.Thread(target=self.run)
-#        self._thread.start()
+    else:
+      if not self._thread.isAlive():
+        self.log("Need to start the thread", debug=True)
+        self._thread=None
+        self._thread=threading.Thread(target=self.run)
+        self._thread.start()
 
   def Off(self):
     self.log("turning the leds off...")
