@@ -201,78 +201,83 @@ class ChristmassModule(BehaviorModule):
     # Note that this structure will be created on the heap so you need to be careful
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
     self._leds=ws.new_ws2811_t()
+    self._channel=None
+    self._delayMilliseconds=0
+    self._intialized=False
     # Another way of adding threading:
-    self._thread=threading.Thread(target=self.run)
-    self._thread.start()
+#    self._thread=threading.Thread(target=self.run)
+#    self._thread.start()
   
   def run(self):
     self.log("starting the behavior in its own thread...", debug=True)
-#    if self._ledSettings["strip"] == None:
-    self._ledSettings["strip"]=ws.SK6812W_STRIP
-    # Initialize all channels to off
-    for channum in range(2):
-      channel=ws.ws2811_channel_get(self._leds, channum)
-      ws.ws2811_channel_t_count_set(channel, 0)
-      ws.ws2811_channel_t_gpionum_set(channel, 0)
-      ws.ws2811_channel_t_invert_set(channel, 0)
-      ws.ws2811_channel_t_brightness_set(channel, 0)
-
-    channel=ws.ws2811_channel_get(self._leds, self._ledSettings["ledChannel"])
-    ws.ws2811_channel_t_count_set(channel, self._ledSettings["ledCount"])
-    ws.ws2811_channel_t_gpionum_set(channel, self._ledSettings["stripGpioPin"])
-    ws.ws2811_channel_t_invert_set(channel, self._ledSettings["ledInvert"])
-    ws.ws2811_channel_t_brightness_set(channel, self._ledSettings["ledBrightness"])
-    ws.ws2811_channel_t_strip_type_set(channel, self._ledSettings["strip"])
-    ws.ws2811_t_freq_set(self._leds, self._ledSettings["ledFrequency"])
-    ws.ws2811_t_dmanum_set(self._leds, self._ledSettings["ledDmaChannel"])
-    # Initialize library with LED configuration.
-    resp=ws.ws2811_init(self._leds)
-    if resp != ws.WS2811_SUCCESS:
-      message=ws.ws2811_get_return_t_str(resp)
-      raise RuntimeError('ws2811_init failed with code {0} ({1})'.format(resp, message))
-
-    # Wrap following code in a try/finally to ensure cleanup functions are called after library is initialized.
-    try:
-      offset=0
-      # Keep looping in the thread until the user switches off the lights:
-      while self._ledSettings["lightState"]:
-        # Update each LED color in the buffer.
-        for i in range(self._ledSettings["ledCount"]):
-          # Pick a color based on LED position and an offset for animation.
-          color=self._DOT_COLORS[(i + offset) % len(self._DOT_COLORS)]
-          # Set the LED color buffer value.
-          ws.ws2811_led_set(channel, i, color)
-          # Send the LED color data to the hardware.
-          resp=ws.ws2811_render(self._leds)
-          if resp != ws.WS2811_SUCCESS:
-            message=ws.ws2811_get_return_t_str(resp)
-            raise RuntimeError(f"ws2811_render failed with code {resp} ({message})")
-          # Delay for a small period of time.
-# ToDo: add a class parameter to configure the speed delay:
-#          sleep(0.25) # 250 milliseconds
-          # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
-          offset += 1
-      # The loop ended.
-      self.log("ending Christmass thread...", debug=True)
-      # Turn all the leds off:
+    offset=0
+    # Keep looping in the thread until the user switches off the lights:
+    while self._ledSettings["lightState"]:
+      # Update each LED color in the buffer.
       for i in range(self._ledSettings["ledCount"]):
-        ws.ws2811_led_set(channel, i, 0)
-        ws.ws2811_render(self._leds)
-    finally:
-      # Clean up hardware resources
-      self.finalize()
+        # Pick a color based on LED position and an offset for animation.
+        color=self._DOT_COLORS[(i + offset) % len(self._DOT_COLORS)]
+        # Set the LED color buffer value.
+        ws.ws2811_led_set(self._channel, i, color)
+        # Send the LED color data to the hardware.
+        resp=ws.ws2811_render(self._leds)
+        if resp != ws.WS2811_SUCCESS:
+          message=ws.ws2811_get_return_t_str(resp)
+          raise RuntimeError(f"ws2811_render failed with code {resp} ({message})")
+        # Optionally slow down the loop:
+        if self._delayMilliseconds > 0:
+          sleep(self._delayMilliseconds / 1000)
+        # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
+        offset += 1
+    # The loop ended.
+    self.log("ending Christmass thread...", debug=True)
+    # Turn all the leds off:
+    for i in range(self._ledSettings["ledCount"]):
+      ws.ws2811_led_set(self._channel, i, 0)
+      ws.ws2811_render(self._leds)
 
   def On(self):
     self.log("turning the leds on...")
+    if not self._intialized:
+      self.init()
+    # The thread will loop for as long as the 'lightState' is true:
     self._ledSettings["lightState"]=True
     # Start the thread if not running yet:
     if not self._thread.isAlive():
       self.log("Need to start the thread", debug=True)
+      self._thread=threading.Thread(target=self.run)
       self._thread.start()
 
   def Off(self):
     self.log("turning the leds off...")
     self._ledSettings["lightState"]=False
+
+  def init(self):
+    self.log("Initialize...")
+    self._ledSettings["strip"]=ws.SK6812W_STRIP
+    # Initialize all channels to off
+    for channum in range(2):
+      self._channel=ws.ws2811_channel_get(self._leds, channum)
+      ws.ws2811_channel_t_count_set(self._channel, 0)
+      ws.ws2811_channel_t_gpionum_set(self._channel, 0)
+      ws.ws2811_channel_t_invert_set(self._channel, 0)
+      ws.ws2811_channel_t_brightness_set(self._channel, 0)
+    # Initialize the channel that we want to use:
+    self._channel=ws.ws2811_channel_get(self._leds, self._ledSettings["ledChannel"])
+    ws.ws2811_channel_t_count_set(self._channel, self._ledSettings["ledCount"])
+    ws.ws2811_channel_t_gpionum_set(self._channel, self._ledSettings["stripGpioPin"])
+    ws.ws2811_channel_t_invert_set(self._channel, self._ledSettings["ledInvert"])
+    ws.ws2811_channel_t_brightness_set(self._channel, self._ledSettings["ledBrightness"])
+    ws.ws2811_channel_t_strip_type_set(self._channel, self._ledSettings["strip"])
+    ws.ws2811_t_freq_set(self._leds, self._ledSettings["ledFrequency"])
+    ws.ws2811_t_dmanum_set(self._leds, self._ledSettings["ledDmaChannel"])
+    # Initialize library with LED configuration.
+    resp=ws.ws2811_init(self._leds)
+    self._intialized=True
+    if resp != ws.WS2811_SUCCESS:
+      self._intialized=False
+      message=ws.ws2811_get_return_t_str(resp)
+      raise RuntimeError('ws2811_init failed with code {0} ({1})'.format(resp, message))
 
   def finalize(self):
     self.log("cleaning up resources...")
@@ -284,4 +289,4 @@ class ChristmassModule(BehaviorModule):
       ws.delete_ws2811_t(self._leds)
     except:
       # it failed.  we don't care!
-      self.log("ws2811 threw an error")
+      self.log("ws2811 library threw an error")
