@@ -264,6 +264,7 @@ class ChristmassModule(BehaviorModule):
     self._ledSettings["lightState"]=True
     # Start the thread if not running yet:
     if not self.is_alive:
+      self.log("Need to start the thread", debug=True)
       self.start()
 
   def Off(self):
