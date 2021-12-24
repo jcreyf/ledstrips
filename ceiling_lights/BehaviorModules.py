@@ -201,6 +201,9 @@ class ChristmassModule(BehaviorModule):
     # Note that this structure will be created on the heap so you need to be careful
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
     self._leds=ws.new_ws2811_t()
+    # Another way of adding threading:
+    self._thread=threading.Thread(target=self.run)
+    self._thread.start()
   
   def run(self):
     self.log("starting the behavior in its own thread...", debug=True)
@@ -263,9 +266,9 @@ class ChristmassModule(BehaviorModule):
     self.log("turning the leds on...")
     self._ledSettings["lightState"]=True
     # Start the thread if not running yet:
-    if not self.is_alive:
+    if not self._thread.isAlive():
       self.log("Need to start the thread", debug=True)
-      self.start()
+      self._thread.start()
 
   def Off(self):
     self.log("turning the leds off...")
