@@ -464,7 +464,7 @@ class LedstripsApp(MDApp):
     ))
     self.chkMode_bureau = MDCheckbox(
       active=False,
-      pos_hint={"center_x": 0.80, "center_y": _loft_pos}
+      pos_hint={"center_x": 0.80, "center_y": _bureau_pos}
     )
     screen.add_widget(self.chkMode_bureau)
     self.sliderRed_bureau = MDSlider(
