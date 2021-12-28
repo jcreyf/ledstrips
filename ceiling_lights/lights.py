@@ -202,7 +202,7 @@ def apiPOSTLight(path_vars, request) -> str:
   _redRGB=request.json.get("color").get("red")
   _greenRGB=request.json.get("color").get("green")
   _blueRGB=request.json.get("color").get("blue")
-  _behaviorModuleName=json.get("behavior")
+  _behaviorModuleName=request.json.get("behavior")
   _ledCount=request.json.get("led-count")
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
