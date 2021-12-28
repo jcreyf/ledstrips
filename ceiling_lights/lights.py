@@ -172,6 +172,7 @@ def apiPOSTLight(path_vars, request) -> str:
   {
   	"action": "update",
     "toggle": false,
+    "behavior": "Default",
 	  "led-count": 100,
   	"brightness": 50,
 	  "color": {
@@ -201,6 +202,7 @@ def apiPOSTLight(path_vars, request) -> str:
   _redRGB=request.json.get("color").get("red")
   _greenRGB=request.json.get("color").get("green")
   _blueRGB=request.json.get("color").get("blue")
+  _behaviorModuleName=json.get("behavior")
   _ledCount=request.json.get("led-count")
   _returnValue={}
   # Remove leading or trailing slashes and questionmarks.
@@ -221,8 +223,7 @@ def apiPOSTLight(path_vars, request) -> str:
     light.redRGB=_redRGB
     light.greenRGB=_greenRGB
     light.blueRGB=_blueRGB
-    light.behaviorModuleName="Christmass"
-#    light.behaviorModuleName="Default"
+    light.behaviorModuleName=_behaviorModuleName
     if _toggle:
       # The user requests to toggle the light on or off:
       light.Toggle()

@@ -27,6 +27,7 @@ from kivymd.uix.toolbar import MDToolbar
 from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
 from kivymd.uix.label import MDLabel
 from kivymd.uix.slider import MDSlider
+from kivymd.uix.selectioncontrol import MDCheckbox
 
 # Not implemented yet in KivyMD (v0.104.2)
 # Will be implemented in KivyMD v1.0.0
@@ -34,7 +35,7 @@ from kivymd.uix.slider import MDSlider
 
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.5"
+  _version = "v0.1.6"
   _bureauStatus=False
   _bureauLedCount=0
   _bureauRed=0
@@ -76,9 +77,15 @@ class LedstripsApp(MDApp):
       else:
         _toggle=True
 
+      if self.chkMode_loft:
+        _behavior="Christmass"
+      else:
+        _behavior="Default"
+
       url="http://192.168.1.11:8888/light/Loft"
       data={"action": "update",
             "toggle": _toggle,
+            "behavior": _behavior,
             "led-count": self._loftLedCount,
             "brightness": _brightness,
             "color": {
@@ -119,9 +126,15 @@ class LedstripsApp(MDApp):
       else:
         _toggle=True
 
+      if self.chkMode_bedroom:
+        _behavior="Christmass"
+      else:
+        _behavior="Default"
+
       url="http://192.168.1.10:8888/light/Bedroom"
       data={"action": "update",
             "toggle": _toggle,
+            "behavior": _behavior,
             "led-count": self._bedroomLedCount,
             "brightness": _brightness,
             "color": {
@@ -162,9 +175,15 @@ class LedstripsApp(MDApp):
       else:
         _toggle=True
 
+      if self.chkMode_bureau:
+        _behavior="Christmass"
+      else:
+        _behavior="Default"
+
       url="http://192.168.1.12:8888/light/Bureau"
       data={"action": "update",
             "toggle": _toggle,
+            "behavior": _behavior,
             "led-count": self._bureauLedCount,
             "brightness": _brightness,
             "color": {
@@ -245,6 +264,11 @@ class LedstripsApp(MDApp):
       pos_hint = {"center_x": 0.5, "center_y": _loft_pos},
       on_press = self.loft
     ))
+    self.chkMode_loft = MDCheckbox(
+      active=False,
+      pos_hint={"center_x": 0.80, "center_y": _loft_pos}
+    )
+    screen.add_widget(self.chkMode_loft)
     self.sliderRed_loft = MDSlider(
       min=0,
       max=255,
@@ -328,6 +352,11 @@ class LedstripsApp(MDApp):
       pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos},
       on_press = self.bedroom
     ))
+    self.chkMode_bedroom = MDCheckbox(
+      active=False,
+      pos_hint={"center_x": 0.80, "center_y": _bedroom_pos}
+    )
+    screen.add_widget(self.chkMode_bedroom)
     self.sliderRed_bedroom = MDSlider(
       min=0,
       max=255,
@@ -433,6 +462,11 @@ class LedstripsApp(MDApp):
       pos_hint = {"center_x": 0.5, "center_y": _bureau_pos},
       on_press = self.bureau
     ))
+    self.chkMode_bureau = MDCheckbox(
+      active=False,
+      pos_hint={"center_x": 0.80, "center_y": _loft_pos}
+    )
+    screen.add_widget(self.chkMode_bureau)
     self.sliderRed_bureau = MDSlider(
       min=0,
       max=255,
