@@ -266,7 +266,9 @@ class LedstripsApp(MDApp):
     ))
     self.chkMode_loft = MDCheckbox(
       active=False,
-      pos_hint={"center_x": 0.80, "center_y": _loft_pos}
+      pos_hint={"center_x": 0.80, "center_y": _loft_pos},
+      size_hint_x=0.10,
+      size_hint_y=0.10
     )
     screen.add_widget(self.chkMode_loft)
     self.sliderRed_loft = MDSlider(
@@ -354,7 +356,9 @@ class LedstripsApp(MDApp):
     ))
     self.chkMode_bedroom = MDCheckbox(
       active=False,
-      pos_hint={"center_x": 0.80, "center_y": _bedroom_pos}
+      pos_hint={"center_x": 0.80, "center_y": _bedroom_pos},
+      size_hint_x=0.10,
+      size_hint_y=0.10
     )
     screen.add_widget(self.chkMode_bedroom)
     self.sliderRed_bedroom = MDSlider(
@@ -464,7 +468,9 @@ class LedstripsApp(MDApp):
     ))
     self.chkMode_bureau = MDCheckbox(
       active=False,
-      pos_hint={"center_x": 0.80, "center_y": _bureau_pos}
+      pos_hint={"center_x": 0.80, "center_y": _bureau_pos},
+      size_hint_x=0.10,
+      size_hint_y=0.10
     )
     screen.add_widget(self.chkMode_bureau)
     self.sliderRed_bureau = MDSlider(
