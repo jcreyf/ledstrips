@@ -9,8 +9,8 @@
 # and suffering from quite a significant voltage drop)                                                      #
 # Light switch 2 connected to pin 18 (GPIO 24) and pin 17 (3v3) to give it power through a 12kOhm resistor  #
 #***********************************************************************************************************#
-from jcreyf_ledstrip import Light, Switch
-from jcreyf_api import RESTserver
+from ledstrip import Light, Switch
+from ledstrip_api import RESTserver
 from time import sleep
 from flask import request
 import yaml
