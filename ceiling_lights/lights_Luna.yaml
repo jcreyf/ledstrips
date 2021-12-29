@@ -5,7 +5,7 @@ apiserver:
 lights:
     - name: Luna
       gpio_pin: 18
-      led_count: 140
+      led_count: 209
       brightness: 255
       behavior_module: Default
       switches:
