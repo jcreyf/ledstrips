@@ -97,10 +97,10 @@ def apiGETLight(path_vars, request) -> str:
   """ Callback function for the GET operation at the '/light/<light_name>' endpoint.
   This returns a JSON object like this example:
   {
-    "self": "http://192.168.1.12:8888/light/Bureau",
+    "self": "http://192.168.1.12:8888/light/Luna",
     "light": {
-      "name": "Bureau",
-      "uri": "http://192.168.1.12:8888/light/Bureau",
+      "name": "Luna",
+      "uri": "http://192.168.1.12:8888/light/Luna",
       "state": false,
       "led-count": 140,
       "color": {
@@ -113,7 +113,7 @@ def apiGETLight(path_vars, request) -> str:
     "switches": [
       {
         "name": "Desk",
-        "uri": "http://192.168.1.12:8888/light/Bureau/switch/Desk",
+        "uri": "http://192.168.1.12:8888/light/Luna/switch/Desk",
         "state": 1
       }
     ]

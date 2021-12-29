@@ -36,12 +36,12 @@ from kivymd.uix.selectioncontrol import MDCheckbox
 
 class LedstripsApp(MDApp):
   _version = "v0.1.6"
-  _bureauStatus=False
-  _bureauLedCount=0
-  _bureauRed=0
-  _bureauGreen=0
-  _bureauBlue=0
-  _bureauBrightness=1
+  _LunaStatus=False
+  _LunaLedCount=0
+  _LunaRed=0
+  _LunaGreen=0
+  _LunaBlue=0
+  _LunaBrightness=1
 
   _bedroomStatus=False
   _bedroomLedCount=0
@@ -77,7 +77,7 @@ class LedstripsApp(MDApp):
       else:
         _toggle=True
 
-      if self.chkMode_loft:
+      if self.chkMode_loft.active:
         _behavior="Christmass"
       else:
         _behavior="Default"
@@ -126,7 +126,7 @@ class LedstripsApp(MDApp):
       else:
         _toggle=True
 
-      if self.chkMode_bedroom:
+      if self.chkMode_bedroom.active:
         _behavior="Christmass"
       else:
         _behavior="Default"
@@ -159,32 +159,32 @@ class LedstripsApp(MDApp):
       self.text_log.text = str(e)
 
 
-  def bureau(self, args):
+  def Luna(self, args):
     self.text_log.text = ""
     try:
       # Determine if we should toggle the light on/off or simply update its values:
-      _red = int(self.sliderRed_bureau.value)
-      _green = int(self.sliderGreen_bureau.value)
-      _blue = int(self.sliderBlue_bureau.value)
-      _brightness = int(self.sliderBrightness_bureau.value)
-      if self._bureauRed != _red or \
-         self._bureauGreen != _green or \
-         self._bureauBlue != _blue or \
-         self._bureauBrightness != _brightness:
+      _red = int(self.sliderRed_Luna.value)
+      _green = int(self.sliderGreen_Luna.value)
+      _blue = int(self.sliderBlue_Luna.value)
+      _brightness = int(self.sliderBrightness_Luna.value)
+      if self._LunaRed != _red or \
+         self._LunaGreen != _green or \
+         self._LunaBlue != _blue or \
+         self._LunaBrightness != _brightness:
            _toggle=False
       else:
         _toggle=True
 
-      if self.chkMode_bureau:
+      if self.chkMode_Luna.active:
         _behavior="Christmass"
       else:
         _behavior="Default"
 
-      url="http://192.168.1.12:8888/light/Bureau"
+      url="http://192.168.1.12:8888/light/Luna"
       data={"action": "update",
             "toggle": _toggle,
             "behavior": _behavior,
-            "led-count": self._bureauLedCount,
+            "led-count": self._LunaLedCount,
             "brightness": _brightness,
             "color": {
               "red": _red,
@@ -200,10 +200,10 @@ class LedstripsApp(MDApp):
       contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
       # Update the locally saved values:
-      self._bureauRed=_red
-      self._bureauGreen=_green
-      self._bureauBlue=_blue
-      self._bureauBrightness=_brightness
+      self._LunaRed=_red
+      self._LunaGreen=_green
+      self._LunaBlue=_blue
+      self._LunaBrightness=_brightness
     except Exception as e:
       self.text_log.text = str(e)
 
@@ -247,7 +247,7 @@ class LedstripsApp(MDApp):
       res=req.read()
       contents = json.loads(res.decode("utf-8"))
 #      self.text_log.text = str(contents)
-      print(contents)
+#      print(contents)
       self._loftStatus=contents["light"]["state"]
       self._loftLedCount=contents["light"]["led-count"]
       self._loftBrightness=contents["light"]["brightness"]
@@ -420,14 +420,14 @@ class LedstripsApp(MDApp):
 
 
     #
-    # Button Bureau:
+    # Button Luna:
     #
     # Get the status of the ledstrip:
     # {
-    #    "self": "http://192.168.1.12:8888/light/Bureau",
+    #    "self": "http://192.168.1.12:8888/light/Luna",
     #    "light": {
-    #      "name": "Bureau",
-    #      "uri": "http://192.168.1.12:8888/light/Bureau",
+    #      "name": "Luna",
+    #      "uri": "http://192.168.1.12:8888/light/Luna",
     #      "state": false,
     #      "led-count": 140,
     #      "color": {
@@ -440,95 +440,95 @@ class LedstripsApp(MDApp):
     #    "switches": [
     #      {
     #        "name": "Desk",
-    #        "uri": "http://192.168.1.12:8888/light/Bureau/switch/Desk",
+    #        "uri": "http://192.168.1.12:8888/light/Luna/switch/Desk",
     #        "state": 1
     #      }
     #    ]
     #  }
     try:
-      req=urllib.request.urlopen("http://192.168.1.12:8888/light/Bureau")
+      req=urllib.request.urlopen("http://192.168.1.12:8888/light/Luna")
       res=req.read()
       contents = json.loads(res.decode("utf-8"))
 #      self.text_log.text = str(contents)
-      self._bureauStatus=contents["light"]["state"]
-      self._bureauLedCount=contents["light"]["led-count"]
-      self._bureauBrightness=contents["light"]["brightness"]
-      self._bureauRed=contents["light"]["color"]["red"]
-      self._bureauGreen=contents["light"]["color"]["green"]
-      self._bureauBlue=contents["light"]["color"]["blue"]
+      self._LunaStatus=contents["light"]["state"]
+      self._LunaLedCount=contents["light"]["led-count"]
+      self._LunaBrightness=contents["light"]["brightness"]
+      self._LunaRed=contents["light"]["color"]["red"]
+      self._LunaGreen=contents["light"]["color"]["green"]
+      self._LunaBlue=contents["light"]["color"]["blue"]
     except Exception as e:
       self.text_log.text = str(e)
 
-    _bureau_pos=0.30
+    _Luna_pos=0.30
     screen.add_widget(MDFillRoundFlatButton(
-      text="Bureau",
+      text="Luna",
       font_size = 24,
-      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos},
-      on_press = self.bureau
+      pos_hint = {"center_x": 0.5, "center_y": _Luna_pos},
+      on_press = self.Luna
     ))
-    self.chkMode_bureau = MDCheckbox(
+    self.chkMode_Luna = MDCheckbox(
       active=False,
-      pos_hint={"center_x": 0.80, "center_y": _bureau_pos},
+      pos_hint={"center_x": 0.80, "center_y": _Luna_pos},
       size_hint_x=0.10,
       size_hint_y=0.10
     )
-    screen.add_widget(self.chkMode_bureau)
-    self.sliderRed_bureau = MDSlider(
+    screen.add_widget(self.chkMode_Luna)
+    self.sliderRed_Luna = MDSlider(
       min=0,
       max=255,
-      value=self._bureauRed,
+      value=self._LunaRed,
       color='red',
       hint=True,
       hint_radius=4,
       hint_bg_color='red',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos-0.07},
+      pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.07},
       size_hint_x=0.9,
       size_hint_y=0.05
     )
-    screen.add_widget(self.sliderRed_bureau)
-    self.sliderGreen_bureau = MDSlider(
+    screen.add_widget(self.sliderRed_Luna)
+    self.sliderGreen_Luna = MDSlider(
       min=0,
       max=255,
-      value=self._bureauGreen,
+      value=self._LunaGreen,
       color='green',
       hint=True,
       hint_radius=4,
       hint_bg_color='green',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos-0.10},
+      pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.10},
       size_hint_x=0.9,
       size_hint_y=0.05
     )
-    screen.add_widget(self.sliderGreen_bureau)
-    self.sliderBlue_bureau = MDSlider(
+    screen.add_widget(self.sliderGreen_Luna)
+    self.sliderBlue_Luna = MDSlider(
       min=0,
       max=255,
-      value=self._bureauBlue,
+      value=self._LunaBlue,
       color='blue',
       hint=True,
       hint_radius=4,
       hint_bg_color='blue',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos-0.13},
+      pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.13},
       size_hint_x=0.9,
       size_hint_y=0.05
     )
-    screen.add_widget(self.sliderBlue_bureau)
-    self.sliderBrightness_bureau = MDSlider(
+    screen.add_widget(self.sliderBlue_Luna)
+    self.sliderBrightness_Luna = MDSlider(
       min=1,
       max=255,
-      value=self._bureauBrightness,
+      value=self._LunaBrightness,
       color='black',
       hint=True,
       hint_radius=4,
       hint_bg_color='black',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": _bureau_pos-0.16},
+      pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.16},
       size_hint_x=0.9,
       size_hint_y=0.05
     )
-    screen.add_widget(self.sliderBrightness_bureau)
+    screen.add_widget(self.sliderBrightness_Luna)
 
 
     # Setting it in stone:

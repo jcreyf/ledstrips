@@ -1,0 +1,14 @@
+---
+apiserver:
+    name: LunaAPI
+    port: 8888
+lights:
+    - name: Luna
+      gpio_pin: 18
+      led_count: 140
+      brightness: 255
+      behavior_module: Default
+      switches:
+        - name: Desk
+          gpio_pin: 24
+
