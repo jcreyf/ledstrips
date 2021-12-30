@@ -202,16 +202,9 @@ class ChristmassModule(BehaviorModule):
     """ Constructor """
     super().__init__(name="Christmass", ledSettings=ledSettings)
     self.log(f"ledSettings: {ledSettings}", debug=True)
+    self._delayMilliseconds=100
+    self._thread=None
     # Define colors which will be used by the module.
-    # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
-#    self._DOT_COLORS=[Color(32,  0,  0,  0),   # red
-#                      Color(32, 16,  0,  0),   # orange
-#                      Color(32, 32,  0,  0),   # yellow
-#                      Color( 0, 32,  0,  0),   # green
-#                      Color( 0, 32, 32,  0),   # lightblue
-#                      Color( 0,  0, 32,  0),   # blue
-#                      Color(16,  0, 16,  0),   # purple
-#                      Color(32,  0, 16,  0)]   # pink
     self._DOT_COLORS=[Color(128,   0,   0,  0),   # red
                       Color(128,  64,   0,  0),   # orange
                       Color(128, 128,   0,  0),   # yellow
@@ -220,11 +213,11 @@ class ChristmassModule(BehaviorModule):
                       Color(  0,   0, 128,  0),   # blue
                       Color( 64,   0,  64,  0),   # purple
                       Color(128,   0,  64,  0)]   # pink
-    # Create a ws2811_t structure from the LED configuration.
-    # Note that this structure will be created on the heap so you need to be careful
-    # that you delete its memory by calling delete_ws2811_t when it's not needed.
-    self._delayMilliseconds=100
-    self._thread=None
+# ToDo: regenerate these colors when the brightness setting got changed.
+#       turn the color values into a fraction of the brightness setting [0..255]
+#       x = _ledSettings["ledBrightness"]
+#       y = _ledSettings["ledBrightness"] / 2
+#       z = _ledSettings["ledBrightness"] / 4
 
   def run(self):
     self.log("starting the behavior in its own thread...", debug=True)
