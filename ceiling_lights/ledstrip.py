@@ -33,6 +33,7 @@ class Light:
       "redRGB": 1,                         # RGB Red color value;
       "greenRGB": 1,                       # RGB Green color value;
       "blueRGB": 1,                        # RGB Blue color value;
+      "whiteRGB": 1,                       # Value for the extra white led on SK6812 led strips;
       "ledBrightness": 255,                # Set to 0 for darkest and 255 for brightest;
       "ledFrequency": 800000,              # LED signal frequency in hertz (usually 800khz);
       "ledDmaChannel": 10,                 # DMA channel to use for generating signal (try 10);
@@ -103,6 +104,17 @@ class Light:
     """ Set the blue RGB color value of LEDs to use on this light strip. """
     if not ((value >= 0) and (value <= 255)): raise Exception("The blue RGB value needs to be between 0 and 255!")
     self._ledSettings["blueRGB"]=value
+
+  @property
+  def whiteRGB(self) -> int:
+    """ Return the current white RGB color value for the light strip. """
+    return self._ledSettings["whiteRGB"]
+  
+  @whiteRGB.setter
+  def whiteRGB(self, value: int):
+    """ Set the white RGB color value of LEDs to use on this light strip. """
+    if not ((value >= 0) and (value <= 255)): raise Exception("The white RGB value needs to be between 0 and 255!")
+    self._ledSettings["whiteRGB"]=value
 
   @property
   def ledBrightness(self) -> int:

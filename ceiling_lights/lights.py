@@ -106,7 +106,8 @@ def apiGETLight(path_vars, request) -> str:
       "color": {
         "red": 1,
         "green": 1,
-        "blue": 1
+        "blue": 1,
+        "white": 1
       },
       "brightness": 255
     },
@@ -146,7 +147,8 @@ def apiGETLight(path_vars, request) -> str:
                            "color": {
                              "red": light.redRGB,
                              "green": light.greenRGB,
-                             "blue": light.blueRGB
+                             "blue": light.blueRGB,
+                             "white": light.whiteRGB
                            },
                            "brightness": light.ledBrightness
                           }
@@ -178,7 +180,8 @@ def apiPOSTLight(path_vars, request) -> str:
 	  "color": {
       "red": 125,
       "green": 54,
-      "blue": 34
+      "blue": 34,
+      "white": 128
     }
   }
   """
@@ -202,6 +205,7 @@ def apiPOSTLight(path_vars, request) -> str:
   _redRGB=request.json.get("color").get("red")
   _greenRGB=request.json.get("color").get("green")
   _blueRGB=request.json.get("color").get("blue")
+#  _whiteRGB=request.json.get("color").get("white")
   _behaviorModuleName=request.json.get("behavior")
   _ledCount=request.json.get("led-count")
   _returnValue={}
@@ -223,6 +227,7 @@ def apiPOSTLight(path_vars, request) -> str:
     light.redRGB=_redRGB
     light.greenRGB=_greenRGB
     light.blueRGB=_blueRGB
+#    light.whiteRGB=_whiteRGB
     light.behaviorModuleName=_behaviorModuleName
     if _toggle:
       # The user requests to toggle the light on or off:
@@ -524,12 +529,14 @@ if __name__ == '__main__':
               _red=light.redRGB
               _green=light.greenRGB
               _blue=light.blueRGB
+              _white=light.whiteRGB
               _brightness=light.ledBrightness
               # Change the settings to standard on/off, white with full brightness:
               light.behaviorModuleName="Default"
               light.redRGB=255
               light.greenRGB=255
               light.blueRGB=255
+              light.whiteRGB=255
               light.ledBrightness=255
               # Turn the light on:
               light.On()
@@ -538,6 +545,7 @@ if __name__ == '__main__':
               light.redRGB=_red
               light.greenRGB=_green
               light.blueRGB=_blue
+              light.whiteRGB=_white
               light.ledBrightness=_brightness
 
   except KeyboardInterrupt:
