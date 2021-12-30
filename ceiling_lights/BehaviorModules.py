@@ -212,14 +212,22 @@ class ChristmassModule(BehaviorModule):
 #                      0x000020,   # blue
 #                      0x100010,   # purple
 #                      0x200010]   # pink
-    self._DOT_COLORS=[Color(32,  0,  0,  0),   # red
-                      Color(32, 16,  0,  0),   # orange
-                      Color(32, 32,  0,  0),   # yellow
-                      Color( 0, 32,  0,  0),   # green
-                      Color( 0, 32, 32,  0),   # lightblue
-                      Color( 0,  0, 32,  0),   # blue
-                      Color(16,  0, 16,  0),   # purple
-                      Color(32,  0, 16,  0)]   # pink
+#    self._DOT_COLORS=[Color(32,  0,  0,  0),   # red
+#                      Color(32, 16,  0,  0),   # orange
+#                      Color(32, 32,  0,  0),   # yellow
+#                      Color( 0, 32,  0,  0),   # green
+#                      Color( 0, 32, 32,  0),   # lightblue
+#                      Color( 0,  0, 32,  0),   # blue
+#                      Color(16,  0, 16,  0),   # purple
+#                      Color(32,  0, 16,  0)]   # pink
+    self._DOT_COLORS=[Color(255,   0,   0,  0),   # red
+                      Color(255, 128,   0,  0),   # orange
+                      Color(255, 255,   0,  0),   # yellow
+                      Color(  0, 255,   0,  0),   # green
+                      Color(  0, 255, 255,  0),   # lightblue
+                      Color(  0,   0, 255,  0),   # blue
+                      Color(128,   0, 128,  0),   # purple
+                      Color(255,   0, 128,  0)]   # pink
     # Create a ws2811_t structure from the LED configuration.
     # Note that this structure will be created on the heap so you need to be careful
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
