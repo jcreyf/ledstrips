@@ -228,18 +228,17 @@ def apiPOSTLight(path_vars, request) -> str:
     light.greenRGB=_greenRGB
     light.blueRGB=_blueRGB
 #    light.whiteRGB=_whiteRGB
-    light.behaviorModuleName=_behaviorModuleName
-#    if light.behaviorModuleName == _behaviorModuleName:
-      # Do not toggle the leds if the behavior is changing!
-    if _toggle:
-      # The user requests to toggle the light on or off:
-      light.Toggle()
+    if light.behaviorModuleName != _behaviorModuleName:
+      # The behavior is changing.  Swap them out:
+      light.behaviorModuleName=_behaviorModuleName
     else:
-      # The user changed values and we need to update the leds:
-      light.Update()
-#    else:
-#      # Swap out behaviors:
-#      light.behaviorModuleName=_behaviorModuleName
+      # Do not toggle the leds if the behavior is changing!
+      if _toggle:
+        # The user requests to toggle the light on or off:
+        light.Toggle()
+      else:
+        # The user changed values and we need to update the leds:
+        light.Update()
     # Generate the HTML to return to the client:
     html=f"<h1>POST - Updated light {light.name} - {light.state}</h1><br>"
     html+=f"<a href='/light/{light.name}'>{light.name}</a>"
