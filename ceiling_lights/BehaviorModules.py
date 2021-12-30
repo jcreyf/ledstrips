@@ -173,11 +173,15 @@ class DefaultModule(BehaviorModule):
                   red=self._ledSettings["redRGB"], \
                   blue=self._ledSettings["blueRGB"], \
                   white=self._ledSettings["ledBrightness"])
+      # Update the brightness of the leds:
+      self._ledSettings["strip"].setBrightness(self._ledSettings["ledBrightness"])
       self.log("turn leds on", debug=True)
     else:
       # Turn the leds off.
       # The color setting of each led needs to be set to 0:
       color=Color(0, 0, 0, 0)
+      # Update the brightness of the leds:
+      self._ledSettings["strip"].setBrightness(0)
       self.log("turn leds off", debug=True)
     # Loop and apply the color setting to all leds on the strip:
     for i in range(self._ledSettings["strip"].numPixels()):
@@ -247,8 +251,7 @@ class ChristmassModule(BehaviorModule):
         # Increase offset to animate colors moving.  Will eventually overflow, which is fine.
         offset += 1
       # Update the brightness of the leds:
-#      self._ledSettings["strip"].setBrightness(self._ledSettings["ledBrightness"])
-      self._ledSettings["strip"].setBrightness(255)
+      self._ledSettings["strip"].setBrightness(self._ledSettings["ledBrightness"])
       # Force the ledstrip to show the applied changes:
       self._ledSettings["strip"].show()
       # Optionally slow down the loop:

@@ -169,7 +169,12 @@ class Light:
     # Do not change anything if the same behavior is selected.
     if self._behaviorModuleName != value:
       self.log(f"Behavior Module changing from '{self._behaviorModuleName}' to '{value}'", debug=True)
-      # The behavior is changing.  Remove the current behavior.
+      # The behavior is changing.  Turn off the leds (if they're on) using the current behavior:
+      if self.state:
+        _ledsWereOn=True
+        self.Off()
+      else:
+        _ledsWereOn=False
       # Probably not necessary to explicitly remove it, but we're dealing with hardware and need
       # to make sure the object's finalizer is called and all hardware resources are released:
       self._behaviorModule=None
@@ -181,6 +186,9 @@ class Light:
         self._behaviorModule=BehaviorModules.DefaultModule(self._ledSettings)
       self._behaviorModule.debug=self._debug
       self._behaviorModuleName=self._behaviorModule.name
+      # Turn the leds on again (if they were on) using the new behavior:
+      if _ledsWereOn:
+        self.On()
 
   @property
   def switches(self) -> list:
