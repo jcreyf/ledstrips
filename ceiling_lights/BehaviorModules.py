@@ -212,18 +212,18 @@ class ChristmassModule(BehaviorModule):
 #                      Color( 0,  0, 32,  0),   # blue
 #                      Color(16,  0, 16,  0),   # purple
 #                      Color(32,  0, 16,  0)]   # pink
-    self._DOT_COLORS=[Color(255,   0,   0,  255),   # red
-                      Color(255, 128,   0,  255),   # orange
-                      Color(255, 255,   0,  255),   # yellow
-                      Color(  0, 255,   0,  255),   # green
-                      Color(  0, 255, 255,  255),   # lightblue
-                      Color(  0,   0, 255,  255),   # blue
-                      Color(128,   0, 128,  255),   # purple
-                      Color(255,   0, 128,  255)]   # pink
+    self._DOT_COLORS=[Color(128,   0,   0,  0),   # red
+                      Color(128,  64,   0,  0),   # orange
+                      Color(128, 128,   0,  0),   # yellow
+                      Color(  0, 128,   0,  0),   # green
+                      Color(  0, 128, 128,  0),   # lightblue
+                      Color(  0,   0, 128,  0),   # blue
+                      Color( 64,   0,  64,  0),   # purple
+                      Color(128,   0,  64,  0)]   # pink
     # Create a ws2811_t structure from the LED configuration.
     # Note that this structure will be created on the heap so you need to be careful
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
-    self._delayMilliseconds=75
+    self._delayMilliseconds=100
     self._thread=None
 
   def run(self):
