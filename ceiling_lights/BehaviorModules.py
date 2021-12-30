@@ -204,14 +204,6 @@ class ChristmassModule(BehaviorModule):
     self.log(f"ledSettings: {ledSettings}", debug=True)
     # Define colors which will be used by the module.
     # Each color is an unsigned 32-bit value where the lower 24 bits define the red, green, blue data (each being 8 bits long).
-#    self._DOT_COLORS=[0x200000,   # red
-#                      0x201000,   # orange
-#                      0x202000,   # yellow
-#                      0x002000,   # green
-#                      0x002020,   # lightblue
-#                      0x000020,   # blue
-#                      0x100010,   # purple
-#                      0x200010]   # pink
 #    self._DOT_COLORS=[Color(32,  0,  0,  0),   # red
 #                      Color(32, 16,  0,  0),   # orange
 #                      Color(32, 32,  0,  0),   # yellow
@@ -220,14 +212,14 @@ class ChristmassModule(BehaviorModule):
 #                      Color( 0,  0, 32,  0),   # blue
 #                      Color(16,  0, 16,  0),   # purple
 #                      Color(32,  0, 16,  0)]   # pink
-    self._DOT_COLORS=[Color(255,   0,   0,  0),   # red
-                      Color(255, 128,   0,  0),   # orange
-                      Color(255, 255,   0,  0),   # yellow
-                      Color(  0, 255,   0,  0),   # green
-                      Color(  0, 255, 255,  0),   # lightblue
-                      Color(  0,   0, 255,  0),   # blue
-                      Color(128,   0, 128,  0),   # purple
-                      Color(255,   0, 128,  0)]   # pink
+    self._DOT_COLORS=[Color(255,   0,   0,  255),   # red
+                      Color(255, 128,   0,  255),   # orange
+                      Color(255, 255,   0,  255),   # yellow
+                      Color(  0, 255,   0,  255),   # green
+                      Color(  0, 255, 255,  255),   # lightblue
+                      Color(  0,   0, 255,  255),   # blue
+                      Color(128,   0, 128,  255),   # purple
+                      Color(255,   0, 128,  255)]   # pink
     # Create a ws2811_t structure from the LED configuration.
     # Note that this structure will be created on the heap so you need to be careful
     # that you delete its memory by calling delete_ws2811_t when it's not needed.
