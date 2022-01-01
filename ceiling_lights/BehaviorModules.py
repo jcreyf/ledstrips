@@ -224,8 +224,20 @@ class ChristmassModule(BehaviorModule):
 #                      Color(red=64,  green=0,   blue=64,  white=0),   # purple
 #                      Color(red=128, green=0,   blue=64,  white=0)]   # pink
     self._DOT_COLORS=[Color(red=255, green=0,   blue=0,   white=0),
+                      Color(red=160, green=0,  blue=0,   white=0),
+                      Color(red=128, green=0,  blue=0,   white=0),
+                      Color(red=64, green=0,  blue=0,   white=0),
+                      Color(red=32, green=0,  blue=0,   white=0),
                       Color(red=0, green=255,  blue=0,   white=0),
-                      Color(red=0, green=0, blue=255,   white=0)]
+                      Color(red=0, green=160,  blue=0,   white=0),
+                      Color(red=0, green=128,  blue=0,   white=0),
+                      Color(red=0, green=64,  blue=0,   white=0),
+                      Color(red=0, green=32,  blue=0,   white=0),
+                      Color(red=0, green=0, blue=255,   white=0),
+                      Color(red=0, green=0, blue=160,   white=0),
+                      Color(red=0, green=0, blue=128,   white=0),
+                      Color(red=0, green=0, blue=64,   white=0),
+                      Color(red=0, green=0, blue=32,   white=0)]
 
   def run(self):
     self.log("starting the behavior in its own thread...", debug=True)
