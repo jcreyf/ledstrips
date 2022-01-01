@@ -13,6 +13,7 @@ This module requires these modules:
 import threading
 import sys
 from rpi_ws281x import Color, PixelStrip, ws
+from random import randint
 from time import sleep
 
 
@@ -331,25 +332,27 @@ class FluidModule(BehaviorModule):
     while self._ledSettings["lightState"]:
       # Update each LED color in the buffer:
       for i in range(self._ledSettings["ledCount"]):
-        if isRed:
-          red+=1
-          if red>255:
-            red=0
-            isRed=False
-            isGreen=True
-        elif isGreen:
-          green+=1
-          if green>255:
-            green=0
-            isGreen=False
-            isBlue=True
-        elif isBlue:
-          blue+=1
-          if blue>255:
-            blue=0
-            isBlue=False
-            isRed=True
-
+#        if isRed:
+#          red+=1
+#          if red>255:
+#            red=0
+#            isRed=False
+#            isGreen=True
+#        elif isGreen:
+#          green+=1
+#          if green>255:
+#            green=0
+#            isGreen=False
+#            isBlue=True
+#        elif isBlue:
+#          blue+=1
+#          if blue>255:
+#            blue=0
+#            isBlue=False
+#            isRed=True
+        red=randint(1, 255)
+        green=randint(1, 255)
+        blue=randint(1, 255)
         color=Color(red=red, green=green, blue=blue, white=0)
         self._ledSettings["strip"].setPixelColor(i, color)
         self._ledSettings["strip"].show()
