@@ -215,29 +215,14 @@ class ChristmassModule(BehaviorModule):
     self._delayMilliseconds=100
     self._thread=None
     # Define colors which will be used by the module.
-#    self._DOT_COLORS=[Color(red=128, green=0,   blue=0,   white=0),   # red
-#                      Color(red=128, green=64,  blue=0,   white=0),   # orange
-#                      Color(red=128, green=128, blue=0,   white=0),   # yellow
-#                      Color(red=0,   green=128, blue=0,   white=0),   # green
-#                      Color(red=0,   green=128, blue=128, white=0),   # lightblue
-#                      Color(red=0,   green=0,   blue=128, white=0),   # blue
-#                      Color(red=64,  green=0,   blue=64,  white=0),   # purple
-#                      Color(red=128, green=0,   blue=64,  white=0)]   # pink
-    self._DOT_COLORS=[Color(red=255, green=0,   blue=0,   white=0),
-                      Color(red=160, green=0,  blue=0,   white=0),
-                      Color(red=128, green=0,  blue=0,   white=0),
-                      Color(red=64, green=0,  blue=0,   white=0),
-                      Color(red=32, green=0,  blue=0,   white=0),
-                      Color(red=0, green=255,  blue=0,   white=0),
-                      Color(red=0, green=160,  blue=0,   white=0),
-                      Color(red=0, green=128,  blue=0,   white=0),
-                      Color(red=0, green=64,  blue=0,   white=0),
-                      Color(red=0, green=32,  blue=0,   white=0),
-                      Color(red=0, green=0, blue=255,   white=0),
-                      Color(red=0, green=0, blue=160,   white=0),
-                      Color(red=0, green=0, blue=128,   white=0),
-                      Color(red=0, green=0, blue=64,   white=0),
-                      Color(red=0, green=0, blue=32,   white=0)]
+    self._DOT_COLORS=[Color(red=128, green=0,   blue=0,   white=0),   # red
+                      Color(red=128, green=64,  blue=0,   white=0),   # orange
+                      Color(red=128, green=128, blue=0,   white=0),   # yellow
+                      Color(red=0,   green=128, blue=0,   white=0),   # green
+                      Color(red=0,   green=128, blue=128, white=0),   # lightblue
+                      Color(red=0,   green=0,   blue=128, white=0),   # blue
+                      Color(red=64,  green=0,   blue=64,  white=0),   # purple
+                      Color(red=128, green=0,   blue=64,  white=0)]   # pink
 
   def run(self):
     self.log("starting the behavior in its own thread...", debug=True)
@@ -275,6 +260,107 @@ class ChristmassModule(BehaviorModule):
          sleep(self._delayMilliseconds / 1000)
     # The loop ended.
     self.log("ending Christmass thread...", debug=True)
+    # Turn the leds off.
+    # The color setting of each led needs to be set to 0:
+    self.log("turn leds off", debug=True)
+    color=Color(0, 0, 0, 0)
+    for i in range(self._ledSettings["ledCount"]):
+      self._ledSettings["strip"].setPixelColor(i, color)
+    # Force the ledstrip to show the applied changes:
+    self._ledSettings["strip"].show()
+
+  def On(self):
+    self.log("turning the leds on...")
+    # The thread will loop for as long as the 'lightState' is true:
+    self._ledSettings["lightState"]=True
+    # Start the thread if not running yet:
+    if self._thread == None:
+      self.log("Creating a new thread", debug=True)
+      self._thread=threading.Thread(target=self.run)
+      self._thread.start()
+    else:
+      if not self._thread.isAlive():
+        self.log("Need to start the thread", debug=True)
+        self._thread=None
+        self._thread=threading.Thread(target=self.run)
+        self._thread.start()
+
+  def Off(self):
+    self.log("turning the leds off...")
+    self._ledSettings["lightState"]=False
+
+
+#
+#----------------------------------
+#
+class FluidModule(BehaviorModule):
+  """
+  Behavior Module to implement Fluid color changing light effect functionality.
+  """
+  def __init__(self, ledSettings: dict):
+    """ Constructor """
+    super().__init__(name="Fluid", ledSettings=ledSettings)
+    self.log(f"ledSettings: {ledSettings}", debug=True)
+    self._delayMilliseconds=100
+    self._thread=None
+
+  def run(self):
+    self.log("starting the behavior in its own thread...", debug=True)
+    offset=0
+    # Initialize the ledstrip if that's not done yet:
+    if self._ledSettings["strip"] == None:
+      # PixelStrip.__init__(self, num, pin, freq_hz=800000, dma=10, invert=False, brightness=255, \
+      #                           channel=0, strip_type=None, gamma=None):
+      self._ledSettings["strip"]=PixelStrip(num=self._ledSettings["ledCount"], \
+                  pin=self._ledSettings["stripGpioPin"], \
+                  freq_hz=self._ledSettings["ledFrequency"], \
+                  dma=self._ledSettings["ledDmaChannel"], \
+                  invert=self._ledSettings["ledInvert"], \
+                  brightness=self._ledSettings["ledBrightness"], \
+                  channel=self._ledSettings["ledChannel"], \
+                  strip_type=self._stripType)
+      # Initialize the library (must be called once before other functions):
+      self._ledSettings["strip"].begin()
+    red=0
+    green=0
+    blue=0
+    isRed=True
+    isGreen=False
+    isBlue=False
+    # Keep looping in the thread until the user switches off the lights:
+    while self._ledSettings["lightState"]:
+      # Update each LED color in the buffer:
+      for i in range(self._ledSettings["ledCount"]):
+        if isRed:
+          red+=5
+          if red>255:
+            red=0
+            isRed=False
+            isGreen=True
+        elif isGreen:
+          green+=5
+          if green>255:
+            green=0
+            isGreen=False
+            isBlue=True
+        elif isBlue:
+          blue+=5
+          if blue>255:
+            blue=0
+            isBlue=False
+            isRed=True
+
+        color=Color(red=red, green=green, blue=blue, white=0)
+        self._ledSettings["strip"].setPixelColor(i, color)
+      # Update the brightness of the leds:
+      self._ledSettings["strip"].setBrightness(self._ledSettings["ledBrightness"])
+      # Force the ledstrip to show the applied changes:
+      self._ledSettings["strip"].show()
+      # Optionally slow down the loop:
+      if self._delayMilliseconds > 0:
+         sleep(self._delayMilliseconds / 1000)
+    # The loop ended.
+    self.log("ending Fluid thread...", debug=True)
     # Turn the leds off.
     # The color setting of each led needs to be set to 0:
     self.log("turn leds off", debug=True)

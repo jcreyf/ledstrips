@@ -180,7 +180,10 @@ class Light:
       self._behaviorModule=None
       # Now set the new behavior:
       if value == "Christmass":
-        self._behaviorModule=BehaviorModules.ChristmassModule(self._ledSettings)
+        self._behaviorModule=BehaviorModules.FluidModule(self._ledSettings)
+#        self._behaviorModule=BehaviorModules.ChristmassModule(self._ledSettings)
+      elif value == "Fluid":
+        self._behaviorModule=BehaviorModules.FluidModule(self._ledSettings)
       else:
         # Set the default On/Off behavior:
         self._behaviorModule=BehaviorModules.DefaultModule(self._ledSettings)
