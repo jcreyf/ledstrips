@@ -301,7 +301,7 @@ class FluidModule(BehaviorModule):
     """ Constructor """
     super().__init__(name="Fluid", ledSettings=ledSettings)
     self.log(f"ledSettings: {ledSettings}", debug=True)
-    self._delayMilliseconds=100
+    self._delayMilliseconds=500
     self._thread=None
 
   def run(self):
@@ -332,19 +332,19 @@ class FluidModule(BehaviorModule):
       # Update each LED color in the buffer:
       for i in range(self._ledSettings["ledCount"]):
         if isRed:
-          red+=5
+          red+=1
           if red>255:
             red=0
             isRed=False
             isGreen=True
         elif isGreen:
-          green+=5
+          green+=1
           if green>255:
             green=0
             isGreen=False
             isBlue=True
         elif isBlue:
-          blue+=5
+          blue+=1
           if blue>255:
             blue=0
             isBlue=False
