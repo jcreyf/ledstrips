@@ -39,12 +39,13 @@ from kivymd.uix.selectioncontrol import MDCheckbox
 
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.6"
+  _version = "v0.1.7"
   _LunaStatus=False
   _LunaLedCount=0
   _LunaRed=0
   _LunaGreen=0
   _LunaBlue=0
+  _LunaWhite=0
   _LunaBrightness=1
 
   _bedroomStatus=False
@@ -52,6 +53,7 @@ class LedstripsApp(MDApp):
   _bedroomRed=0
   _bedroomGreen=0
   _bedroomBlue=0
+  _bedroomWhite=0
   _bedroomBrightness=1
 
   _loftStatus=False
@@ -59,6 +61,7 @@ class LedstripsApp(MDApp):
   _loftRed=0
   _loftGreen=0
   _loftBlue=0
+  _loftWhite=0
   _loftBrightness=1
 
   def exit(self):
@@ -72,10 +75,12 @@ class LedstripsApp(MDApp):
       _red = int(self.sliderRed_loft.value)
       _green = int(self.sliderGreen_loft.value)
       _blue = int(self.sliderBlue_loft.value)
+      _white = int(self.sliderWhite_loft.value)
       _brightness = int(self.sliderBrightness_loft.value)
       if self._loftRed != _red or \
          self._loftGreen != _green or \
          self._loftBlue != _blue or \
+         self._loftWhite != _white or \
          self._loftBrightness != _brightness:
            _toggle=False
       else:
@@ -95,7 +100,8 @@ class LedstripsApp(MDApp):
             "color": {
               "red": _red,
               "green": _green,
-              "blue": _blue
+              "blue": _blue,
+              "white": _white
             }
       }
 #      print(data)
@@ -109,6 +115,7 @@ class LedstripsApp(MDApp):
       self._loftRed=_red
       self._loftGreen=_green
       self._loftBlue=_blue
+      self._loftWhite=_white
       self._loftBrightness=_brightness
     except Exception as e:
       self.text_log.text = str(e)
@@ -121,10 +128,12 @@ class LedstripsApp(MDApp):
       _red = int(self.sliderRed_bedroom.value)
       _green = int(self.sliderGreen_bedroom.value)
       _blue = int(self.sliderBlue_bedroom.value)
+      _white = int(self.sliderWhite_bedroom.value)
       _brightness = int(self.sliderBrightness_bedroom.value)
       if self._bedroomRed != _red or \
          self._bedroomGreen != _green or \
          self._bedroomBlue != _blue or \
+         self._bedroomWhite != _white or \
          self._bedroomBrightness != _brightness:
            _toggle=False
       else:
@@ -144,7 +153,8 @@ class LedstripsApp(MDApp):
             "color": {
               "red": _red,
               "green": _green,
-              "blue": _blue
+              "blue": _blue,
+              "white": _white
             }
       }
 #      print(data)
@@ -158,6 +168,7 @@ class LedstripsApp(MDApp):
       self._bedroomRed=_red
       self._bedroomGreen=_green
       self._bedroomBlue=_blue
+      self._bedroomWhite=_white
       self._bedroomBrightness=_brightness
     except Exception as e:
       self.text_log.text = str(e)
@@ -170,10 +181,12 @@ class LedstripsApp(MDApp):
       _red = int(self.sliderRed_Luna.value)
       _green = int(self.sliderGreen_Luna.value)
       _blue = int(self.sliderBlue_Luna.value)
+      _white = int(self.sliderWhite_Luna.value)
       _brightness = int(self.sliderBrightness_Luna.value)
       if self._LunaRed != _red or \
          self._LunaGreen != _green or \
          self._LunaBlue != _blue or \
+         self._LunaWhite != _white or \
          self._LunaBrightness != _brightness:
            _toggle=False
       else:
@@ -193,7 +206,8 @@ class LedstripsApp(MDApp):
             "color": {
               "red": _red,
               "green": _green,
-              "blue": _blue
+              "blue": _blue,
+              "white": _white
             }
       }
 #      print(data)
@@ -207,13 +221,16 @@ class LedstripsApp(MDApp):
       self._LunaRed=_red
       self._LunaGreen=_green
       self._LunaBlue=_blue
+      self._LunaWhite=_white
       self._LunaBrightness=_brightness
     except Exception as e:
       self.text_log.text = str(e)
 
 
   def build(self):
-    screen = MDScreen()
+    screen = MDScreen(
+      md_bg_color=MDApp.get_running_app().theme_cls.primary_color
+    )
     # Top toolbar:
     self.toolbar = MDToolbar(
       title="Ledstrips",
@@ -235,7 +252,7 @@ class LedstripsApp(MDApp):
     # Log line:
     self.text_log = MDLabel(
       font_size = 18,
-      pos_hint = {"center_x": 0.5, "center_y": 0.10},
+      pos_hint = {"center_x": 0.5, "center_y": 0.08},
       halign = "center",
       theme_text_color = "Error"
     )
@@ -258,6 +275,7 @@ class LedstripsApp(MDApp):
       self._loftRed=contents["light"]["color"]["red"]
       self._loftGreen=contents["light"]["color"]["green"]
       self._loftBlue=contents["light"]["color"]["blue"]
+      self._loftWhite=contents["light"]["color"]["white"]
     except Exception as e:
       self.text_log.text = str(e)
 
@@ -286,7 +304,7 @@ class LedstripsApp(MDApp):
       hint_text_color='black',
       pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.07},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderRed_loft)
     self.sliderGreen_loft = MDSlider(
@@ -300,7 +318,7 @@ class LedstripsApp(MDApp):
       hint_text_color='black',
       pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.10},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderGreen_loft)
     self.sliderBlue_loft = MDSlider(
@@ -314,9 +332,23 @@ class LedstripsApp(MDApp):
       hint_text_color='black',
       pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.13},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderBlue_loft)
+    self.sliderWhite_loft = MDSlider(
+      min=0,
+      max=255,
+      value=self._loftWhite,
+      color='white',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='white',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.16},
+      size_hint_x=0.9,
+      size_hint_y=0.04
+    )
+    screen.add_widget(self.sliderWhite_loft)
     self.sliderBrightness_loft = MDSlider(
       min=1,
       max=255,
@@ -326,9 +358,9 @@ class LedstripsApp(MDApp):
       hint_radius=4,
       hint_bg_color='black',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.16},
+      pos_hint = {"center_x": 0.5, "center_y": _loft_pos-0.19},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderBrightness_loft)
 
@@ -348,6 +380,7 @@ class LedstripsApp(MDApp):
       self._bedroomRed=contents["light"]["color"]["red"]
       self._bedroomGreen=contents["light"]["color"]["green"]
       self._bedroomBlue=contents["light"]["color"]["blue"]
+      self._bedroomBlue=contents["light"]["color"]["white"]
     except Exception as e:
       self.text_log.text = str(e)
 
@@ -376,7 +409,7 @@ class LedstripsApp(MDApp):
       hint_text_color='black',
       pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.07},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderRed_bedroom)
     self.sliderGreen_bedroom = MDSlider(
@@ -390,7 +423,7 @@ class LedstripsApp(MDApp):
       hint_text_color='black',
       pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.10},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderGreen_bedroom)
     self.sliderBlue_bedroom = MDSlider(
@@ -404,9 +437,23 @@ class LedstripsApp(MDApp):
       hint_text_color='black',
       pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.13},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderBlue_bedroom)
+    self.sliderWhite_bedroom = MDSlider(
+      min=0,
+      max=255,
+      value=self._bedroomWhite,
+      color='white',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='white',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.16},
+      size_hint_x=0.9,
+      size_hint_y=0.04
+    )
+    screen.add_widget(self.sliderWhite_bedroom)
     self.sliderBrightness_bedroom = MDSlider(
       min=1,
       max=255,
@@ -416,9 +463,9 @@ class LedstripsApp(MDApp):
       hint_radius=4,
       hint_bg_color='black',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.16},
+      pos_hint = {"center_x": 0.5, "center_y": _bedroom_pos-0.19},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderBrightness_bedroom)
 
@@ -437,7 +484,8 @@ class LedstripsApp(MDApp):
     #      "color": {
     #        "red": 1,
     #        "green": 1,
-    #        "blue": 1
+    #        "blue": 1,
+    #        "white": 1
     #      },
     #      "brightness": 255
     #    },
@@ -460,6 +508,7 @@ class LedstripsApp(MDApp):
       self._LunaRed=contents["light"]["color"]["red"]
       self._LunaGreen=contents["light"]["color"]["green"]
       self._LunaBlue=contents["light"]["color"]["blue"]
+      self._LunaBlue=contents["light"]["color"]["white"]
     except Exception as e:
       self.text_log.text = str(e)
 
@@ -488,7 +537,7 @@ class LedstripsApp(MDApp):
       hint_text_color='black',
       pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.07},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderRed_Luna)
     self.sliderGreen_Luna = MDSlider(
@@ -502,7 +551,7 @@ class LedstripsApp(MDApp):
       hint_text_color='black',
       pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.10},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderGreen_Luna)
     self.sliderBlue_Luna = MDSlider(
@@ -516,9 +565,23 @@ class LedstripsApp(MDApp):
       hint_text_color='black',
       pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.13},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderBlue_Luna)
+    self.sliderWhite_Luna = MDSlider(
+      min=0,
+      max=255,
+      value=self._LunaWhite,
+      color='white',
+      hint=True,
+      hint_radius=4,
+      hint_bg_color='white',
+      hint_text_color='black',
+      pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.16},
+      size_hint_x=0.9,
+      size_hint_y=0.04
+    )
+    screen.add_widget(self.sliderWhite_Luna)
     self.sliderBrightness_Luna = MDSlider(
       min=1,
       max=255,
@@ -528,9 +591,9 @@ class LedstripsApp(MDApp):
       hint_radius=4,
       hint_bg_color='black',
       hint_text_color='black',
-      pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.16},
+      pos_hint = {"center_x": 0.5, "center_y": _Luna_pos-0.19},
       size_hint_x=0.9,
-      size_hint_y=0.05
+      size_hint_y=0.04
     )
     screen.add_widget(self.sliderBrightness_Luna)
 
