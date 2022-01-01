@@ -215,19 +215,17 @@ class ChristmassModule(BehaviorModule):
     self._delayMilliseconds=100
     self._thread=None
     # Define colors which will be used by the module.
-    self._DOT_COLORS=[Color(red=128, green=0,   blue=0,   white=0),   # red
-                      Color(red=128, green=64,  blue=0,   white=0),   # orange
-                      Color(red=128, green=128, blue=0,   white=0),   # yellow
-                      Color(red=0,   green=128, blue=0,   white=0),   # green
-                      Color(red=0,   green=128, blue=128, white=0),   # lightblue
-                      Color(red=0,   green=0,   blue=128, white=0),   # blue
-                      Color(red=64,  green=0,   blue=64,  white=0),   # purple
-                      Color(red=128, green=0,   blue=64,  white=0)]   # pink
-# ToDo: regenerate these colors when the brightness setting got changed.
-#       turn the color values into a fraction of the brightness setting [0..255]
-#       x = _ledSettings["ledBrightness"]
-#       y = _ledSettings["ledBrightness"] / 2
-#       z = _ledSettings["ledBrightness"] / 4
+#    self._DOT_COLORS=[Color(red=128, green=0,   blue=0,   white=0),   # red
+#                      Color(red=128, green=64,  blue=0,   white=0),   # orange
+#                      Color(red=128, green=128, blue=0,   white=0),   # yellow
+#                      Color(red=0,   green=128, blue=0,   white=0),   # green
+#                      Color(red=0,   green=128, blue=128, white=0),   # lightblue
+#                      Color(red=0,   green=0,   blue=128, white=0),   # blue
+#                      Color(red=64,  green=0,   blue=64,  white=0),   # purple
+#                      Color(red=128, green=0,   blue=64,  white=0)]   # pink
+    self._DOT_COLORS=[Color(red=128, green=0,   blue=0,   white=0),
+                      Color(red=0, green=128,  blue=0,   white=0),
+                      Color(red=0, green=0, blue=128,   white=0)]
 
   def run(self):
     self.log("starting the behavior in its own thread...", debug=True)
