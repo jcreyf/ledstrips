@@ -301,7 +301,7 @@ class FluidModule(BehaviorModule):
     """ Constructor """
     super().__init__(name="Fluid", ledSettings=ledSettings)
     self.log(f"ledSettings: {ledSettings}", debug=True)
-    self._delayMilliseconds=500
+    self._delayMilliseconds=100
     self._thread=None
 
   def run(self):
@@ -352,10 +352,11 @@ class FluidModule(BehaviorModule):
 
         color=Color(red=red, green=green, blue=blue, white=0)
         self._ledSettings["strip"].setPixelColor(i, color)
+        self._ledSettings["strip"].show()
       # Update the brightness of the leds:
       self._ledSettings["strip"].setBrightness(self._ledSettings["ledBrightness"])
       # Force the ledstrip to show the applied changes:
-      self._ledSettings["strip"].show()
+#      self._ledSettings["strip"].show()
       # Optionally slow down the loop:
       if self._delayMilliseconds > 0:
          sleep(self._delayMilliseconds / 1000)
