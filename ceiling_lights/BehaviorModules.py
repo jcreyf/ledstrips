@@ -302,7 +302,7 @@ class FluidModule(BehaviorModule):
     """ Constructor """
     super().__init__(name="Fluid", ledSettings=ledSettings)
     self.log(f"ledSettings: {ledSettings}", debug=True)
-    self._delayMilliseconds=0
+    self._delayMilliseconds=100
     self._thread=None
 
   def run(self):
