@@ -168,9 +168,6 @@ class DefaultModule(BehaviorModule):
     if state:
       # Turn the leds on.
       # Generate the color setting for each led:
-# ToDo: Color(red, green, blue, white=0) -> so 'ledBrightness' is in fact just the intensity of the separate white led on the SK6812 strip!
-#      color=Color(green=self._ledSettings["greenRGB"], \
-#                  red=self._ledSettings["redRGB"], \
       color=Color(red=self._ledSettings["greenRGB"], \
                   green=self._ledSettings["redRGB"], \
                   blue=self._ledSettings["blueRGB"], \

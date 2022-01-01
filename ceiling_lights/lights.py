@@ -205,7 +205,7 @@ def apiPOSTLight(path_vars, request) -> str:
   _redRGB=request.json.get("color").get("red")
   _greenRGB=request.json.get("color").get("green")
   _blueRGB=request.json.get("color").get("blue")
-#  _whiteRGB=request.json.get("color").get("white")
+  _whiteRGB=request.json.get("color").get("white")
   _behaviorModuleName=request.json.get("behavior")
   _ledCount=request.json.get("led-count")
   _returnValue={}
@@ -227,8 +227,7 @@ def apiPOSTLight(path_vars, request) -> str:
     light.redRGB=_redRGB
     light.greenRGB=_greenRGB
     light.blueRGB=_blueRGB
-#    light.whiteRGB=_whiteRGB
-    light.whiteRGB=_brightness
+    light.whiteRGB=_whiteRGB
 #    if light.behaviorModuleName != _behaviorModuleName:
 #      # The behavior is changing.  Swap them out:
 #      light.behaviorModuleName=_behaviorModuleName
