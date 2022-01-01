@@ -49,8 +49,15 @@ class BehaviorModule():
     self._name=name
     self._debug=True
     self._ledSettings=ledSettings
-    # The type of the LED strip (just RGB or does it also include a White LED);
-    self._stripType=ws.SK6812_STRIP_RGBW
+    # The type of the LED strip (just RGB or does it also include a White LED):
+    #       SK6812_STRIP_RGBW
+    #       SK6812_STRIP_RBGW
+    #       SK6812_STRIP_GBRW
+    #       SK6812_STRIP_GRBW
+    #       SK6812_STRIP_BRGW
+    #       SK6812_STRIP_BGRW
+#    self._stripType=ws.SK6812_STRIP_RGBW
+    self._stripType=ws.SK6812_STRIP_GRBW
     self.log("Constructor")
     self.log(f"ledSettings: {ledSettings}", debug=True)
 
@@ -168,8 +175,8 @@ class DefaultModule(BehaviorModule):
     if state:
       # Turn the leds on.
       # Generate the color setting for each led:
-      color=Color(red=self._ledSettings["greenRGB"], \
-                  green=self._ledSettings["redRGB"], \
+      color=Color(red=self._ledSettings["redRGB"], \
+                  green=self._ledSettings["greenRGB"], \
                   blue=self._ledSettings["blueRGB"], \
                   white=self._ledSettings["whiteRGB"])
       # Update the brightness of the leds:
@@ -208,14 +215,14 @@ class ChristmassModule(BehaviorModule):
     self._delayMilliseconds=100
     self._thread=None
     # Define colors which will be used by the module.
-    self._DOT_COLORS=[Color(128,   0,   0,  0),   # red
-                      Color(128,  64,   0,  0),   # orange
-                      Color(128, 128,   0,  0),   # yellow
-                      Color(  0, 128,   0,  0),   # green
-                      Color(  0, 128, 128,  0),   # lightblue
-                      Color(  0,   0, 128,  0),   # blue
-                      Color( 64,   0,  64,  0),   # purple
-                      Color(128,   0,  64,  0)]   # pink
+    self._DOT_COLORS=[Color(red=128, green=0,   blue=0,   white=0),   # red
+                      Color(red=128, green=64,  blue=0,   white=0),   # orange
+                      Color(red=128, green=128, blue=0,   white=0),   # yellow
+                      Color(red=0,   green=128, blue=0,   white=0),   # green
+                      Color(red=0,   green=128, blue=128, white=0),   # lightblue
+                      Color(red=0,   green=0,   blue=128, white=0),   # blue
+                      Color(red=64,  green=0,   blue=64,  white=0),   # purple
+                      Color(red=128, green=0,   blue=64,  white=0)]   # pink
 # ToDo: regenerate these colors when the brightness setting got changed.
 #       turn the color values into a fraction of the brightness setting [0..255]
 #       x = _ledSettings["ledBrightness"]
