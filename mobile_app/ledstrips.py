@@ -2,6 +2,15 @@
 #       - turn each light into a light instance so we don't duplicate all the code
 #       - 
 
+# 20220119 - Kivy and KivyMD seem to have issues running in Python 3.10
+#            run: /> python3.9 ledstrips.py
+
+#
+# Kivy installation:
+#   Make sure to have OpenGL and its headers installed (needed to build the Kivy wheel on your machine).
+#     (Fedora 35 package names: libglvnd-opengl, libglvnd-devel)
+#     (Kivy installation was failing on my Fedora machine after upgrade to v35, which apparently removed the OpenGL development files)
+#   /> pip install kivy
 #
 # KivyMD docs:
 #   https://kivymd.readthedocs.io/en/latest/
@@ -87,7 +96,7 @@ class LedstripsApp(MDApp):
       else:
         _behavior="Default"
 
-      url="http://192.168.1.11:8888/light/Loft"
+      url="http://192.168.5.11:8888/light/Loft"
       data={"action": "update",
             "toggle": _toggle,
             "behavior": _behavior,
@@ -140,7 +149,7 @@ class LedstripsApp(MDApp):
       else:
         _behavior="Default"
 
-      url="http://192.168.1.10:8888/light/Bedroom"
+      url="http://192.168.5.10:8888/light/Bedroom"
       data={"action": "update",
             "toggle": _toggle,
             "behavior": _behavior,
@@ -193,7 +202,7 @@ class LedstripsApp(MDApp):
       else:
         _behavior="Default"
 
-      url="http://192.168.1.12:8888/light/Luna"
+      url="http://192.168.5.12:8888/light/Luna"
       data={"action": "update",
             "toggle": _toggle,
             "behavior": _behavior,
