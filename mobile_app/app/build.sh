@@ -15,5 +15,5 @@ buildozer android debug deploy run
 if [ $? -eq 0 ] ; then
   echo "Build successful"
   ls -la ./bin/
-  scp ./bin/ledstrips*.apk 192.168.1.250:/tmp/
+  scp ./bin/ledstrips*.apk 192.168.5.7:/tmp/
 fi

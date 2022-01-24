@@ -6,6 +6,15 @@
 #       - turn each light into a light instance so we don't duplicate all the code
 #       - 
 
+# 20220119 - Kivy and KivyMD seem to have issues running in Python 3.10
+#            run: /> python3.9 ledstrips.py
+
+#
+# Kivy installation:
+#   Make sure to have OpenGL and its headers installed (needed to build the Kivy wheel on your machine).
+#     (Fedora 35 package names: libglvnd-opengl, libglvnd-devel)
+#     (Kivy installation was failing on my Fedora machine after upgrade to v35, which apparently removed the OpenGL development files)
+#   /> pip install kivy
 #
 # KivyMD docs:
 #   https://kivymd.readthedocs.io/en/latest/
@@ -39,7 +48,9 @@ from kivymd.uix.selectioncontrol import MDCheckbox
 
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.7"
+  _version = "v0.1.8"
+
+  _LunaURL="http://192.168.1.12:8888/light/Luna"
   _LunaStatus=False
   _LunaLedCount=0
   _LunaRed=0
@@ -48,6 +59,7 @@ class LedstripsApp(MDApp):
   _LunaWhite=0
   _LunaBrightness=1
 
+  _bedroomURL="http://192.168.5.10:8888/light/Bedroom"
   _bedroomStatus=False
   _bedroomLedCount=0
   _bedroomRed=0
@@ -56,6 +68,7 @@ class LedstripsApp(MDApp):
   _bedroomWhite=0
   _bedroomBrightness=1
 
+  _loftURL="http://192.168.5.11:8888/light/Loft"
   _loftStatus=False
   _loftLedCount=0
   _loftRed=0
@@ -91,7 +104,6 @@ class LedstripsApp(MDApp):
       else:
         _behavior="Default"
 
-      url="http://192.168.1.11:8888/light/Loft"
       data={"action": "update",
             "toggle": _toggle,
             "behavior": _behavior,
@@ -107,7 +119,7 @@ class LedstripsApp(MDApp):
 #      print(data)
       data=json.dumps(data)
       data=data.encode('utf-8')
-      req=urllib.request.Request(url, data=data)
+      req=urllib.request.Request(self._loftURL, data=data)
       req.add_header("Content-Type", "application/json")
       contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
@@ -144,7 +156,6 @@ class LedstripsApp(MDApp):
       else:
         _behavior="Default"
 
-      url="http://192.168.1.10:8888/light/Bedroom"
       data={"action": "update",
             "toggle": _toggle,
             "behavior": _behavior,
@@ -160,7 +171,7 @@ class LedstripsApp(MDApp):
 #      print(data)
       data=json.dumps(data)
       data=data.encode('utf-8')
-      req=urllib.request.Request(url, data=data)
+      req=urllib.request.Request(self._bedroomURL, data=data)
       req.add_header("Content-Type", "application/json")
       contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
@@ -197,7 +208,6 @@ class LedstripsApp(MDApp):
       else:
         _behavior="Default"
 
-      url="http://192.168.1.12:8888/light/Luna"
       data={"action": "update",
             "toggle": _toggle,
             "behavior": _behavior,
@@ -213,7 +223,7 @@ class LedstripsApp(MDApp):
 #      print(data)
       data=json.dumps(data)
       data=data.encode('utf-8')
-      req=urllib.request.Request(url, data=data)
+      req=urllib.request.Request(self._LunaURL, data=data)
       req.add_header("Content-Type", "application/json")
       contents = urllib.request.urlopen(req).read()
       self.text_log.text = str(contents)
@@ -264,7 +274,7 @@ class LedstripsApp(MDApp):
     #
     # Get the status of the ledstrip:
     try:
-      req=urllib.request.urlopen("http://192.168.1.11:8888/light/Loft")
+      req=urllib.request.urlopen(self._loftURL)
       res=req.read()
       contents = json.loads(res.decode("utf-8"))
 #      self.text_log.text = str(contents)
@@ -370,7 +380,7 @@ class LedstripsApp(MDApp):
     #
     # Get the status of the ledstrip:
     try:
-      req=urllib.request.urlopen("http://192.168.1.10:8888/light/Bedroom")
+      req=urllib.request.urlopen(self._bedroomURL)
       res=req.read()
       contents = json.loads(res.decode("utf-8"))
 #      self.text_log.text = str(contents)
@@ -498,7 +508,7 @@ class LedstripsApp(MDApp):
     #    ]
     #  }
     try:
-      req=urllib.request.urlopen("http://192.168.1.12:8888/light/Luna")
+      req=urllib.request.urlopen(self._LunaURL)
       res=req.read()
       contents = json.loads(res.decode("utf-8"))
 #      self.text_log.text = str(contents)
