@@ -36,12 +36,22 @@ from kivymd.uix.toolbar import MDToolbar
 from kivymd.uix.button import MDFillRoundFlatIconButton, MDFillRoundFlatButton
 from kivymd.uix.label import MDLabel
 from kivymd.uix.slider import MDSlider
-from kivymd.uix.selectioncontrol import MDCheckbox
+from kivymd.uix.selectioncontrol import MDCheckbox, MDSwitch
 
 # Not implemented yet in KivyMD (v0.104.2)
 # Will be implemented in KivyMD v1.0.0
 #from kivymd.uix.picker import MDColorPicker
-
+#
+# To update:
+#   /> pip show kivymd
+#        Version: 0.104.2
+#   /> pip install kivymd -U
+#
+#   /> conda list kivymd
+#        packages in environment at /home/jcreyf/anaconda3/envs/ledstrips:
+#          Name                    Version                   Build  Channel
+#          kivymd                    0.104.1            pyhd8ed1ab_0    conda-forge
+#   /> conda update kivymd
 
 class LedstripsApp(MDApp):
   _version = "v0.1.8"
@@ -118,6 +128,7 @@ class LedstripsApp(MDApp):
       req=urllib.request.Request(self._loftURL, data=data)
       req.add_header("Content-Type", "application/json")
       contents = urllib.request.urlopen(req).read()
+      print(contents)
       self.text_log.text = str(contents)
       # Update the locally saved values:
       self._loftRed=_red
@@ -125,6 +136,9 @@ class LedstripsApp(MDApp):
       self._loftBlue=_blue
       self._loftWhite=_white
       self._loftBrightness=_brightness
+      # Update the switch in the GUI:
+      self._loftStatus=not self._loftStatus
+      self.switchStatus_loft.active=self._loftStatus
     except Exception as e:
       self.text_log.text = str(e)
 
@@ -274,7 +288,7 @@ class LedstripsApp(MDApp):
       res=req.read()
       contents = json.loads(res.decode("utf-8"))
 #      self.text_log.text = str(contents)
-#      print(contents)
+      print(contents)
       self._loftStatus=contents["light"]["state"]
       self._loftLedCount=contents["light"]["led-count"]
       self._loftBrightness=contents["light"]["brightness"]
@@ -286,6 +300,14 @@ class LedstripsApp(MDApp):
       self.text_log.text = str(e)
 
     _loft_pos=0.80
+    self.switchStatus_loft = MDSwitch(
+      active=self._loftStatus,
+      pos_hint={"center_x": 0.15, "center_y": _loft_pos},
+      size_hint_x=0.10,
+      size_hint_y=0.10,
+      on_release = self.loft
+    )
+    screen.add_widget(self.switchStatus_loft)
     screen.add_widget(MDFillRoundFlatButton(
       text="Loft",
       font_size = 24,
@@ -391,6 +413,14 @@ class LedstripsApp(MDApp):
       self.text_log.text = str(e)
 
     _bedroom_pos=0.55
+    self.switchStatus_bedroom = MDSwitch(
+      active=self._bedroomStatus,
+      pos_hint={"center_x": 0.15, "center_y": _bedroom_pos},
+      size_hint_x=0.10,
+      size_hint_y=0.10,
+      on_release = self.bedroom
+    )
+    screen.add_widget(self.switchStatus_bedroom)
     screen.add_widget(MDFillRoundFlatButton(
       text="Bedroom",
       font_size = 24,
@@ -519,6 +549,14 @@ class LedstripsApp(MDApp):
       self.text_log.text = str(e)
 
     _Luna_pos=0.30
+    self.switchStatus_Luna = MDSwitch(
+      active=self._LunaStatus,
+      pos_hint={"center_x": 0.15, "center_y": _Luna_pos},
+      size_hint_x=0.10,
+      size_hint_y=0.10,
+      on_release = self.Luna
+    )
+    screen.add_widget(self.switchStatus_Luna)
     screen.add_widget(MDFillRoundFlatButton(
       text="Luna",
       font_size = 24,

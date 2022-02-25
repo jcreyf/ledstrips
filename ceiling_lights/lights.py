@@ -249,6 +249,19 @@ def apiPOSTLight(path_vars, request) -> str:
     # Generate the HTML to return to the client:
     html=f"<h1>POST - Updated light {light.name} - {light.state}</h1><br>"
     html+=f"<a href='/light/{light.name}'>{light.name}</a>"
+    # Generate the return value with the updated status of the ledstrip:
+    _returnValue["light"]={"name": light.name,
+                           "uri": request.host_url+f"light/{light.name}",
+                           "state": light.state,
+                           "led-count": light.ledCount,
+                           "color": {
+                             "red": light.redRGB,
+                             "green": light.greenRGB,
+                             "blue": light.blueRGB,
+                             "white": light.whiteRGB
+                           },
+                           "brightness": light.ledBrightness
+                          }
   else:
     # We can't find this light!  Oops...
     _errors=[]
