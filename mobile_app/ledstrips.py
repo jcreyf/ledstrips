@@ -54,9 +54,9 @@ from kivymd.uix.selectioncontrol import MDCheckbox, MDSwitch
 #   /> conda update kivymd
 
 class LedstripsApp(MDApp):
-  _version = "v0.1.8"
+  _version = "v0.1.9"
 
-  _LunaURL="http://192.168.1.12:8888/light/Luna"
+  _LunaURL="http://192.168.5.12:8888/light/Luna"
   _LunaStatus=False
   _LunaLedCount=0
   _LunaRed=0
@@ -511,10 +511,10 @@ class LedstripsApp(MDApp):
     #
     # Get the status of the ledstrip:
     # {
-    #    "self": "http://192.168.1.12:8888/light/Luna",
+    #    "self": "http://192.168.5.12:8888/light/Luna",
     #    "light": {
     #      "name": "Luna",
-    #      "uri": "http://192.168.1.12:8888/light/Luna",
+    #      "uri": "http://192.168.5.12:8888/light/Luna",
     #      "state": false,
     #      "led-count": 140,
     #      "color": {
@@ -528,7 +528,7 @@ class LedstripsApp(MDApp):
     #    "switches": [
     #      {
     #        "name": "Desk",
-    #        "uri": "http://192.168.1.12:8888/light/Luna/switch/Desk",
+    #        "uri": "http://192.168.5.12:8888/light/Luna/switch/Desk",
     #        "state": 1
     #      }
     #    ]
