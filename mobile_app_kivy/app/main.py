@@ -30,7 +30,7 @@ import urllib.request
 import json
 
 import kivy
-kivy.require('2.0.0')
+kivy.require('2.2.1')
 
 import kivymd
 from kivymd.app import MDApp
