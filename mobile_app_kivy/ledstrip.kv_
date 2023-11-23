@@ -1,0 +1,63 @@
+#:kivy 2.0
+
+# Widget Examples:
+#   https://github.com/kivy/kivy/blob/master/examples/widgets/actionbar.py
+
+
+FloatLayout:
+  id: App_Layout
+  size_hint: 1, 1
+  ActionBar:
+    # https://gist.github.com/dolang/ebc679311f84c85127e53c1418c1d3a9
+    id: App_ActionBar
+    pos_hint: {'top':1}
+    background_color: 195/255, 60/255, 35/255, 1
+    ActionView:
+      use_separator: True
+      ActionPrevious:
+        title: "Ledstrip"
+        app_icon: "light_bulb.jpg"
+        with_previous: False
+#      ActionOverflow:
+      ActionGroup:
+        id: App_ActionGroup
+        mode: "spinner"
+        text: "Menu"
+        ActionButton:
+          text: "Button1"
+        ActionButton:
+          text: "Button2"
+      ActionGroup:
+        id: App_ActionGroup2
+        mode: "spinner"
+        text: "Strips"
+        ActionButton:
+          text: "Loft"
+        ActionButton:
+          text: "Bureau"
+        ActionButton:
+          text: "Bedroom"
+      ActionButton:
+        text: "exit"
+        icon: "exit.png"
+        important: True
+        on_release: app.btnExit()
+
+  Label:
+    id: Name
+    text: "[b][color=ff3333]Bedroom[/color][/b]"
+    markup: True
+    font_size: "40sp"
+    size: self.texture_size
+    size_hint: (.25, .25)
+    pos_hint: {'x':.40, 'y':.75}
+
+  Switch:
+    id: LedSwitch
+    size_hint: (.10, .10)
+    pos_hint: {'x':.40, 'y':.73}
+
+  ColorPicker:
+#  ColorWheel:
+    size_hint: (.60, .80)
+    pos_hint: {'x':.05, 'y':.05}
