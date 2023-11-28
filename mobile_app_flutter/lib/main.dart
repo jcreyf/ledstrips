@@ -4,6 +4,10 @@
   Material: https://api.flutter.dev/flutter/material/Scaffold-class.html
 
   flutter build apk --release
+
+  ToDo:
+  - change app icon;
+  - change app splashscreen;
  */
 import 'package:mobile_app_flutter/ledstrip.dart';
 import 'package:mobile_app_flutter/ledstrip_widget.dart';
@@ -80,43 +84,43 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // https://github.com/mchome/flutter_colorpicker/blob/master/example/lib/main.dart
     return DefaultTabController(
-        length: 3,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(widget.title),
-            foregroundColor: Colors.yellow,
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            bottom: TabBar(
-                tabs: const <Widget>[
-                  Tab(text: 'Loft'),
-                  Tab(text: 'Slaapkamer'),
-                  Tab(text: 'Luna'),
-                ]),
-          ),
-          body: TabBarView(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          foregroundColor: Colors.yellow,
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          bottom: TabBar(
+            tabs: const <Widget>[
+              Tab(text: 'Loft'),
+              Tab(text: 'Slaapkamer'),
+              Tab(text: 'Luna'),
+            ]),
+        ),
+        body: TabBarView(
+          children: <Widget>[
+            LedstripWidget(
+              ledstrip: _loft,
+              logger: logger,
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                LedstripWidget(
-                  ledstrip: _loft,
-                  logger: logger,
+                Text(
+                  'Slaapkamer',
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'Slaapkamer',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                    ]),
-                Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'Luna',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                    ]),
               ]),
-        )
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Luna',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ]),
+          ]),
+      )
     );
   }
 }

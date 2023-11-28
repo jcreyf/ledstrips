@@ -54,6 +54,12 @@ class Ledstrip {
     _metaData?['light']['color']['blue'] = color.blue;
   }
 
+  // Reset the colors to plain white:
+  void reset() {
+    _metaData?['light']['brightness'] = 128;
+    setColor(Color.fromRGBO(255, 255, 255, 1.0));
+  }
+
   // Call the Ledstrip API asynchronously to get metadata:
   Future<void> getMetadata({required Function callback}) async {
     logger?.d('API call to get metadata');
@@ -102,6 +108,7 @@ class Ledstrip {
       callback();
     } else {
       logger?.e("Failed to update ledstrip details");
+      logger?.e(response.body);
       throw Exception("Failed to update ledstrip details");
     }
   }
