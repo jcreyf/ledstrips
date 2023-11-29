@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 // https://pub.dev/packages/flutter_colorpicker
 // /> flutter pub add flutter_colorpicker
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:mobile_app_flutter/main.dart';
 
 class LedstripWidget extends StatefulWidget {
   final Ledstrip? ledstrip;
@@ -37,7 +38,10 @@ class _LedstripWidgetState extends State<LedstripWidget> {
         padding: const EdgeInsets.only(top: 20.0),
         physics: AlwaysScrollableScrollPhysics(),
         child: Container(
-          height: MediaQuery.of(context).size.height,
+          // Only the ledstip widget part of the screen can get pulled down for refresh.
+          // We need to limit the size to: screen height - app bar height - status bar header height
+          // Since the app bar is part of the scaffold, we can query its height through the scaffold:
+          height: MediaQuery.of(context).size.height - (Scaffold.of(context).appBarMaxHeight ?? 0.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -94,7 +98,12 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                         child: Ink(
                           decoration: const ShapeDecoration(
                             color: Colors.green,
-                            shape: CircleBorder(),
+                            shape: CircleBorder(
+                              side: BorderSide(
+                                color: Colors.orange,
+                                width: 2.0,
+                              )
+                            ),
                           ),
                           child: IconButton(
                             onPressed: () {
@@ -109,7 +118,8 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                                   });
                             },
                             icon: const Icon(Icons.save),
-                            color: Colors.white,
+                              color: Colors.white,
+//                            color: MediaQuery.of(context).platformBrightness == Brightness.light ? Colors.white : Colors.black,
                           ),
                         ),
                       ),

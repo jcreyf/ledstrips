@@ -11,12 +11,25 @@
  */
 import 'package:mobile_app_flutter/ledstrip.dart';
 import 'package:mobile_app_flutter/ledstrip_widget.dart';
+import 'package:mobile_app_flutter/themes.dart';
+
 // https://pub.dev/packages/logger
 import 'package:logger/logger.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(const LedstripApp());
+}
+
+class LedstripSettings {
+  static bool systemTheme = true;
+  static bool darkTheme = true;
+}
+class Menu {
+  static const String Theme= 'Theme';
+  static const String Settings = 'Settings';
+  static const String Sync = 'Synchronize';
+  static const List<String> menuItems = <String>["Theme", "Settings", "Synchronize"];
 }
 
 class LedstripApp extends StatelessWidget {
@@ -28,32 +41,31 @@ class LedstripApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: title,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-        useMaterial3: true,
-      ),
-      home: MyHomePage(title: title),
+      home: LedstripsHomePage(title: title),
+      themeMode: LedstripSettings.systemTheme ? ThemeMode.system : (LedstripSettings.darkTheme ? ThemeMode.dark : ThemeMode.light),
+      theme: LedstripThemeClass.lightTheme,
+      darkTheme: LedstripThemeClass.darkTheme,
     );
   }
 }
 
 //-------------
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class LedstripsHomePage extends StatefulWidget {
+  const LedstripsHomePage({super.key, required this.title});
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<LedstripsHomePage> createState() => _LedstripsHomePageState();
 }
 
 // The App's UI
-class _MyHomePageState extends State<MyHomePage> {
+class _LedstripsHomePageState extends State<LedstripsHomePage> {
   final Logger logger = Logger();
   Ledstrip? _loft;
 
   // Constructor:
-  _MyHomePageState() {
+  _LedstripsHomePageState() {
     logger.i("setting up a ledstrip");
     _loft = Ledstrip();
     _loft?.setLogger(logger);
@@ -80,6 +92,18 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void menuAction(String menuItem) {
+    if (menuItem == Menu.Settings) {
+      print('Settings');
+    }
+    else if (menuItem == Menu.Theme) {
+      print('Theme');
+    }
+    else if (menuItem == Menu.Sync) {
+      print('Sync');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // https://github.com/mchome/flutter_colorpicker/blob/master/example/lib/main.dart
@@ -95,7 +119,33 @@ class _MyHomePageState extends State<MyHomePage> {
               Tab(text: 'Loft'),
               Tab(text: 'Slaapkamer'),
               Tab(text: 'Luna'),
-            ]),
+          ]),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.lightbulb),
+              onPressed: () {},
+            ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {},
+          ),
+           PopupMenuButton<String>(
+              onSelected: menuAction,
+              itemBuilder: (BuildContext context) {
+                return Menu.menuItems.map((String menuItem) {
+                  return PopupMenuItem<String>(
+                    value: menuItem,
+                    child: Row(
+                      children: [
+                        Text(menuItem),
+                        Icon(Icons.edit),
+                      ],
+                    ),
+                  );
+                }).toList();
+              },
+            )
+          ],
         ),
         body: TabBarView(
           children: <Widget>[

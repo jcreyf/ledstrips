@@ -56,7 +56,7 @@ class Ledstrip {
 
   // Reset the colors to plain white:
   void reset() {
-    _metaData?['light']['brightness'] = 128;
+    _metaData?['light']['brightness'] = 90;
     setColor(Color.fromRGBO(255, 255, 255, 1.0));
   }
 
