@@ -4,6 +4,7 @@
   Material: https://api.flutter.dev/flutter/material/Scaffold-class.html
 
   flutter build apk --release
+  mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/ledstrips.apk
 
   ToDo:
   - change app icon;
@@ -16,6 +17,9 @@ import 'package:mobile_app_flutter/themes.dart';
 // https://pub.dev/packages/logger
 import 'package:logger/logger.dart';
 import 'package:flutter/material.dart';
+//https://pub.dev/packages/loading_animation_widget
+// flutter pub add loading_animation_widget
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 void main() {
   runApp(const LedstripApp());
@@ -106,6 +110,13 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Show a spinner in the body unless if we have ledstrip data:
+//    logger.i("ledstrip? : " + (_loft?.hasMetadata() ?? false).toString());
+    Widget body =  LoadingAnimationWidget.inkDrop(color: Colors.green, size: 60,);
+    if (_loft?.hasMetadata() ?? true) {
+      body = LedstripWidget(ledstrip: _loft, logger: logger,);
+    }
+
     // https://github.com/mchome/flutter_colorpicker/blob/master/example/lib/main.dart
     return DefaultTabController(
       length: 3,
@@ -149,10 +160,7 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> {
         ),
         body: TabBarView(
           children: <Widget>[
-            LedstripWidget(
-              ledstrip: _loft,
-              logger: logger,
-            ),
+            body,
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[

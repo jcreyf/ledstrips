@@ -23,6 +23,12 @@ class LedstripWidget extends StatefulWidget {
 
 class _LedstripWidgetState extends State<LedstripWidget> {
   @override
+  void initState() {
+    super.initState();
+
+  }
+
+  @override
   Widget build(BuildContext context) {
     widget.logger?.i(widget.ledstrip);
     return RefreshIndicator(

@@ -76,6 +76,14 @@ class Ledstrip {
     }
   }
 
+  // Check to see if we have metadata for the ledstrip.
+  // This is used to check if we have a valid ledstrip.
+  bool hasMetadata() {
+//    logger?.d("metdata? " + _metaData!.toString() ?? "");
+//    logger?.i(_metaData?.isEmpty ?? true);
+    return !(_metaData?.isEmpty ?? false);
+  }
+
   // Call the Ledstrip API asynchronously to update its data:
   Future<void> updateMetadata({bool toggle = true, required Function callback}) async {
     String behavior = "Default";   // "Default" or "Christmass"
