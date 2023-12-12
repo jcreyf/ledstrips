@@ -145,6 +145,14 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> {
           foregroundColor: Colors.yellow,
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           bottom: TabBar(
+            indicatorSize: TabBarIndicatorSize.tab,
+            indicator: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              gradient: LinearGradient(
+                colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+              ),
+            ),
+            unselectedLabelColor: Colors.grey,
             tabs: <Widget>[
               for (var strip in ledstrips)
                 Tab(text: strip?.name() ?? 'N/A'),
