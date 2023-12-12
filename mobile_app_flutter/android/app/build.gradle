@@ -27,6 +27,23 @@ android {
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
+    // Generate the name of the generated APK-file in:
+    //  ../build/app/outputs/apk/release/
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def appName = "ledstrips"
+//            def buildType = variant.variantData.variantConfiguration.buildType.name
+//            def newName
+//            if (buildType == 'debug'){
+//                newName = "app-${variant.getFlavorName()}-debug.apk"
+//            } else {
+//                newName = "${appName}${defaultConfig.versionName}_${variant.getFlavorName()}.apk"
+//            }
+            def newName = "${appName}.apk"
+            outputFileName = newName
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
