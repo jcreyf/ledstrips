@@ -66,15 +66,22 @@ class LedstripsHomePage extends StatefulWidget {
 // The App's UI
 class _LedstripsHomePageState extends State<LedstripsHomePage> {
   final Logger logger = Logger();
-  Ledstrip? _loft;
+  List<Ledstrip?> ledstrips = [];
 
   // Constructor:
   _LedstripsHomePageState() {
     logger.i("setting up a ledstrip");
-    _loft = Ledstrip();
-    _loft?.setLogger(logger);
-    _loft?.setEndpoint("http://192.168.5.11:8888/light/Loft");
-    _loft?.getMetadata(callback: () => updatePage());
+    Ledstrip? strip = Ledstrip();
+    strip?.setLogger(logger);
+    strip?.setEndpoint("http://192.168.5.11:8888/light/Loft");
+    strip?.getMetadata(callback: () => updatePage());
+    ledstrips.add(strip);
+
+    strip = Ledstrip();
+    strip?.setLogger(logger);
+    strip?.setEndpoint("http://192.168.5.12:8888/light/Luna");
+    strip?.getMetadata(callback: () => updatePage());
+    ledstrips.add(strip);
   }
 
   // Method used as callback to async update the UI when new data comes in:
@@ -86,13 +93,14 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> {
 
   // Method to turn the ledstrip on or off:
   void toggleLedstrip(bool flag) {
-    logger.i("Turn the ledstrip $flag");
+    Ledstrip? strip = ledstrips[DefaultTabController.of(context).index];
+    logger.i("Toggle ledstrip ${strip?.name()} $flag");
     // Run the Ledstrip API call asynchronously to toggle the strip:
-    _loft?.updateMetadata(callback: () {
+    strip?.updateMetadata(callback: () {
       // the API call finished and is now executing this callback function.
       // Here we trigger the Ledstrip API call asynchronously to get refreshed metadata
       // ...and its callback function will update the data in the UI.
-      _loft?.getMetadata(callback: () => updatePage());
+      strip?.getMetadata(callback: () => updatePage());
     });
   }
 
@@ -111,25 +119,35 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> {
   @override
   Widget build(BuildContext context) {
     // Show a spinner in the body unless if we have ledstrip data:
-//    logger.i("ledstrip? : " + (_loft?.hasMetadata() ?? false).toString());
-    Widget body =  LoadingAnimationWidget.inkDrop(color: Colors.green, size: 60,);
-    if (_loft?.hasMetadata() ?? true) {
-      body = LedstripWidget(ledstrip: _loft, logger: logger,);
-    }
+    Widget stripUI =  LoadingAnimationWidget.inkDrop(color: Colors.green, size: 60,);
 
-    // https://github.com/mchome/flutter_colorpicker/blob/master/example/lib/main.dart
+    // Use the ledstrip that is set up in the active tab.
+    // There will be no tabs the very first time this code runs.  In that case,
+    // take the 1st element in the ledstrips collection:
+//     int tabNumber = 0;
+//     if (context.findAncestorWidgetOfExactType<DefaultTabController>() != null) {
+//       tabNumber = DefaultTabController.of(context).index;
+//     }
+//     Ledstrip? strip = ledstrips[tabNumber];
+//
+//     // Create the UI for the selected ledstrip (if it has valid data):
+//     if (strip?.hasMetadata() ?? true) {
+//       stripUI = LedstripWidget(ledstrip: strip, logger: logger,);
+//     }
+//     logger.i("${ledstrips.length} ledstrips");
+
+    // Now generate the full UI:
     return DefaultTabController(
-      length: 3,
+      length: ledstrips.length,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
           foregroundColor: Colors.yellow,
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           bottom: TabBar(
-            tabs: const <Widget>[
-              Tab(text: 'Loft'),
-              Tab(text: 'Slaapkamer'),
-              Tab(text: 'Luna'),
+            tabs: <Widget>[
+              for (var strip in ledstrips)
+                Tab(text: strip?.name() ?? 'N/A'),
           ]),
           actions: <Widget>[
             IconButton(
@@ -160,23 +178,8 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> {
         ),
         body: TabBarView(
           children: <Widget>[
-            body,
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'Slaapkamer',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-              ]),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'Luna',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-              ]),
+            for (var strip in ledstrips)
+                LedstripWidget(ledstrip: strip, logger: logger,)
           ]),
       )
     );
