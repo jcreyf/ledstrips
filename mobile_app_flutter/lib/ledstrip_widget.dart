@@ -56,7 +56,8 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                 style: Theme.of(context).textTheme.displayLarge,
               ),
               HueRingPicker(
-                pickerColor: widget.ledstrip?.getColor() ?? const Color.fromRGBO(0, 0, 0, 1.0),
+              // https://github.com/mchome/flutter_colorpicker/blob/master/example/lib/main.dart
+              pickerColor: widget.ledstrip?.getColor() ?? const Color.fromRGBO(0, 0, 0, 1.0),
                 enableAlpha: false,
                 displayThumbColor: true,
                 onColorChanged: (Color color) {
