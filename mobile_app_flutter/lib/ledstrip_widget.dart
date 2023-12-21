@@ -5,7 +5,6 @@ import 'package:logger/logger.dart';
 // https://pub.dev/packages/flutter_colorpicker
 // /> flutter pub add flutter_colorpicker
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:mobile_app_flutter/main.dart';
 
 class LedstripWidget extends StatefulWidget {
   final Ledstrip? ledstrip;
@@ -25,12 +24,13 @@ class _LedstripWidgetState extends State<LedstripWidget> {
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
   Widget build(BuildContext context) {
-    widget.logger?.i(widget.ledstrip);
+//     if (widget.ledstrip == Null) {
+//       return const CircularProgressIndicator();
+//     }
     return RefreshIndicator(
       onRefresh: () async {
         // The page got pulled down.  We need to fetch new data:
@@ -47,12 +47,12 @@ class _LedstripWidgetState extends State<LedstripWidget> {
           // Only the ledstip widget part of the screen can get pulled down for refresh.
           // We need to limit the size to: screen height - app bar height - status bar header height
           // Since the app bar is part of the scaffold, we can query its height through the scaffold:
-          height: MediaQuery.of(context).size.height - (Scaffold.of(context).appBarMaxHeight ?? 0.0),
+          height: MediaQuery.of(context).size.height ?? 0.0 - (Scaffold.of(context).appBarMaxHeight ?? 0.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Text(
-                widget.ledstrip?.name() ?? "None!",
+                widget.ledstrip?.name ?? "None!",
                 style: Theme.of(context).textTheme.displayLarge,
               ),
               HueRingPicker(

@@ -12,21 +12,29 @@ class Ledstrip {
 
   @override
   String toString() {
-    return name();
-  }
-
-  void setEndpoint(String endpoint) {
-    _endpoint=endpoint;
+    return name;
   }
 
   void setLogger(Logger logger) {
     this.logger=logger;
   }
 
-  String name() {
+  String get name {
     // Return the name of the ledstrip.  If we don't have the name, then return the endpoint URL.
     // Return an empty string if we have neither:
     return _metaData?['light']['name'] ?? _endpoint ?? "";
+  }
+  void set name(String value) {
+// ToDo: do validation!
+    _metaData?['light']['name'] = value;
+  }
+
+  String get endpoint {
+    return _endpoint;
+  }
+  void set endpoint(String value) {
+// ToDo: do validation!
+    _endpoint = value;
   }
 
   bool isOn() {
@@ -35,19 +43,23 @@ class Ledstrip {
     return _metaData?['light']['state'] ?? false;
   }
 
+// ToDo: turn into getter/setters!
   int getBrightness() {
-    return _metaData?['light']['brightness'] ?? 0;
+    return _metaData?['light']['brightness'] ?? 1;
   }
+// ToDo: do validation!
   void setBrightness(int value) {
     _metaData?['light']['brightness'] = value;
   }
 
+// ToDo: turn into getter/setters!
   Color getColor() {
-    int r = _metaData?['light']['color']['red'];
-    int g = _metaData?['light']['color']['green'];
-    int b = _metaData?['light']['color']['blue'];
+    int r = _metaData?['light']['color']['red'] ?? 0;
+    int g = _metaData?['light']['color']['green'] ?? 0;
+    int b = _metaData?['light']['color']['blue'] ?? 0;
     return Color.fromRGBO(r, g, b, 1.0);
   }
+// ToDo: do validation!
   void setColor(Color color) {
     _metaData?['light']['color']['red'] = color.red;
     _metaData?['light']['color']['green'] = color.green;

@@ -4,49 +4,56 @@
   Material: https://api.flutter.dev/flutter/material/Scaffold-class.html
 
   flutter build apk --release
-  mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/ledstrips.apk
 
   ToDo:
   - change app icon;
   - change app splashscreen;
  */
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:mobile_app_flutter/themes.dart';
+// Ledstrip stuff:
 import 'package:mobile_app_flutter/ledstrip.dart';
 import 'package:mobile_app_flutter/ledstrip_widget.dart';
-import 'package:mobile_app_flutter/themes.dart';
-
-// https://pub.dev/packages/logger
+import 'package:mobile_app_flutter/ledstrip_settings.dart';
+// Logging stuff:
+//   https://pub.dev/packages/logger
 import 'package:logger/logger.dart';
-import 'package:flutter/material.dart';
-//https://pub.dev/packages/loading_animation_widget
-// flutter pub add loading_animation_widget
+// Wait spinner stuff:
+//   https://pub.dev/packages/loading_animation_widget
+//   /> flutter pub add loading_animation_widget
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+// Used to 'find' widgets dynamically:
+//   https://docs.flutter.dev/cookbook/testing/widget/finders
+import 'package:flutter_test/flutter_test.dart';
 
-void main() {
-  runApp(const LedstripApp());
+Future main() async {
+  // Start the app:
+  runApp(LedstripApp());
 }
 
-class LedstripSettings {
-  static bool systemTheme = true;
-  static bool darkTheme = true;
-}
+//-------------
+
 class Menu {
-  static const String Theme= 'Theme';
-  static const String Settings = 'Settings';
-  static const String Sync = 'Synchronize';
-  static const List<String> menuItems = <String>["Theme", "Settings", "Synchronize"];
+  static const String Theme = 'Theme';
+  static const String EditLedstrip = 'Edit Ledstrip';
+  static const String AddLedstrip = 'Add Ledstrip';
+  static const String DeleteLedstrip = 'Delete Ledstrip';
+  static const List<String> menuItems = <String>[Theme, EditLedstrip, AddLedstrip, DeleteLedstrip];
 }
+
+//-------------
 
 class LedstripApp extends StatelessWidget {
-  const LedstripApp({super.key});
+  LedstripApp({super.key});
   final title = "Ledstrips";
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: title,
       home: LedstripsHomePage(title: title),
-      themeMode: LedstripSettings.systemTheme ? ThemeMode.system : (LedstripSettings.darkTheme ? ThemeMode.dark : ThemeMode.light),
+      themeMode: LedstripSetting.systemTheme ? ThemeMode.system : (LedstripSetting.darkTheme ? ThemeMode.dark : ThemeMode.light),
       theme: LedstripThemeClass.lightTheme,
       darkTheme: LedstripThemeClass.darkTheme,
     );
@@ -63,23 +70,102 @@ class LedstripsHomePage extends StatefulWidget {
   State<LedstripsHomePage> createState() => _LedstripsHomePageState();
 }
 
-// The App's UI
-class _LedstripsHomePageState extends State<LedstripsHomePage> {
-  final Logger logger = Logger();
-  List<Ledstrip?> ledstrips = [];
+//-------------
 
-  // Constructor:
-  _LedstripsHomePageState() {
-    logger.i("setting up a ledstrip");
+// The App's UI
+// We need to implement from 'SingleTickerProviderStateMixin' so that this class can be
+// used as 'vsync' object in the TabController:
+class _LedstripsHomePageState extends State<LedstripsHomePage> with TickerProviderStateMixin {
+  final Logger logger = Logger();
+  final settingsDatabase = SettingsDatabase();
+  late TabController tabController;
+  List<Ledstrip?> ledstrips = [];
+  int currentTab = 0;
+  String statusText = "";
+
+  @override
+  void initState() {
+    super.initState();
+    // This is just for debugging and should be removed at some point:
+    createSettings();
+    loadSettings();
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
+
+  void onTabChange() {
+    if (!tabController.indexIsChanging) {
+      currentTab = tabController.index;
+    }
+  }
+
+  void createSettings() async {
+    // Create a sqlite database if not there yet and store these settings (if not there yet):
+    await settingsDatabase.create(type: "setting", key: "theme", value: "dark");
+    await settingsDatabase.create(type: "setting", key: "default_tab", value: "Luna");
+    await settingsDatabase.create(type: "ledstrip", key: "loft", value: "http://192.168.5.11:8888/light/Loft");
+    await settingsDatabase.create(type: "ledstrip", key: "luna", value: "http://192.168.5.12:8888/light/Luna");
+  }
+
+  void loadSettings() {
+    setState(() {
+      settingsDatabase.fetchAll().then((settings) {
+        for (var setting in settings) {
+          switch(setting.type) {
+            // Process app settings:
+            case "setting":
+              logger.i("Setting: $setting");
+              switch(setting.key) {
+                // Process display theme setting:
+                case "theme":
+                  setTheme(themeName: setting.value);
+                  break;
+                // Process default tab setting:
+                case "default_tab":
+                  LedstripSetting.defaultTab = setting.value;
+                  statusText+="\nSelect tab: ${LedstripSetting.defaultTab}";
+                  break;
+              }
+              break;
+            // Process ledstrip settings:
+            case "ledstrip":
+              addLedstrip(name: setting.key, endpoint: setting.value);
+              break;
+          }
+        }
+      });
+    });
+  }
+
+  void setTheme({required String themeName}) {
+    switch(themeName) {
+      case "system":
+        LedstripSetting.systemTheme = true;
+        LedstripSetting.darkTheme = false;
+        statusText="Theme: system";
+        break;
+      case "dark":
+        LedstripSetting.systemTheme = false;
+        LedstripSetting.darkTheme = true;
+        statusText="Theme: dark";
+        break;
+      case "light":
+        LedstripSetting.systemTheme = false;
+        LedstripSetting.darkTheme = false;
+        statusText="Theme: light";
+        break;
+    }
+  }
+
+  void addLedstrip({required String name, required String endpoint}) {
+    logger.i("Setting up ledstrip: $name -> $endpoint");
     Ledstrip? strip = Ledstrip();
     strip?.setLogger(logger);
-    strip?.setEndpoint("http://192.168.5.11:8888/light/Loft");
-    strip?.getMetadata(callback: () => updatePage());
-    ledstrips.add(strip);
-
-    strip = Ledstrip();
-    strip?.setLogger(logger);
-    strip?.setEndpoint("http://192.168.5.12:8888/light/Luna");
+    strip?.endpoint = endpoint;
     strip?.getMetadata(callback: () => updatePage());
     ledstrips.add(strip);
   }
@@ -94,7 +180,7 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> {
   // Method to turn the ledstrip on or off:
   void toggleLedstrip(bool flag) {
     Ledstrip? strip = ledstrips[DefaultTabController.of(context).index];
-    logger.i("Toggle ledstrip ${strip?.name()} $flag");
+    statusText = "Toggle ledstrip ${strip?.name} $flag";
     // Run the Ledstrip API call asynchronously to toggle the strip:
     strip?.updateMetadata(callback: () {
       // the API call finished and is now executing this callback function.
@@ -105,91 +191,270 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> {
   }
 
   void menuAction(String menuItem) {
-    if (menuItem == Menu.Settings) {
-      print('Settings');
+    setState(() {
+      switch(menuItem) {
+        case(Menu.Theme):
+          menuTheme();
+          break;
+        case(Menu.EditLedstrip):
+          menuEditLedstrip();
+          break;
+        case(Menu.AddLedstrip):
+          menuAddLedstrip();
+          break;
+        case(Menu.DeleteLedstrip):
+          menuDeleteLedstrip();
+          break;
+      }
+    });
+  }
+
+  void menuTheme() {
+    // Toggle through the themes:
+    String theme;
+    if (LedstripSetting.systemTheme) {
+      LedstripSetting.systemTheme = false;
+      LedstripSetting.darkTheme = true;
+      theme="dark";
+    } else if (LedstripSetting.darkTheme) {
+      LedstripSetting.systemTheme = false;
+      LedstripSetting.darkTheme = false;
+      theme="light";
+    } else {
+      LedstripSetting.systemTheme = true;
+      LedstripSetting.darkTheme = false;
+      theme="system";
     }
-    else if (menuItem == Menu.Theme) {
-      print('Theme');
-    }
-    else if (menuItem == Menu.Sync) {
-      print('Sync');
-    }
+    statusText = "Switching to $theme theme";
+    settingsDatabase.update(type: "setting", key: "theme", value: theme);
+  }
+
+  void menuEditLedstrip() {
+    int index = tabController.index;
+    statusText = "Edit $index";
+    var (newName, newEndpoint) = editLedstrip(name: ledstrips[index]?.name, endpoint: ledstrips[index]?.endpoint);
+    logger.i("Update ledstrip: $newName (url: $newEndpoint)");
+  }
+
+  void menuAddLedstrip() {
+    var (newName, newEndpoint) = editLedstrip(name: "new", endpoint: "http://");
+    logger.i("Creating new ledstrip: $newName (url: $newEndpoint)");
+//    addLedstrip(name: newName, endpoint: newEndpoint);
+//    settingsDatabase.create(type: "ledstrip", key: newName, value: newEndpoint);
+  }
+
+  void menuDeleteLedstrip() {
+    int index = tabController.index;
+    String ledstripName = ledstrips[index]?.name ?? "NA";
+    statusText = "Delete ledstrip: $index (name: '$ledstripName')";
+    setState(() {
+      // Delete the selected tab and move the focus to the previous tab.
+      // Also remove the ledstrip from the backend database.
+      ledstrips.removeAt(index);
+      tabController.index = index - 1;
+      settingsDatabase.delete(type: "ledstrip", key: ledstripName);
+    });
+  }
+
+  (String, String) editLedstrip({required String? name, required String? endpoint}) {
+    String newName = name ?? "";
+    String newEndpoint = endpoint ?? "";
+    final nameController = TextEditingController(text: newName);
+    final urlController = TextEditingController(text: newEndpoint);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            title: const Text('Ledstrip'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(
+                    'Ledstrip details',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Name:'),
+                        SizedBox(
+                          width: 100,
+                          child: TextField(
+                            controller: nameController,
+                          ),
+                        ),
+                      ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('API endpoint:'),
+                      SizedBox(
+                        width: 150,
+                        child: TextField(
+                          controller: urlController,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text('Save'),
+                onPressed: () {
+                  newName = nameController.text;
+                  newEndpoint = urlController.text;
+                  logger.i("Name: $newName (url: $newEndpoint)");
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+      },
+    );
+    return (newName, newEndpoint);
   }
 
   @override
   Widget build(BuildContext context) {
     // Show a spinner in the body unless if we have ledstrip data:
     Widget stripUI =  LoadingAnimationWidget.inkDrop(color: Colors.green, size: 60,);
-
-    // Use the ledstrip that is set up in the active tab.
-    // There will be no tabs the very first time this code runs.  In that case,
-    // take the 1st element in the ledstrips collection:
-//     int tabNumber = 0;
-//     if (context.findAncestorWidgetOfExactType<DefaultTabController>() != null) {
-//       tabNumber = DefaultTabController.of(context).index;
-//     }
-//     Ledstrip? strip = ledstrips[tabNumber];
-//
-//     // Create the UI for the selected ledstrip (if it has valid data):
-//     if (strip?.hasMetadata() ?? true) {
-//       stripUI = LedstripWidget(ledstrip: strip, logger: logger,);
-//     }
-//     logger.i("${ledstrips.length} ledstrips");
-
+    tabController = TabController(length: ledstrips.length, vsync: this, initialIndex: currentTab);
+    tabController.addListener(onTabChange);
     // Now generate the full UI:
-    return DefaultTabController(
-      length: ledstrips.length,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          foregroundColor: Colors.yellow,
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          bottom: TabBar(
-            indicatorSize: TabBarIndicatorSize.tab,
-            indicator: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              gradient: LinearGradient(
-                colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+    return Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+            foregroundColor: Colors.yellow,
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            bottom: TabBar(
+                controller: tabController,
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  gradient: const LinearGradient(
+                    colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+                  ),
+                ),
+                unselectedLabelColor: Colors.grey,
+                tabs: <Widget>[
+                  for (var strip in ledstrips)
+                    Tab(text: strip?.name,)
+                ],
+            ),
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.lightbulb),
+                  onPressed: () {
+                    setState(() {
+                      statusText = "clicked lightbulb";
+                    });
+                  }
               ),
-            ),
-            unselectedLabelColor: Colors.grey,
-            tabs: <Widget>[
-              for (var strip in ledstrips)
-                Tab(text: strip?.name() ?? 'N/A'),
-          ]),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.lightbulb),
-              onPressed: () {},
-            ),
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {},
+              PopupMenuButton<String>(
+                onSelected: menuAction,
+                itemBuilder: (BuildContext context) {
+                  return Menu.menuItems.map((String menuItem) {
+                    return PopupMenuItem<String>(
+                      value: menuItem,
+                      child: Row(
+                        children: [
+                          Text(menuItem),
+                          Icon(Icons.edit),
+                        ],
+                      ),
+                    );
+                  }).toList();
+                },
+              )
+            ],
           ),
-           PopupMenuButton<String>(
-              onSelected: menuAction,
-              itemBuilder: (BuildContext context) {
-                return Menu.menuItems.map((String menuItem) {
-                  return PopupMenuItem<String>(
-                    value: menuItem,
-                    child: Row(
-                      children: [
-                        Text(menuItem),
-                        Icon(Icons.edit),
-                      ],
-                    ),
-                  );
-                }).toList();
-              },
-            )
-          ],
-        ),
-        body: TabBarView(
-          children: <Widget>[
-            for (var strip in ledstrips)
+          body: TabBarView(
+            controller: tabController,
+            children: <Widget>[
+              for (var strip in ledstrips)
                 LedstripWidget(ledstrip: strip, logger: logger,)
-          ]),
-      )
-    );
+            ]
+          ),
+          bottomNavigationBar: Container(
+            color: Theme.of(context).colorScheme.inversePrimary,
+            child: Text(statusText),
+          ),
+        );
+
+
+
+    // return DefaultTabController(
+    //   length: ledstrips.length,
+    //   initialIndex: 1,
+    //   child: Scaffold(
+    //     appBar: AppBar(
+    //       title: Text(widget.title),
+    //       foregroundColor: Colors.yellow,
+    //       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    //       bottom: TabBar(
+    //         key: const Key('LedstripTabs'),
+    //         indicatorSize: TabBarIndicatorSize.tab,
+    //         indicator: BoxDecoration(
+    //           borderRadius: BorderRadius.circular(5),
+    //           gradient: const LinearGradient(
+    //             colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+    //           ),
+    //         ),
+    //         unselectedLabelColor: Colors.grey,
+    //         tabs: <Widget>[
+    //           for (var strip in ledstrips)
+    //             Tab(text: strip?.name() ?? 'N/A'),
+    //         ]
+    //       ),
+    //       actions: <Widget>[
+    //         IconButton(
+    //           icon: Icon(Icons.lightbulb),
+    //           onPressed: () {
+    //             setState(() {
+    //               statusText = "clicked lightbulb";
+    //             });
+    //           }
+    //         ),
+    //        PopupMenuButton<String>(
+    //           onSelected: menuAction,
+    //           itemBuilder: (BuildContext context) {
+    //             return Menu.menuItems.map((String menuItem) {
+    //               return PopupMenuItem<String>(
+    //                 value: menuItem,
+    //                 child: Row(
+    //                   children: [
+    //                     Text(menuItem),
+    //                     Icon(Icons.edit),
+    //                   ],
+    //                 ),
+    //               );
+    //             }).toList();
+    //           },
+    //         )
+    //       ],
+    //     ),
+    //     body: TabBarView(
+    //       children: <Widget>[
+    //         for (var strip in ledstrips)
+    //             LedstripWidget(ledstrip: strip, logger: logger,)
+    //       ]
+    //     ),
+    //     bottomNavigationBar: Container(
+    //       color: Theme.of(context).colorScheme.inversePrimary,
+    //       child: Text(statusText),
+    //     ),
+    //   )
+    // );
   }
 }
