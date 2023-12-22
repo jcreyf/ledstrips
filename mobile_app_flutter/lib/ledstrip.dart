@@ -8,7 +8,8 @@ import 'dart:async';
 class Ledstrip {
   Logger? logger;
   String _endpoint = "";
-  Map<String, dynamic>? _metaData;
+  Map<String, dynamic>? _metaData = {};
+  String _errors = "";
 
   @override
   String toString() {
@@ -20,9 +21,9 @@ class Ledstrip {
   }
 
   String get name {
-    // Return the name of the ledstrip.  If we don't have the name, then return the endpoint URL.
-    // Return an empty string if we have neither:
-    return _metaData?['light']['name'] ?? _endpoint ?? "";
+    // Return the name of the ledstrip.
+    // If we don't have the name, then return "Not Available":
+    return _metaData?['light']['name'] ?? "N/A";
   }
   void set name(String value) {
 // ToDo: do validation!
@@ -37,63 +38,81 @@ class Ledstrip {
     _endpoint = value;
   }
 
+  int get brightness {
+    return _metaData?['light']['brightness'] ?? 1;
+  }
+  void set brightness(int value) {
+    if (value < 0 || value > 255) {
+      throw Exception(["The brightness value must be between 0 and 255!"]);
+    }
+    _metaData?['light']['brightness'] = value;
+  }
+
+  Color get color {
+    int r = _metaData?['light']['color']['red'] ?? 0;
+    int g = _metaData?['light']['color']['green'] ?? 0;
+    int b = _metaData?['light']['color']['blue'] ?? 0;
+    return Color.fromRGBO(r, g, b, 1.0);
+  }
+  void set color(Color color) {
+    _metaData?['light']['color']['red'] = color.red;
+    _metaData?['light']['color']['green'] = color.green;
+    _metaData?['light']['color']['blue'] = color.blue;
+  }
+
   bool isOn() {
     // Return the state of the ledstrip (on == true; off == false).
     // Return false if we don't have the metadata:
     return _metaData?['light']['state'] ?? false;
   }
 
-// ToDo: turn into getter/setters!
-  int getBrightness() {
-    return _metaData?['light']['brightness'] ?? 1;
-  }
-// ToDo: do validation!
-  void setBrightness(int value) {
-    _metaData?['light']['brightness'] = value;
-  }
-
-// ToDo: turn into getter/setters!
-  Color getColor() {
-    int r = _metaData?['light']['color']['red'] ?? 0;
-    int g = _metaData?['light']['color']['green'] ?? 0;
-    int b = _metaData?['light']['color']['blue'] ?? 0;
-    return Color.fromRGBO(r, g, b, 1.0);
-  }
-// ToDo: do validation!
-  void setColor(Color color) {
-    _metaData?['light']['color']['red'] = color.red;
-    _metaData?['light']['color']['green'] = color.green;
-    _metaData?['light']['color']['blue'] = color.blue;
-  }
-
   // Reset the colors to plain white:
   void reset() {
     _metaData?['light']['brightness'] = 90;
-    setColor(Color.fromRGBO(255, 255, 255, 1.0));
+    color = Color.fromRGBO(255, 255, 255, 1.0);
   }
 
   // Call the Ledstrip API asynchronously to get metadata:
   Future<void> getMetadata({required Function callback}) async {
     logger?.d('API call to get metadata');
-    http.Response response = await http.get(Uri.parse(_endpoint));
-    if (response.statusCode == 200) {
-      logger?.d("Received data: " + response.body);
-      _metaData = jsonDecode(response.body);
-      logger?.i("Ledstrip name: " + _metaData?['light']['name']);
-      // We got new data from the ledstrip.  Run the callback function to update data in the UI:
-      callback();
-    } else {
-      logger?.e("Failed to get ledstrip details");
-      throw Exception("Failed to get ledstrip details");
+    _metaData = {};
+    _errors = "";
+    try {
+      http.Response response = await http.get(Uri.parse(_endpoint));
+      if (response.statusCode == 200) {
+        logger?.d("Received data: $response.body");
+        _metaData = jsonDecode(response.body);
+        if (_metaData?['errors'] != null) {
+          // The API call returned errors!
+          _errors = "Failed to get ledstrip details!\n${_metaData?['errors']}";
+        }
+        logger?.i("Ledstrip name: $_metaData?['light']['name']");
+      } else {
+        logger?.e("Failed to get ledstrip details");
+        _errors = "Failed to get ledstrip details";
+      }
+    } catch(err) {
+      // There was a network issue:
+      _errors = err.toString();
     }
+    // We got new data from the ledstrip (or errors).
+    // Run the callback function to update data in the UI:
+    callback(_errors);
   }
 
   // Check to see if we have metadata for the ledstrip.
   // This is used to check if we have a valid ledstrip.
   bool hasMetadata() {
-//    logger?.d("metdata? " + _metaData!.toString() ?? "");
-//    logger?.i(_metaData?.isEmpty ?? true);
-    return !(_metaData?.isEmpty ?? false);
+    bool retVal = true;
+    if (_errors != "" || (_metaData?.isEmpty ?? true)) retVal = false;
+    return retVal;
+  }
+
+  bool get hasErrors {
+    return _errors != "";
+  }
+  String get errors {
+    return _errors;
   }
 
   // Call the Ledstrip API asynchronously to update its data:

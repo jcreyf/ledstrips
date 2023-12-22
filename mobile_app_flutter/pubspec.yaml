@@ -42,8 +42,7 @@ dependencies:
   loading_animation_widget: ^1.2.0+4
   sqflite: ^2.3.0
   path: ^1.8.3
-//  sqlite3_flutter_libs: ^0.5.18
-//  sqflite_common_ffi: ^2.3.1
+  flutter_phoenix: ^1.1.1
 
 dev_dependencies:
   flutter_test:

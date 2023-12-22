@@ -129,13 +129,14 @@ class SettingsDatabase {
     return LedstripSetting.fromSqfliteDatabase(ledstripSetting.first);
   }
 
-  Future<int> update({required String type, required String key, required String value}) async {
+  Future<int> update({required String type, required String key, String newKey = "", required String value}) async {
     final database = await DatabaseService().database;
+    if (newKey == "") newKey = key;
     return await database.update(
       tableName,
       {
         'type': type,
-        'key': key,
+        'key': newKey,
         'value': value,
         'updated_at': DateTime.now().millisecondsSinceEpoch
       },
