@@ -75,7 +75,7 @@ class _LedstripWidgetState extends State<LedstripWidget> {
       page = RefreshIndicator(
         onRefresh: () async {
           // The page got pulled down.  We need to fetch new data:
-          widget.ledstrip?.getMetadata(callback: () => setState(() => {}));
+          widget.ledstrip?.getMetadata(callback: (errors) => setState(() => {}));
           // The child of a RefreshIndicator needs to be a scrollable widget!
           // Our app is not "scrollable" but we can force it by putting everything
           // in a SingleChildScrollView and setting its 'physics' to 'AlwaysScrollableScrollPhysics'.
@@ -116,7 +116,7 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                             // ...and its callback function will update the data in the UI.
                             widget.ledstrip?.getMetadata(
                               // Ignoring errors and proving an empty callback method:
-                              callback: ((errors) {})
+                              callback: ((errors) => setState(() => {})),
                             );
                           }
                         );
@@ -184,7 +184,7 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                                       // Here we trigger the Ledstrip API call asynchronously to get refreshed metadata
                                       // ...and its callback function will update the data in the UI.
                                       widget.ledstrip?.getMetadata(
-                                          callback: () => setState(() => {}));
+                                          callback: (errors) => setState(() => {}));
                                     });
                               },
                               icon: const Icon(Icons.save),
@@ -223,7 +223,7 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                                 // Here we trigger the Ledstrip API call asynchronously to get refreshed metadata
                                 // ...and its callback function will update the data in the UI.
                                 widget.ledstrip?.getMetadata(
-                                    callback: () => setState(() => {}));
+                                    callback: (errors) => setState(() => {}));
                               }
                           );
                         },
