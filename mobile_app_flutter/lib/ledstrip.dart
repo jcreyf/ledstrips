@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:async';
 
 class Ledstrip {
+  static const List<String> behaviorNames = <String>["Default", "Christmass"];
   Logger? logger;
   String _endpoint = "";
   Map<String, dynamic>? _metaData = {};
@@ -25,7 +26,7 @@ class Ledstrip {
     // If we don't have the name, then return "Not Available":
     return _metaData?['light']['name'] ?? "N/A";
   }
-  void set name(String value) {
+  set name(String value) {
 // ToDo: do validation!
     _metaData?['light']['name'] = value;
   }
@@ -33,15 +34,26 @@ class Ledstrip {
   String get endpoint {
     return _endpoint;
   }
-  void set endpoint(String value) {
+  set endpoint(String value) {
 // ToDo: do validation!
     _endpoint = value;
+  }
+
+  String get behaviorName {
+    return _metaData?['light']['behavior'] ?? "Default";
+  }
+  set behaviorName(String value) {
+    if (behaviorNames.contains(value)) {
+      _metaData?['light']['behavior'] = value;
+    } else {
+      throw Exception("The program name must be one of the supported values! (${behaviorNames.join(", ")}");
+    }
   }
 
   int get brightness {
     return _metaData?['light']['brightness'] ?? 1;
   }
-  void set brightness(int value) {
+  set brightness(int value) {
     if (value < 0 || value > 255) {
       throw Exception(["The brightness value must be between 0 and 255!"]);
     }
@@ -54,7 +66,7 @@ class Ledstrip {
     int b = _metaData?['light']['color']['blue'] ?? 0;
     return Color.fromRGBO(r, g, b, 1.0);
   }
-  void set color(Color color) {
+  set color(Color color) {
     _metaData?['light']['color']['red'] = color.red;
     _metaData?['light']['color']['green'] = color.green;
     _metaData?['light']['color']['blue'] = color.blue;
@@ -70,6 +82,21 @@ class Ledstrip {
   void reset() {
     _metaData?['light']['brightness'] = 90;
     color = Color.fromRGBO(255, 255, 255, 1.0);
+  }
+
+  // Check to see if we have metadata for the ledstrip.
+  // This is used to check if we have a valid ledstrip.
+  bool hasMetadata() {
+    bool retVal = true;
+    if (_errors != "" || (_metaData?.isEmpty ?? true)) retVal = false;
+    return retVal;
+  }
+
+  bool get hasErrors {
+    return _errors != "";
+  }
+  String get errors {
+    return _errors;
   }
 
   // Call the Ledstrip API asynchronously to get metadata:
@@ -100,29 +127,13 @@ class Ledstrip {
     callback(_errors);
   }
 
-  // Check to see if we have metadata for the ledstrip.
-  // This is used to check if we have a valid ledstrip.
-  bool hasMetadata() {
-    bool retVal = true;
-    if (_errors != "" || (_metaData?.isEmpty ?? true)) retVal = false;
-    return retVal;
-  }
-
-  bool get hasErrors {
-    return _errors != "";
-  }
-  String get errors {
-    return _errors;
-  }
-
   // Call the Ledstrip API asynchronously to update its data:
   Future<void> updateMetadata({bool toggle = true, required Function callback}) async {
-    String behavior = "Default";   // "Default" or "Christmass"
     logger?.d('API call to update the ledstrip');
     String data = jsonEncode(<String, dynamic>{
       "action": "update",
       "toggle": toggle,
-      "behavior": behavior,
+      "behavior": _metaData?['light']['behavior'],
       "led-count": _metaData?['light']['led-count'],
       "brightness": _metaData?['light']['brightness'],
       "color": {
@@ -132,7 +143,7 @@ class Ledstrip {
         "white": _metaData?['light']['color']['white']
       }
     });
-    logger?.d("Sending data: " + data);
+    logger?.d("Sending data: $data");
     http.Response response = await http.post(
       Uri.parse(_endpoint),
       headers: <String, String>{
