@@ -55,7 +55,8 @@ class _LedstripWidgetState extends State<LedstripWidget> {
       );
     } else {
       Widget colorPicker;
-      if(widget.ledstrip?.behaviorName == "Default") {
+      // ToDo: the '&&' part is part of the hack described in the ledstrip class where 'selectedBehavior' is declared:
+      if(widget.ledstrip?.behaviorName == "Default" && widget.ledstrip?.selectedBehavior == "Default") {
         colorPicker = HueRingPicker(
           // https://github.com/mchome/flutter_colorpicker/blob/master/example/lib/main.dart
           pickerColor: widget.ledstrip?.color ??
