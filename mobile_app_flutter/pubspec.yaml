@@ -55,6 +55,21 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^3.0.1
 
+  # Package to set your own app icon:
+  #   https://pub.dev/packages/flutter_launcher_icons/versions
+  #   https://www.flutterbeads.com/change-app-launcher-icon-flutter/
+  #   https://icon.kitchen/
+  #   /> flutter pub run flutter_launcher_icons
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  min_sdk_android: 22
+  ios: true
+  image_path: "assets/icons/app_icon_512x512.png"
+  adaptive_icon_background: "#FFEB3B"
+  adaptive_icon_foreground: "assets/icons/app_icon_512x512.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
