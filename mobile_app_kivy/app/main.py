@@ -110,7 +110,7 @@ class LedstripsApp(MDApp):
         _toggle=True
 
       if self.chkMode_loft.active:
-        _behavior="Christmass"
+        _behavior="Christmas"
       else:
         _behavior="Default"
 
@@ -166,7 +166,7 @@ class LedstripsApp(MDApp):
         _toggle=True
 
       if self.chkMode_bedroom.active:
-        _behavior="Christmass"
+        _behavior="Christmas"
       else:
         _behavior="Default"
 
@@ -218,7 +218,7 @@ class LedstripsApp(MDApp):
         _toggle=True
 
       if self.chkMode_Luna.active:
-        _behavior="Christmass"
+        _behavior="Christmas"
       else:
         _behavior="Default"
 

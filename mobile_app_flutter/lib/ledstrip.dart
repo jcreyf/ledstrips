@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'dart:async';
 
 class Ledstrip {
-  static const List<String> behaviorNames = <String>["Default", "Christmass"];
+  static const List<String> behaviorNames = <String>["Default", "Christmas"];
   Logger? logger;
   String _endpoint = "";
   Map<String, dynamic>? _metaData = {};
@@ -21,7 +21,7 @@ class Ledstrip {
   }
 
   void setLogger(Logger logger) {
-    this.logger=logger;
+    this.logger = logger;
   }
 
   String get name {
@@ -29,6 +29,7 @@ class Ledstrip {
     // If we don't have the name, then return "Not Available":
     return _metaData?['light']['name'] ?? "N/A";
   }
+
   set name(String value) {
 // ToDo: do validation!
     _metaData?['light']['name'] = value;
@@ -37,6 +38,7 @@ class Ledstrip {
   String get endpoint {
     return _endpoint;
   }
+
   set endpoint(String value) {
 // ToDo: do validation!
     _endpoint = value;
@@ -45,19 +47,22 @@ class Ledstrip {
   String get behaviorName {
     return _metaData?['light']['behavior'] ?? "Default";
   }
+
   set behaviorName(String value) {
     if (behaviorNames.contains(value)) {
       _metaData?['light']['behavior'] = value;
       // ToDo: this is part of the hack (see above where this var is declared):
       selectedBehavior = value;
     } else {
-      throw Exception("The program name must be one of the supported values! (${behaviorNames.join(", ")}");
+      throw Exception(
+          "The program name must be one of the supported values! (${behaviorNames.join(", ")}");
     }
   }
 
   int get brightness {
     return _metaData?['light']['brightness'] ?? 1;
   }
+
   set brightness(int value) {
     if (value < 0 || value > 255) {
       throw Exception(["The brightness value must be between 0 and 255!"]);
@@ -71,6 +76,7 @@ class Ledstrip {
     int b = _metaData?['light']['color']['blue'] ?? 0;
     return Color.fromRGBO(r, g, b, 1.0);
   }
+
   set color(Color color) {
     _metaData?['light']['color']['red'] = color.red;
     _metaData?['light']['color']['green'] = color.green;
@@ -100,6 +106,7 @@ class Ledstrip {
   bool get hasErrors {
     return _errors != "";
   }
+
   String get errors {
     return _errors;
   }
@@ -123,7 +130,7 @@ class Ledstrip {
         logger?.e("Failed to get ledstrip details");
         _errors = "Failed to get ledstrip details";
       }
-    } catch(err) {
+    } catch (err) {
       // There was a network issue:
       _errors = err.toString();
     }
@@ -133,7 +140,8 @@ class Ledstrip {
   }
 
   // Call the Ledstrip API asynchronously to update its data:
-  Future<void> updateMetadata({bool toggle = true, required Function callback}) async {
+  Future<void> updateMetadata(
+      {bool toggle = true, required Function callback}) async {
     logger?.d('API call to update the ledstrip');
     String data = jsonEncode(<String, dynamic>{
       "action": "update",

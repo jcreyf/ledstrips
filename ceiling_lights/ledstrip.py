@@ -179,9 +179,9 @@ class Light:
       # to make sure the object's finalizer is called and all hardware resources are released:
       self._behaviorModule=None
       # Now set the new behavior:
-      if value == "Christmass":
+      if value == "Christmas":
 #        self._behaviorModule=BehaviorModules.FluidModule(self._ledSettings)
-        self._behaviorModule=BehaviorModules.ChristmassModule(self._ledSettings)
+        self._behaviorModule=BehaviorModules.ChristmasModule(self._ledSettings)
       elif value == "Fluid":
         self._behaviorModule=BehaviorModules.FluidModule(self._ledSettings)
       else:

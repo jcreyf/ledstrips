@@ -2,7 +2,7 @@
 This module contains the classes for both the multiple light behavior modules.
 A Behavior Module contains specific code to manipulate the leds on the ledstrip.
 The DefaultModule will simply turn on/off all leds at the same time on the strip,
-whereas other modules can create more visual effects (like the ChristmassModule doing more
+whereas other modules can create more visual effects (like the ChristmasModule doing more
 colorfull things).
 
 This module requires these modules:
@@ -29,7 +29,7 @@ class BehaviorModule():
     
     Arguments:
       name (str):         the name of this specific behavior (default="Blank").
-                          (others could be: "Default", "Christmass", ...)
+                          (others could be: "Default", "Christmas", ...)
       ledSettings (dict): dictionary with settings that we need to drive the ledstrip.
                           required_settings={
                             "ledCount": <1..N>,           # Number of individually addressable LEDs on the strip;
@@ -205,13 +205,13 @@ class DefaultModule(BehaviorModule):
 #
 #----------------------------------
 #
-class ChristmassModule(BehaviorModule):
+class ChristmasModule(BehaviorModule):
   """
-  Behavior Module to implement Christmass light effect functionality.
+  Behavior Module to implement Christmas light effect functionality.
   """
   def __init__(self, ledSettings: dict):
     """ Constructor """
-    super().__init__(name="Christmass", ledSettings=ledSettings)
+    super().__init__(name="Christmas", ledSettings=ledSettings)
     self.log(f"ledSettings: {ledSettings}", debug=True)
     self._delayMilliseconds=100
     self._thread=None
@@ -260,7 +260,7 @@ class ChristmassModule(BehaviorModule):
       if self._delayMilliseconds > 0:
          sleep(self._delayMilliseconds / 1000)
     # The loop ended.
-    self.log("ending Christmass thread...", debug=True)
+    self.log("ending Christmas thread...", debug=True)
     # Turn the leds off.
     # The color setting of each led needs to be set to 0:
     self.log("turn leds off", debug=True)

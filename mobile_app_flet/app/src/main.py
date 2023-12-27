@@ -89,7 +89,7 @@ class LedStrip():
             print(str(e))
 
     def _sendData(self, toggle: bool):
-        _behavior = "Default"   # "Default" or "Christmass"
+        _behavior = "Default"   # "Default" or "Christmas"
         try:
             data={"action": "update",
                 "toggle": toggle,
