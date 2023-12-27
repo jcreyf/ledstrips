@@ -109,7 +109,8 @@ def apiGETLight(path_vars, request) -> str:
         "blue": 1,
         "white": 1
       },
-      "brightness": 255
+      "brightness": 255,
+      "behavior": "Default"
     },
     "switches": [
       {
@@ -150,7 +151,8 @@ def apiGETLight(path_vars, request) -> str:
                              "blue": light.blueRGB,
                              "white": light.whiteRGB
                            },
-                           "brightness": light.ledBrightness
+                           "brightness": light.ledBrightness,
+                           "behavior": light.behaviorModuleName
                           }
     _switches=[]
     for switch in light.switches:
@@ -260,7 +262,8 @@ def apiPOSTLight(path_vars, request) -> str:
                              "blue": light.blueRGB,
                              "white": light.whiteRGB
                            },
-                           "brightness": light.ledBrightness
+                           "brightness": light.ledBrightness,
+                           "behavior": light.behaviorModuleName
                           }
   else:
     # We can't find this light!  Oops...
