@@ -161,6 +161,7 @@ class Light:
   @property
   def behaviorModuleName(self):
     """ Return the name of the behavior module to run. """
+# ToDo: this method is for some dark reason not getting called and we're always getting the ledstrip name as response!!!
 #    return self._behaviorModuleName
     return self._behaviorModule.name
   

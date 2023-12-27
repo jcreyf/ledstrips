@@ -252,6 +252,7 @@ def apiPOSTLight(path_vars, request) -> str:
     html=f"<h1>POST - Updated light {light.name} - {light.state}</h1><br>"
     html+=f"<a href='/light/{light.name}'>{light.name}</a>"
     # Generate the return value with the updated status of the ledstrip:
+# ToDo: for some reason light.behaviorModuleName is always returning the ledstrip name instead of the behavior!!!
     _returnValue["light"]={"name": light.name,
                            "uri": request.host_url+f"light/{light.name}",
                            "state": light.state,
@@ -263,7 +264,7 @@ def apiPOSTLight(path_vars, request) -> str:
                              "white": light.whiteRGB
                            },
                            "brightness": light.ledBrightness,
-                           "behavior": light.behaviorModuleName
+                           "behavior": light._behaviorModule.name
                           }
   else:
     # We can't find this light!  Oops...
