@@ -129,7 +129,7 @@ class DefaultModule(BehaviorModule):
   def __init__(self, ledSettings: dict):
     """ Constructor """
     super().__init__(name="Default", ledSettings=ledSettings)
-    self.log(f"ledSettings: {ledSettings}", debug=True)
+    self.log(f"behavior module '{self._name}' ledSettings: {self._ledSettings}", debug=True)
 
   def __del__(self):
     """ Destructor will turn off the leds and release resources. """
@@ -158,7 +158,7 @@ class DefaultModule(BehaviorModule):
     Arguments:
       state (bool): True == turn leds on; False == turn leds off
     """
-    self.log(f"ledSettings -> {self._ledSettings}", debug=True)
+    self.log(f"behavior module '{self._name}' ledSettings: {self._ledSettings}", debug=True)
     # Initialize the ledstrip if that's not done yet:
     if self._ledSettings["strip"] == None:
       # PixelStrip.__init__(self, num, pin, freq_hz=800000, dma=10, invert=False, brightness=255, \
@@ -212,7 +212,7 @@ class ChristmasModule(BehaviorModule):
   def __init__(self, ledSettings: dict):
     """ Constructor """
     super().__init__(name="Christmas", ledSettings=ledSettings)
-    self.log(f"ledSettings: {ledSettings}", debug=True)
+    self.log(f"behavior module '{self._name}' ledSettings: {self._ledSettings}", debug=True)
     self._delayMilliseconds=100
     self._thread=None
     # Define colors which will be used by the module.
@@ -301,7 +301,7 @@ class FluidModule(BehaviorModule):
   def __init__(self, ledSettings: dict):
     """ Constructor """
     super().__init__(name="Fluid", ledSettings=ledSettings)
-    self.log(f"ledSettings: {ledSettings}", debug=True)
+    self.log(f"behavior module '{self._name}' ledSettings: {self._ledSettings}", debug=True)
     self._delayMilliseconds=100
     self._thread=None
 
