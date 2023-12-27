@@ -263,7 +263,7 @@ def apiPOSTLight(path_vars, request) -> str:
                              "white": light.whiteRGB
                            },
                            "brightness": light.ledBrightness,
-                           "behavior": _behaviorModuleName
+                           "behavior": "Default"
                           }
   else:
     # We can't find this light!  Oops...
