@@ -152,7 +152,7 @@ def apiGETLight(path_vars, request) -> str:
                              "white": light.whiteRGB
                            },
                            "brightness": light.ledBrightness,
-                           "behavior": light.behaviorModule.name
+                           "behavior": light._behaviorModule.name
                           }
     _switches=[]
     for switch in light.switches:
