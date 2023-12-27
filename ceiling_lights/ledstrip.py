@@ -189,7 +189,7 @@ class Light:
         # Set the default On/Off behavior:
         self._behaviorModule=BehaviorModules.DefaultModule(self._ledSettings)
       self._behaviorModule.debug=self._debug
-      self._behaviorModuleName=self._behaviorModule.name
+#      self._behaviorModuleName=self._behaviorModule.name
       # Turn the leds on again (if they were on) using the new behavior:
       if _ledsWereOn:
         self.On()

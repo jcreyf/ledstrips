@@ -33,34 +33,37 @@ class _LedstripWidgetState extends State<LedstripWidget> {
       page = Container(
         color: Colors.red.shade900,
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(widget.ledstrip?.errors ?? "No idea what's going on",
+                Text(
+                  widget.ledstrip?.errors ?? "No idea what's going on",
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.yellowAccent,
+                  style: const TextStyle(
+                    color: Colors.yellowAccent,
                     fontSize: 35,
                   ),
                 ),
-                Text(widget.ledstrip?.endpoint ?? "The ledstrip has no endpoint set!",
+                Text(
+                  widget.ledstrip?.endpoint ??
+                      "The ledstrip has no endpoint set!",
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 20,
                   ),
                 ),
               ],
-          )
-        ),
+            )),
       );
     } else {
       Widget colorPicker;
-      // ToDo: the '&&' part is part of the hack described in the ledstrip class where 'selectedBehavior' is declared:
-      if(widget.ledstrip?.behaviorName == "Default" && widget.ledstrip?.selectedBehavior == "Default") {
+      if (widget.ledstrip?.behaviorName == "Default") {
         colorPicker = HueRingPicker(
           // https://github.com/mchome/flutter_colorpicker/blob/master/example/lib/main.dart
-          pickerColor: widget.ledstrip?.color ??
-              const Color.fromRGBO(0, 0, 0, 1.0),
+          pickerColor:
+              widget.ledstrip?.color ?? const Color.fromRGBO(0, 0, 0, 1.0),
           enableAlpha: false,
           displayThumbColor: true,
           onColorChanged: (Color color) {
@@ -71,12 +74,15 @@ class _LedstripWidgetState extends State<LedstripWidget> {
         );
       } else {
         // Blank out the same height of the HueRingPicker:
-        colorPicker = const SizedBox(height: 370,);
+        colorPicker = const SizedBox(
+          height: 370,
+        );
       }
       page = RefreshIndicator(
         onRefresh: () async {
           // The page got pulled down.  We need to fetch new data:
-          widget.ledstrip?.getMetadata(callback: (errors) => setState(() => {}));
+          widget.ledstrip
+              ?.getMetadata(callback: (errors) => setState(() => {}));
           // The child of a RefreshIndicator needs to be a scrollable widget!
           // Our app is not "scrollable" but we can force it by putting everything
           // in a SingleChildScrollView and setting its 'physics' to 'AlwaysScrollableScrollPhysics'.
@@ -89,7 +95,8 @@ class _LedstripWidgetState extends State<LedstripWidget> {
             // Only the ledstip widget part of the screen can get pulled down for refresh.
             // We need to limit the size to: screen height - app bar height - status bar header height
             // Since the app bar is part of the scaffold, we can query its height through the scaffold:
-            height: MediaQuery.of(context).size.height ?? 0.0 - (Scaffold.of(context).appBarMaxHeight ?? 0.0),
+            height: MediaQuery.of(context).size.height ??
+                0.0 - (Scaffold.of(context).appBarMaxHeight ?? 0.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -97,13 +104,17 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                   widget.ledstrip?.name ?? "None!",
                   style: Theme.of(context).textTheme.displayLarge,
                 ),
-                const SizedBox(height: 10,),
+                const SizedBox(
+                  height: 10,
+                ),
                 DropdownMenu<String>(
                   label: const Text('Behavior'),
                   initialSelection: Ledstrip.behaviorNames.first,
-                  dropdownMenuEntries: Ledstrip.behaviorNames.map<DropdownMenuEntry<String>>((String value) {
-                      return DropdownMenuEntry<String>(value: value, label: value);
-                    }).toList(),
+                  dropdownMenuEntries: Ledstrip.behaviorNames
+                      .map<DropdownMenuEntry<String>>((String value) {
+                    return DropdownMenuEntry<String>(
+                        value: value, label: value);
+                  }).toList(),
                   onSelected: (String? value) {
                     // This is called when the user selects an item.
                     setState(() {
@@ -119,14 +130,17 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                               // Ignoring errors and proving an empty callback method:
                               callback: ((errors) => setState(() => {})),
                             );
-                          }
-                        );
+                          });
                     });
                   },
                 ),
-                const SizedBox(height: 10,),
+                const SizedBox(
+                  height: 10,
+                ),
                 colorPicker,
-                const SizedBox(height: 10,),
+                const SizedBox(
+                  height: 10,
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
                   child: Row(
@@ -151,16 +165,18 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                           //                    overlayShape: SliderComponentShape.noOverlay,
                         ),
                         child: Slider(
-                          value: widget.ledstrip?.brightness.toDouble() ?? 0.0,
-                          min: 1,
-                          max: 255,
-                          divisions: 255,
-                          label: widget.ledstrip?.brightness.round().toString(),
-                          onChanged: (double value) {
-                            setState(() {
-                              widget.ledstrip?.brightness = value.toInt();
-                            });
-                          }),
+                            value:
+                                widget.ledstrip?.brightness.toDouble() ?? 0.0,
+                            min: 1,
+                            max: 255,
+                            divisions: 255,
+                            label:
+                                widget.ledstrip?.brightness.round().toString(),
+                            onChanged: (double value) {
+                              setState(() {
+                                widget.ledstrip?.brightness = value.toInt();
+                              });
+                            }),
                       ),
                       Material(
                         color: Colors.white,
@@ -170,10 +186,9 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                               color: Colors.green,
                               shape: CircleBorder(
                                   side: BorderSide(
-                                    color: Colors.orange,
-                                    width: 2.0,
-                                  )
-                              ),
+                                color: Colors.orange,
+                                width: 2.0,
+                              )),
                             ),
                             child: IconButton(
                               onPressed: () {
@@ -185,7 +200,8 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                                       // Here we trigger the Ledstrip API call asynchronously to get refreshed metadata
                                       // ...and its callback function will update the data in the UI.
                                       widget.ledstrip?.getMetadata(
-                                          callback: (errors) => setState(() => {}));
+                                          callback: (errors) =>
+                                              setState(() => {}));
                                     });
                               },
                               icon: const Icon(Icons.save),
@@ -198,7 +214,9 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10,),
+                const SizedBox(
+                  height: 10,
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: Row(
@@ -210,8 +228,7 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                               widget.ledstrip?.reset();
                             });
                           },
-                          child: const Text('Reset Colors')
-                      ),
+                          child: const Text('Reset Colors')),
                       Switch(
                         value: widget.ledstrip?.isOn() ?? false,
                         activeColor: Colors.green,
@@ -225,8 +242,7 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                                 // ...and its callback function will update the data in the UI.
                                 widget.ledstrip?.getMetadata(
                                     callback: (errors) => setState(() => {}));
-                              }
-                          );
+                              });
                         },
                       ),
                     ],

@@ -11,9 +11,6 @@ class Ledstrip {
   String _endpoint = "";
   Map<String, dynamic>? _metaData = {};
   String _errors = "";
-  // ToDo: this is temporary!!!  getMeta is not returning the strip behavior and is
-  //       thus always evaluated to "Default".  We're putting a hack here for the time being
-  String selectedBehavior = "Default";
 
   @override
   String toString() {
@@ -51,8 +48,6 @@ class Ledstrip {
   set behaviorName(String value) {
     if (behaviorNames.contains(value)) {
       _metaData?['light']['behavior'] = value;
-      // ToDo: this is part of the hack (see above where this var is declared):
-      selectedBehavior = value;
     } else {
       throw Exception(
           "The program name must be one of the supported values! (${behaviorNames.join(", ")}");
