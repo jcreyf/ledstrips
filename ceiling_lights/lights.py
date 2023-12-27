@@ -141,6 +141,7 @@ def apiGETLight(path_vars, request) -> str:
       break
   if _found:
     # We found the light.  Generate the payload to send back with the light's details:
+# ToDo: for some reason light.behaviorModuleName is always returning the ledstrip name instead of the behavior!!!
     _returnValue["light"]={"name": light.name,
                            "uri": request.host_url+f"light/{light.name}",
                            "state": light.state,
@@ -152,7 +153,7 @@ def apiGETLight(path_vars, request) -> str:
                              "white": light.whiteRGB
                            },
                            "brightness": light.ledBrightness,
-                           "behavior": light.behaviorModuleName
+                           "behavior": light._behaviorModule.name
                           }
     _switches=[]
     for switch in light.switches:
