@@ -161,7 +161,8 @@ class Light:
   @property
   def behaviorModuleName(self):
     """ Return the name of the behavior module to run. """
-    return self._behaviorModuleName
+#    return self._behaviorModuleName
+    return "Test"
   
   @name.setter
   def behaviorModuleName(self, value: str):
