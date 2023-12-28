@@ -11,6 +11,7 @@
 #***********************************************************************************************************#
 from ledstrip import Light, Switch
 from ledstrip_api import RESTserver
+from BehaviorModules import BehaviorModule
 from time import sleep
 from flask import request
 import yaml
@@ -359,6 +360,28 @@ def apiGETLightSwitch(path_vars, request) -> str:
   return json.dumps(_returnValue)
 
 
+def apiGETBehaviors(path_vars, request) -> str:
+  """ Callback function for the GET operation at the '/behaviors' endpoint.
+  This returns a JSON object like this example:
+  {
+    "self": "http://localhost:8888/behaviors",
+    "behaviors": ["Default", "Christmas", "Fluid"]
+  }
+  """
+  log(request.full_path, debug=True)
+  for path_var in path_vars:
+    log(f"  path variable = '{path_var}': '{path_vars[path_var]}'")
+  for arg in request.args:
+    log(f"  argument     = '{arg}': '{request.args[arg]}'")
+  _returnValue={}
+  # Remove leading or trailing slashes and questionmarks.
+  # In real life, this is removing the leading slash and trailing questionmark
+  _self=request.host_url+request.full_path.strip("/").strip("?")
+  _returnValue["self"]=_self
+  _returnValue["behaviors"]=BehaviorModule.knownBehaviors
+  return json.dumps(_returnValue)
+
+
 #--------------------------------------------------#
 # The app starts here...
 #--------------------------------------------------#
@@ -531,6 +554,12 @@ if __name__ == '__main__':
     apiServer.add_endpoint(endpoint='/light/<light_name>/switch/<switch_name>', \
                            endpoint_name='switch', \
                            getHandler=apiGETLightSwitch, \
+                           allowedMethods=['GET',])
+    # View all the BehaviorModules that are available: http://0.0.0.0:80/behaviors
+    log("  setting up: /behaviors")
+    apiServer.add_endpoint(endpoint='/behaviors', \
+                           endpoint_name='behaviors', \
+                           getHandler=apiGETBehaviors, \
                            allowedMethods=['GET',])
 
     log("Starting the REST API server...")

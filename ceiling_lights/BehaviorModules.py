@@ -24,6 +24,8 @@ class BehaviorModule():
   """
   Template Class for ledstrip behavior modules.
   """
+  knownBehaviors=["Default", "Christmas", "Fuid"]
+
   def __init__(self, name: str="Blank", ledSettings: dict=None):
     """ Constructor of our BehaviorModule instance.
     

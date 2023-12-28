@@ -109,7 +109,7 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                 ),
                 DropdownMenu<String>(
                   label: const Text('Behavior'),
-                  initialSelection: Ledstrip.behaviorNames.first,
+                  initialSelection: widget.ledstrip?.behaviorName,
                   dropdownMenuEntries: Ledstrip.behaviorNames
                       .map<DropdownMenuEntry<String>>((String value) {
                     return DropdownMenuEntry<String>(

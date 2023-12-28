@@ -6,7 +6,11 @@ import 'dart:convert';
 import 'dart:async';
 
 class Ledstrip {
-  static const List<String> behaviorNames = <String>["Default", "Christmas"];
+  static const List<String> behaviorNames = <String>[
+    "Default",
+    "Christmas",
+    "Fluid"
+  ];
   Logger? logger;
   String _endpoint = "";
   Map<String, dynamic>? _metaData = {};
