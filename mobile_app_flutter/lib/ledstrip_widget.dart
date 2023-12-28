@@ -107,33 +107,33 @@ class _LedstripWidgetState extends State<LedstripWidget> {
                 const SizedBox(
                   height: 10,
                 ),
-                DropdownMenu<String>(
-                  label: const Text('Behavior'),
-                  initialSelection: widget.ledstrip?.behaviorName,
-                  dropdownMenuEntries: Ledstrip.behaviorNames
-                      .map<DropdownMenuEntry<String>>((String value) {
-                    return DropdownMenuEntry<String>(
-                        value: value, label: value);
-                  }).toList(),
-                  onSelected: (String? value) {
-                    // This is called when the user selects an item.
-                    setState(() {
-                      widget.ledstrip?.behaviorName = value!;
-                      // Update the ledstrip configuration:
-                      widget.ledstrip?.updateMetadata(
-                          toggle: false,
-                          callback: () {
-                            // the API call finished and is now executing this callback function.
-                            // Here we trigger the Ledstrip API call asynchronously to get refreshed metadata
-                            // ...and its callback function will update the data in the UI.
-                            widget.ledstrip?.getMetadata(
-                              // Ignoring errors and proving an empty callback method:
-                              callback: ((errors) => setState(() => {})),
-                            );
-                          });
-                    });
-                  },
-                ),
+// .                DropdownMenu<String>(
+//                   label: const Text('Behavior'),
+//                   initialSelection: widget.ledstrip?.behaviorName,
+//                   dropdownMenuEntries: widget.ledstrip?.behaviorNames
+//                       .map<DropdownMenuEntry<String>>((String value) {
+//                     return DropdownMenuEntry<String>(
+//                         value: value, label: value);
+//                   }).toList(),
+//                   onSelected: (String? value) {
+//                     // This is called when the user selects an item.
+//                     setState(() {
+//                       widget.ledstrip?.behaviorName = value!;
+//                       // Update the ledstrip configuration:
+//                       widget.ledstrip?.updateMetadata(
+//                           toggle: false,
+//                           callback: () {
+//                             // the API call finished and is now executing this callback function.
+//                             // Here we trigger the Ledstrip API call asynchronously to get refreshed metadata
+//                             // ...and its callback function will update the data in the UI.
+//                             widget.ledstrip?.getMetadata(
+//                               // Ignoring errors and proving an empty callback method:
+//                               callback: ((errors) => setState(() => {})),
+//                             );
+//                           });
+//                     });
+//                   },
+//                 ),
                 const SizedBox(
                   height: 10,
                 ),

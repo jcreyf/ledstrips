@@ -119,6 +119,11 @@ def apiGETLight(path_vars, request) -> str:
         "uri": "http://192.168.1.12:8888/light/Luna/switch/Desk",
         "state": 1
       }
+    ],
+    "behaviors": [
+      "Default", 
+      "Christmas", 
+      "Fluid"
     ]
   }
 """
@@ -163,6 +168,7 @@ def apiGETLight(path_vars, request) -> str:
                         "state": switch._state
                        })
     _returnValue["switches"]=_switches
+    _returnValue["behaviors"]=BehaviorModule.knownBehaviors
   else:
     # We can't find this light!  Oops...
     _errors=[]

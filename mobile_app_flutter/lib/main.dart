@@ -34,13 +34,12 @@ import 'package:flutter_test/flutter_test.dart';
 Future main() async {
   // Start the app:
   runApp(
-    // Wrapping the app in a Phoenix widget that we can use to hot restart when needed.
-    // (the Phoenix widget basically generates a new 'key' on itself, invalidating the
-    // UI and regenerating everything)
-    Phoenix(child:
-      LedstripApp(),
-    )
-  );
+      // Wrapping the app in a Phoenix widget that we can use to hot restart when needed.
+      // (the Phoenix widget basically generates a new 'key' on itself, invalidating the
+      // UI and regenerating everything)
+      Phoenix(
+    child: LedstripApp(),
+  ));
 }
 
 //-------------
@@ -50,7 +49,12 @@ class Menu {
   static const String EditLedstrip = 'Edit Ledstrip';
   static const String AddLedstrip = 'Add Ledstrip';
   static const String DeleteLedstrip = 'Delete Ledstrip';
-  static const List<String> menuItems = <String>[Theme, EditLedstrip, AddLedstrip, DeleteLedstrip];
+  static const List<String> menuItems = <String>[
+    Theme,
+    EditLedstrip,
+    AddLedstrip,
+    DeleteLedstrip
+  ];
 }
 
 //-------------
@@ -68,7 +72,9 @@ class LedstripApp extends StatelessWidget {
     return MaterialApp(
       title: title,
       home: LedstripsHomePage(title: title),
-      themeMode: LedstripSetting.systemTheme ? ThemeMode.system : (LedstripSetting.darkTheme ? ThemeMode.dark : ThemeMode.light),
+      themeMode: LedstripSetting.systemTheme
+          ? ThemeMode.system
+          : (LedstripSetting.darkTheme ? ThemeMode.dark : ThemeMode.light),
       theme: LedstripThemeClass.lightTheme,
       darkTheme: LedstripThemeClass.darkTheme,
     );
@@ -90,7 +96,8 @@ class LedstripsHomePage extends StatefulWidget {
 // The App's UI
 // We need to implement from 'SingleTickerProviderStateMixin' so that this class can be
 // used as 'vsync' object in the TabController:
-class _LedstripsHomePageState extends State<LedstripsHomePage> with TickerProviderStateMixin {
+class _LedstripsHomePageState extends State<LedstripsHomePage>
+    with TickerProviderStateMixin {
   final Logger logger = Logger();
   final settingsDatabase = SettingsDatabase();
   late TabController tabController;
@@ -122,20 +129,27 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> with TickerProvid
   void createSettings() async {
     // Create a sqlite database if not there yet and store these settings (if not there yet):
     await settingsDatabase.create(type: "setting", key: "theme", value: "dark");
-    await settingsDatabase.create(type: "setting", key: "default_tab", value: "Luna");
-    await settingsDatabase.create(type: "ledstrip", key: "loft", value: "http://192.168.5.11:8888/light/Loft");
-    await settingsDatabase.create(type: "ledstrip", key: "luna", value: "http://192.168.5.12:8888/light/Luna");
+    await settingsDatabase.create(
+        type: "setting", key: "default_tab", value: "Luna");
+    await settingsDatabase.create(
+        type: "ledstrip",
+        key: "loft",
+        value: "http://192.168.5.11:8888/light/Loft");
+    await settingsDatabase.create(
+        type: "ledstrip",
+        key: "luna",
+        value: "http://192.168.5.12:8888/light/Luna");
   }
 
   void loadSettings() {
     setState(() {
       settingsDatabase.fetchAll().then((settings) {
         for (var setting in settings) {
-          switch(setting.type) {
+          switch (setting.type) {
             // Process app settings:
             case "setting":
               logger.i("Setting: $setting");
-              switch(setting.key) {
+              switch (setting.key) {
                 // Process display theme setting:
                 case "theme":
                   setTheme(themeName: setting.value);
@@ -143,7 +157,7 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> with TickerProvid
                 // Process default tab setting:
                 case "default_tab":
                   LedstripSetting.defaultTab = setting.value;
-                  statusText+="\nSelect tab: ${LedstripSetting.defaultTab}";
+                  statusText += "\nSelect tab: ${LedstripSetting.defaultTab}";
                   break;
               }
               break;
@@ -158,21 +172,21 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> with TickerProvid
   }
 
   void setTheme({required String themeName}) {
-    switch(themeName) {
+    switch (themeName) {
       case "system":
         LedstripSetting.systemTheme = true;
         LedstripSetting.darkTheme = false;
-        statusText="Theme: system";
+        statusText = "Theme: system";
         break;
       case "dark":
         LedstripSetting.systemTheme = false;
         LedstripSetting.darkTheme = true;
-        statusText="Theme: dark";
+        statusText = "Theme: dark";
         break;
       case "light":
         LedstripSetting.systemTheme = false;
         LedstripSetting.darkTheme = false;
-        statusText="Theme: light";
+        statusText = "Theme: light";
         break;
     }
   }
@@ -213,17 +227,17 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> with TickerProvid
 
   void menuAction(String menuItem) {
     setState(() {
-      switch(menuItem) {
-        case(Menu.Theme):
+      switch (menuItem) {
+        case (Menu.Theme):
           menuTheme();
           break;
-        case(Menu.EditLedstrip):
+        case (Menu.EditLedstrip):
           menuEditLedstrip();
           break;
-        case(Menu.AddLedstrip):
+        case (Menu.AddLedstrip):
           menuAddLedstrip();
           break;
-        case(Menu.DeleteLedstrip):
+        case (Menu.DeleteLedstrip):
           menuDeleteLedstrip();
           break;
       }
@@ -236,15 +250,15 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> with TickerProvid
     if (LedstripSetting.systemTheme) {
       LedstripSetting.systemTheme = false;
       LedstripSetting.darkTheme = true;
-      theme="dark";
+      theme = "dark";
     } else if (LedstripSetting.darkTheme) {
       LedstripSetting.systemTheme = false;
       LedstripSetting.darkTheme = false;
-      theme="light";
+      theme = "light";
     } else {
       LedstripSetting.systemTheme = true;
       LedstripSetting.darkTheme = false;
-      theme="system";
+      theme = "system";
     }
     statusText = "Switching to $theme theme";
     settingsDatabase.update(type: "setting", key: "theme", value: theme);
@@ -255,32 +269,38 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> with TickerProvid
   void menuEditLedstrip() {
     int index = tabController.index;
     statusText = "Edit $index";
-    editLedstrip(tabName: tabNames[index],
-      endpoint: ledstrips[index]?.endpoint ?? "NA",
-      callback: ((newTabName, newEndpoint) {
-        setState(() {
-          logger.i("Got: $newTabName, url: $newEndpoint");
-          String oldTabName = tabNames[index];
-          tabNames[index] = newTabName;
-          settingsDatabase.update(type: "ledstrip", key: oldTabName, newKey: newTabName, value: newEndpoint);
-          ledstrips[index]?.endpoint = newEndpoint;
-          ledstrips[index]?.getMetadata(callback: (errors) => updatePage(errors));
-        });
-      })
-    );
+    editLedstrip(
+        tabName: tabNames[index],
+        endpoint: ledstrips[index]?.endpoint ?? "NA",
+        callback: ((newTabName, newEndpoint) {
+          setState(() {
+            logger.i("Got: $newTabName, url: $newEndpoint");
+            String oldTabName = tabNames[index];
+            tabNames[index] = newTabName;
+            settingsDatabase.update(
+                type: "ledstrip",
+                key: oldTabName,
+                newKey: newTabName,
+                value: newEndpoint);
+            ledstrips[index]?.endpoint = newEndpoint;
+            ledstrips[index]
+                ?.getMetadata(callback: (errors) => updatePage(errors));
+          });
+        }));
   }
 
   void menuAddLedstrip() {
-    editLedstrip(tabName: "new",
+    editLedstrip(
+        tabName: "new",
         endpoint: "http://192.168.5.",
         callback: ((newTabName, newEndpoint) {
           setState(() {
             statusText = "Adding ledstrip: $newTabName, url: $newEndpoint";
             addLedstrip(tabName: newTabName, endpoint: newEndpoint);
-            settingsDatabase.create(type: "ledstrip", key: newTabName, value: newEndpoint);
+            settingsDatabase.create(
+                type: "ledstrip", key: newTabName, value: newEndpoint);
           });
-        })
-    );
+        }));
   }
 
   void menuDeleteLedstrip() {
@@ -298,132 +318,138 @@ class _LedstripsHomePageState extends State<LedstripsHomePage> with TickerProvid
     });
   }
 
-  void editLedstrip({required String tabName, required String endpoint, required Function callback}) {
+  void editLedstrip(
+      {required String tabName,
+      required String endpoint,
+      required Function callback}) {
     final nameController = TextEditingController(text: tabName);
     final urlController = TextEditingController(text: endpoint);
 
     showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Ledstrip'),
-          content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Name:'),
-                      SizedBox(
-                        width: 100,
-                        child: TextField(
-                          controller: nameController,
-                        ),
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Ledstrip'),
+            content: SingleChildScrollView(
+                child: ListBody(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Name:'),
+                    SizedBox(
+                      width: 100,
+                      child: TextField(
+                        controller: nameController,
                       ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('API endpoint:'),
-                      SizedBox(
-                        width: 150,
-                        child: TextField(
-                          controller: urlController,
-                        ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('API endpoint:'),
+                    SizedBox(
+                      width: 150,
+                      child: TextField(
+                        controller: urlController,
                       ),
-                    ],
-                  ),
-                ],
-              )
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Save'),
-              onPressed: () {
-                callback(nameController.text, urlController.text);
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      }
-    );
+                    ),
+                  ],
+                ),
+              ],
+            )),
+            actions: [
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text('Save'),
+                onPressed: () {
+                  callback(nameController.text, urlController.text);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
   }
 
   @override
   Widget build(BuildContext context) {
     // Show a spinner in the body unless if we have ledstrip data:
-    Widget stripUI =  LoadingAnimationWidget.inkDrop(color: Colors.green, size: 60,);
+    Widget stripUI = LoadingAnimationWidget.inkDrop(
+      color: Colors.green,
+      size: 60,
+    );
     // We need our own custom tab controller to keep track of which tab is active:
-    tabController = TabController(length: ledstrips.length, vsync: this, initialIndex: currentTab);
+    tabController = TabController(
+        length: ledstrips.length, vsync: this, initialIndex: currentTab);
     tabController.addListener(onTabChange);
     // Now generate the full UI:
     return Scaffold(
-          appBar: AppBar(
-            title: Text(widget.title),
-            foregroundColor: Colors.yellow,
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            bottom: TabBar(
-                controller: tabController,
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  gradient: const LinearGradient(
-                    colors: [Colors.deepPurple, Colors.deepPurpleAccent],
-                  ),
-                ),
-                unselectedLabelColor: Colors.grey,
-                tabs: <Widget>[
-                  for (var stripName in tabNames)
-                    Tab(text: stripName,)
-                ],
+      appBar: AppBar(
+        title: Text(widget.title),
+        foregroundColor: Colors.yellow,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        bottom: TabBar(
+          controller: tabController,
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicator: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            gradient: const LinearGradient(
+              colors: [Colors.deepPurple, Colors.deepPurpleAccent],
             ),
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.lightbulb),
-                  onPressed: () {
-                    setState(() {
-                      statusText = "clicked lightbulb";
-                    });
-                  }
-              ),
-              PopupMenuButton<String>(
-                onSelected: menuAction,
-                itemBuilder: (BuildContext context) {
-                  return Menu.menuItems.map((String menuItem) {
-                    return PopupMenuItem<String>(
-                      value: menuItem,
-                      child: Row(
-                        children: [
-                          Text(menuItem),
-                          Icon(Icons.edit),
-                        ],
-                      ),
-                    );
-                  }).toList();
-                },
+          ),
+          unselectedLabelColor: Colors.grey,
+          tabs: <Widget>[
+            for (var stripName in tabNames)
+              Tab(
+                text: stripName,
               )
-            ],
-          ),
-          body: TabBarView(
-            controller: tabController,
-            children: <Widget>[
-              for (var strip in ledstrips)
-                LedstripWidget(ledstrip: strip, logger: logger,)
-            ]
-          ),
-          bottomNavigationBar: Container(
-            color: Theme.of(context).colorScheme.inversePrimary,
-            child: Text(statusText),
-          ),
-        );
+          ],
+        ),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.lightbulb),
+              onPressed: () {
+                setState(() {
+                  statusText = "clicked lightbulb";
+                });
+              }),
+          PopupMenuButton<String>(
+            onSelected: menuAction,
+            itemBuilder: (BuildContext context) {
+              return Menu.menuItems.map((String menuItem) {
+                return PopupMenuItem<String>(
+                  value: menuItem,
+                  child: Row(
+                    children: [
+                      Text(menuItem),
+                      Icon(Icons.edit),
+                    ],
+                  ),
+                );
+              }).toList();
+            },
+          )
+        ],
+      ),
+      body: TabBarView(controller: tabController, children: <Widget>[
+        for (var strip in ledstrips)
+          LedstripWidget(
+            ledstrip: strip,
+            logger: logger,
+          )
+      ]),
+      bottomNavigationBar: Container(
+        color: Theme.of(context).colorScheme.inversePrimary,
+        child: Text(statusText),
+      ),
+    );
   }
 }

@@ -6,11 +6,6 @@ import 'dart:convert';
 import 'dart:async';
 
 class Ledstrip {
-  static const List<String> behaviorNames = <String>[
-    "Default",
-    "Christmas",
-    "Fluid"
-  ];
   Logger? logger;
   String _endpoint = "";
   Map<String, dynamic>? _metaData = {};
@@ -45,12 +40,19 @@ class Ledstrip {
     _endpoint = value;
   }
 
+  // Get a list of all the behaviors this ledstrip supports (pulled from API):
+  List<String> get behaviorNames {
+    return _metaData?['light']['behaviors'] ?? ["N/A"];
+  }
+
+  // Get the name of the active behavior the ledstrip is configured with:
   String get behaviorName {
     return _metaData?['light']['behavior'] ?? "Default";
   }
 
+  // Change the active behavior in the ledstrip:
   set behaviorName(String value) {
-    if (behaviorNames.contains(value)) {
+    if (_metaData?['light']['behaviors'].contains(value)) {
       _metaData?['light']['behavior'] = value;
     } else {
       throw Exception(
