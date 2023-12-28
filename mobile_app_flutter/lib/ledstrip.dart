@@ -42,7 +42,16 @@ class Ledstrip {
 
   // Get a list of all the behaviors this ledstrip supports (pulled from API):
   List<String> get behaviorNames {
-    return _metaData?['light']['behaviors'] ?? ["N/A"];
+    try {
+      // The JSON list of strings is returned as a List<dynamic>.
+      // We need to convert it to List<String> by casting each element individually as a string:
+      return (_metaData?['behaviors'] as List)
+          .map((item) => item as String)
+          .toList();
+    } on Exception {
+      // Not all ledstrips support this in their API:
+      return ["None"];
+    }
   }
 
   // Get the name of the active behavior the ledstrip is configured with:
