@@ -42,17 +42,19 @@ class Ledstrip {
 
   // Get a list of all the behaviors this ledstrip supports (pulled from API):
   List<String> get behaviorNames {
+    List<String> retVal = ["None"];
     try {
       // The JSON list of strings is returned as a List<dynamic>.
       // We need to convert it to a List of Strings:
-      return List<String>.from(_metaData?['behaviors'] as List);
+      retVal = List<String>.from(_metaData?['behaviors'] as List);
       // This works too by converting each element individually to a string:
       // (I find it less readable though)
       // return (_metaData?['behaviors'] as List).map((item) => item as String).toList();
     } on Exception {
       // Not all ledstrips support this in their API:
-      return ["None"];
+      logger?.e("This ledstrip does not support behaviors yet in its API!");
     }
+    return retVal;
   }
 
   // Get the name of the active behavior the ledstrip is configured with:
