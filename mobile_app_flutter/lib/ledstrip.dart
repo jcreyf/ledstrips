@@ -40,7 +40,7 @@ class Ledstrip {
     _endpoint = value;
   }
 
-  // Get a list of all the behaviors this ledstrip supports (pulled from API):
+  /// Get a list of all the behaviors this ledstrip supports (pulled from API):
   List<String> get behaviorNames {
     List<String> retVal = ["None"];
     try {
@@ -57,12 +57,12 @@ class Ledstrip {
     return retVal;
   }
 
-  // Get the name of the active behavior the ledstrip is configured with:
+  /// Get the name of the active behavior the ledstrip is configured with:
   String get behaviorName {
     return _metaData?['light']['behavior'] ?? "Default";
   }
 
-  // Change the active behavior in the ledstrip:
+  /// Change the active behavior in the ledstrip:
   set behaviorName(String value) {
     if (_metaData?['behaviors'].contains(value)) {
       _metaData?['light']['behavior'] = value;
@@ -107,8 +107,8 @@ class Ledstrip {
     color = Color.fromRGBO(255, 255, 255, 1.0);
   }
 
-  // Check to see if we have metadata for the ledstrip.
-  // This is used to check if we have a valid ledstrip.
+  /// Check to see if we have metadata for the ledstrip.
+  /// This is used to check if we have a valid ledstrip.
   bool hasMetadata() {
     bool retVal = true;
     if (_errors != "" || (_metaData?.isEmpty ?? true)) retVal = false;
@@ -123,7 +123,7 @@ class Ledstrip {
     return _errors;
   }
 
-  // Call the Ledstrip API asynchronously to get metadata:
+  /// Call the Ledstrip API asynchronously to get metadata:
   Future<void> getMetadata({required Function callback}) async {
     logger?.d('API call to get metadata');
     _metaData = {};
@@ -151,7 +151,7 @@ class Ledstrip {
     callback(_errors);
   }
 
-  // Call the Ledstrip API asynchronously to update its data:
+  /// Call the Ledstrip API asynchronously to update its data:
   Future<void> updateMetadata({bool toggle = true, required Function callback}) async {
     logger?.d('API call to update the ledstrip');
     String data = jsonEncode(<String, dynamic>{
