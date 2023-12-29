@@ -44,10 +44,11 @@ class Ledstrip {
   List<String> get behaviorNames {
     try {
       // The JSON list of strings is returned as a List<dynamic>.
-      // We need to convert it to List<String> by casting each element individually as a string:
-      return (_metaData?['behaviors'] as List)
-          .map((item) => item as String)
-          .toList();
+      // We need to convert it to a List of Strings:
+      return List<String>.from(_metaData?['behaviors'] as List);
+      // This works too by converting each element individually to a string:
+      // (I find it less readable though)
+      // return (_metaData?['behaviors'] as List).map((item) => item as String).toList();
     } on Exception {
       // Not all ledstrips support this in their API:
       return ["None"];
@@ -61,11 +62,10 @@ class Ledstrip {
 
   // Change the active behavior in the ledstrip:
   set behaviorName(String value) {
-    if (_metaData?['light']['behaviors'].contains(value)) {
+    if (_metaData?['behaviors'].contains(value)) {
       _metaData?['light']['behavior'] = value;
     } else {
-      throw Exception(
-          "The program name must be one of the supported values! (${behaviorNames.join(", ")}");
+      throw Exception("The program name must be one of the supported values! (${behaviorNames.join(", ")}");
     }
   }
 
@@ -150,8 +150,7 @@ class Ledstrip {
   }
 
   // Call the Ledstrip API asynchronously to update its data:
-  Future<void> updateMetadata(
-      {bool toggle = true, required Function callback}) async {
+  Future<void> updateMetadata({bool toggle = true, required Function callback}) async {
     logger?.d('API call to update the ledstrip');
     String data = jsonEncode(<String, dynamic>{
       "action": "update",
@@ -159,12 +158,7 @@ class Ledstrip {
       "behavior": _metaData?['light']['behavior'],
       "led-count": _metaData?['light']['led-count'],
       "brightness": _metaData?['light']['brightness'],
-      "color": {
-        "red": _metaData?['light']['color']['red'],
-        "green": _metaData?['light']['color']['green'],
-        "blue": _metaData?['light']['color']['blue'],
-        "white": _metaData?['light']['color']['white']
-      }
+      "color": {"red": _metaData?['light']['color']['red'], "green": _metaData?['light']['color']['green'], "blue": _metaData?['light']['color']['blue'], "white": _metaData?['light']['color']['white']}
     });
     logger?.d("Sending data: $data");
     http.Response response = await http.post(
