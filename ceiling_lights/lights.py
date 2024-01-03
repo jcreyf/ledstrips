@@ -601,8 +601,8 @@ if __name__ == '__main__':
               light.redRGB=255
               light.greenRGB=255
               light.blueRGB=255
-              light.whiteRGB=255
-              light.ledBrightness=255
+              light.whiteRGB=1
+              light.ledBrightness=100
               # Turn the light on:
               light.On()
               # Restore the settings:
