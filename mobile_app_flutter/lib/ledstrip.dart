@@ -104,7 +104,7 @@ class Ledstrip {
   // Reset the colors to plain white:
   void reset() {
     _metaData?['light']['brightness'] = 90;
-    color = Color.fromRGBO(255, 255, 255, 1.0);
+    color = const Color.fromRGBO(255, 255, 255, 1.0);
   }
 
   /// Check to see if we have metadata for the ledstrip.

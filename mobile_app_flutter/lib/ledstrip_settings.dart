@@ -34,6 +34,7 @@ class LedstripSetting {
         : DateTime.fromMillisecondsSinceEpoch(map['updated_at']).toIso8601String(),
   );
 
+  @override
   String toString() {
     return "Type: $type, key: $key, value: $value";
   }

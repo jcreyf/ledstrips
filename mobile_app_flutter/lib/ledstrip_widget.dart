@@ -11,10 +11,10 @@ class LedstripWidget extends StatefulWidget {
   final Logger? logger;
 
   const LedstripWidget({
-    Key? key,
+    super.key,
     this.ledstrip,
     this.logger,
-  }) : super(key: key);
+  });
 
   @override
   _LedstripWidgetState createState() => _LedstripWidgetState();
@@ -91,7 +91,7 @@ class _LedstripWidgetState extends State<LedstripWidget> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(top: 20.0),
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Container(
+          child: SizedBox(
             // Only the ledstip widget part of the screen can get pulled down for refresh.
             // We need to limit the size to: screen height - app bar height - status bar header height
             // Since the app bar is part of the scaffold, we can query its height through the scaffold:

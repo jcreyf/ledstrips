@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 // flutter add pub hexcolor
-import 'package:hexcolor/hexcolor.dart';
 
 class LedstripThemeClass {
   // https://flutter-theme-editor.rob-b.co.uk/#/

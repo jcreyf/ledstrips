@@ -63,7 +63,7 @@ class LedstripApp extends StatelessWidget {
   final title = "Ledstrips";
   static late LedstripApp me;
 
-  LedstripApp() {
+  LedstripApp({super.key}) {
     super.key;
   }
 
@@ -194,9 +194,9 @@ class _LedstripsHomePageState extends State<LedstripsHomePage>
   void addLedstrip({required String tabName, required String endpoint}) {
     logger.i("Setting up ledstrip: $tabName -> $endpoint");
     Ledstrip? strip = Ledstrip();
-    strip?.setLogger(logger);
-    strip?.endpoint = endpoint;
-    strip?.getMetadata(callback: (errors) => updatePage(errors));
+    strip.setLogger(logger);
+    strip.endpoint = endpoint;
+    strip.getMetadata(callback: (errors) => updatePage(errors));
     ledstrips.add(strip);
     tabNames.add(tabName);
   }
@@ -207,7 +207,7 @@ class _LedstripsHomePageState extends State<LedstripsHomePage>
       if (errors != "") {
         // We got errors back from the API call!!!
         // This should be handled in the LedstripWidget.
-        logger?.i("We got damn errors! $errors");
+        logger.i("We got damn errors! $errors");
       }
     });
   }
@@ -221,7 +221,7 @@ class _LedstripsHomePageState extends State<LedstripsHomePage>
       // the API call finished and is now executing this callback function.
       // Here we trigger the Ledstrip API call asynchronously to get refreshed metadata
       // ...and its callback function will update the data in the UI.
-      strip?.getMetadata(callback: (errors) => updatePage(errors));
+      strip.getMetadata(callback: (errors) => updatePage(errors));
     });
   }
 
@@ -415,7 +415,7 @@ class _LedstripsHomePageState extends State<LedstripsHomePage>
         ),
         actions: <Widget>[
           IconButton(
-              icon: Icon(Icons.lightbulb),
+              icon: const Icon(Icons.lightbulb),
               onPressed: () {
                 setState(() {
                   statusText = "clicked lightbulb";
@@ -430,7 +430,7 @@ class _LedstripsHomePageState extends State<LedstripsHomePage>
                   child: Row(
                     children: [
                       Text(menuItem),
-                      Icon(Icons.edit),
+                      const Icon(Icons.edit),
                     ],
                   ),
                 );
